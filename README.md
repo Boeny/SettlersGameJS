@@ -1,2 +1,0 @@
-# SettlersGameJS
-settlers game
