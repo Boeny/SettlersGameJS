@@ -12,7 +12,10 @@ setPaths(__dirname, {
 	LIBS_DIR	: '/libs',
 	MODULES_DIR	: '/modules',
 	CONTROLLERS_DIR	: '/controllers',
-	ACTIONS_DIR	: '/actions'
+	ACTIONS_DIR	: '/actions',
+	VIEWS_DIR	: '/views',
+	VENDORS_DIR	: '/vendors',
+	LAYOUT_DIR	: '/layouts'
 });
 
 setPaths(paths.CONFIG_DIR, {
@@ -21,6 +24,15 @@ setPaths(paths.CONFIG_DIR, {
 
 setPaths(paths.LIBS_DIR, {
 	APP		: '/app'
+});
+
+setPaths(paths.VENDORS_DIR, {
+	VUE_DIR	: '/vue'
+});
+
+setPaths(paths.VUE_DIR, {
+	VUE				: '/vue.server',
+	VUE_RENDERER	: '/vue.server.renderer'
 });
 
 module.exports = paths;

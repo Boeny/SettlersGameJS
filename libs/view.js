@@ -60,55 +60,6 @@ window.Views = {
 		var $this = this;
 		setTimeout(function(){$this.hideModalMessage(elem); (o.success && o.success())}, o.ms || 1000);
 	},
-	enter_string: function(o){
-		var elem = this.prompt_elem;
-		
-		if (elem){
-			if (o.cls) elem.removeClass().addClass('modal-message prompt '+cls);
-			elem.attr('data-validator', o.validator);
-			elem.data('action', o.action);
-			elem.find('.title').html(o.title);
-			
-			this.showModalMessage(elem);
-		}
-		else{
-			elem = $(this.html.div({
-				'class': 'modal-message prompt'+(o.cls ? ' '+o.cls : ''),
-				'data-validator': o.validator,
-				'data-action': o.action,
-				
-				content: this.html.div({'class': 'overlay'})+
-					this.html.div(
-						this.html.div(o.title, {'class': 'title'})+
-						this.html.form(
-							this.html.div(this.html.input({value: 2, required: 'required'}))+
-							this.html.div(this.html.select({5:5,6:6,7:7,8:8,9:9,10:10})+this.html.select({5:5,6:6,7:7,8:8,9:9,10:10}))+
-							this.html.div(this.html.button('OK', {type: 'submit', 'class': 'btn'})+this.html.span('Отмена', {'class': 'btn cancel'}))
-						),
-						{'class': 'container'}
-					)
-			}));
-			
-			this.main_elem.append(elem);
-			this.prompt_elem = elem;
-		}
-		
-		var cancel_btn = elem.find('.cancel');
-		var overlay = elem.find('.overlay');
-		
-		if (o.cancel){
-			cancel_btn.show();
-			cancel_btn.attr('data-cancel',1);
-			overlay.attr('data-cancel',1);
-		}
-		else{
-			cancel_btn.hide();
-			cancel_btn.removeAttr('data-cancel');
-			overlay.removeAttr('data-cancel');
-		}
-		
-		if (o.focus) elem.find('[type="text"]').focus();
-	},
 	
 	toggleMenu: function(elem){
 		if (this.opened_menu){

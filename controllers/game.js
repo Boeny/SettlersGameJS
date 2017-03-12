@@ -1,4 +1,4 @@
-window.Game = function(o){
+var Game = function(o){
 	this.Init(o);
 	this.EnterPlayersCount('Create');
 };
@@ -17,12 +17,6 @@ Game.prototype = {
 		
 		this.Validate = function(v, type){
 			return validation ? this.rules.Validate(v, type) : v;
-		};
-		
-		var _views = o.views;
-		
-		this.Render = function(name, o){
-			return _views[name](o);
 		};
 	},
 	
@@ -51,7 +45,7 @@ Game.prototype = {
 	// Game Process
 	
 	EnterPlayersCount: function(action, cancel){
-		this.Render('enter_string', {
+		app.render('enter_string', {
 			title: 'Введите кол-во игроков:',
 			validator: 'ValidatePlayersCount',
 			action: action,
@@ -250,3 +244,5 @@ Game.prototype = {
 		p.setEnabled( this.Render('check_enabled_objects', {enabled: p.getEnabled(), filtered: p.getFiltered()}) );
 	}
 };
+
+module.exports = Game;

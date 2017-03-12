@@ -1,7 +1,7 @@
-Views.html = {
+module.exports = {
 	tag: function(elem, content, opt, open){
 		if (is_object(content)){
-			opt = Obj_copy(content);
+			opt = content;
 			content = '';
 			
 			if (opt.content !== undefined){
@@ -16,8 +16,6 @@ Views.html = {
 		var opthtml = '';
 		
 		if (opt){
-			_Error.CheckType(opt, 'object', true);
-			
 			if (is_object(opt.style)){
 				var style = '';
 				for (var p in opt.style){

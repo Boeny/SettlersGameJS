@@ -8,15 +8,17 @@ Object.prototype.toString = function(){
 	}
 	return result.join(', ');
 };
+/*Object.prototype.key = function(i){
+	return Object.keys(this)[i || 0];
+};*/
 
 module.exports = function(path, response){
-	var handler = __app.urlManager;
-	var params = typeof handler === 'function' ? handler(path) : handler[handler.method](path);
+	var params = __app.urlManager[__app.urlManager.method](path);
 	
 	if (!params || params.error){
-		__app.error(params && params.error);
+		__app.lmsg(params && params.error);
 		return;
 	}
 	
-	__app.Run(params, response);
+	__app.run(params, response);
 };

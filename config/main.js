@@ -1,19 +1,35 @@
+var root = __app.LIBS_DIR;
+var css = __app.LAYOUT_DIR;
+
 module.exports = {
-	components: {
-		request: {
-			module: '/libs/requestManager'
+	viewExt: '.html',
+	
+	components: {// allowed from the __app
+		autoload: {
+			//js: ['https://code.jquery.com/jquery-3.0.0.min.js', 'https://unpkg.com/vue'],
+			css: [css+'/style.css']
 		},
 		
+		_: {module: root+'/base'},
+		vm: {module: root+'/view_model'},
+		
+		request: {module: root+'/requestManager'},
+		
 		urlManager: {
-			module: '/libs/urlManager',
+			module: root+'/urlManager',
 			method: 'parse',
 			//urlSuffix: '.html',
-			rules: {
-				'/':					{controller: 'game'},
-				'(\w+)/(\w+)/(\w+)':	{module: '$1', controller: '$2', action: '$3'},
-				'(\w+)/(\w+)':			{controller: '$1', action: '$2'},
-				'(\w+)':				{action: '$1'}
-			}
+			as_file: [
+				/\/favicon.ico/,
+				/\/images\/.*/
+			],
+			// array because the order is important
+			rules: [
+				{expression: /^\/$/,				replace: {action: 'initial_params'}},
+				{expression: /^\/(\w+)\/(\w+)\/(\w+)/,	replace: {module: '$1', controller: '$2', action: '$3'}},
+				{expression: /^\/(\w+)\/(\w+)/,		replace: {controller: '$1', action: '$2'}},
+				{expression: /^\/(\w+)/,				replace: {action: '$1'}}
+			]
 		}
 	}
 };
