@@ -8,9 +8,6 @@ Object.prototype.toString = function(){
 	}
 	return result.join(', ');
 };
-/*Object.prototype.key = function(i){
-	return Object.keys(this)[i || 0];
-};*/
 
 module.exports = function(path, response){
 	var params = __app.urlManager[__app.urlManager.method](path);

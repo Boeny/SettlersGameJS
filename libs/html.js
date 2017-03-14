@@ -11,7 +11,7 @@ module.exports = {
 			if (opt.options) opt = opt.options;
 		}
 		else
-			content = content === undefined || content === null ? '' : content;// чтобы не отсекался 0
+			content = content === 0 && '0' || content || '';
 		
 		var opthtml = '';
 		
@@ -32,6 +32,7 @@ module.exports = {
 	},
 	br: '<br>',
 	hr: '<hr>',
+	type: '<!DOCTYPE html>',
 	
 	a: function(content, opt){
 		if (opt && !is_object(opt)) opt = {href: opt};
@@ -46,6 +47,22 @@ module.exports = {
 	},
 	sup: function(content, opt){
 		return this.tag('sup', content, opt);
+	},
+	
+	meta: function(opt){
+		return this.tag('meta', '', opt, true);
+	},
+	title: function(content, opt){
+		return this.tag('title', content, opt);
+	},
+	html: function(content, opt){
+		return this.tag('html', content, opt);
+	},
+	head: function(content, opt){
+		return this.tag('head', content, opt);
+	},
+	body: function(content, opt){
+		return this.tag('body', content, opt);
 	},
 	
 	div: function(content, opt){

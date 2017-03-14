@@ -1,24 +1,29 @@
-global.__fs = require('fs');
-
+var fs = require('fs');
 var h = require('./html');
 
 global.__app = {
 	autoload: [],
 	layout: '',
+	lang: 'ru',
+	head: '',
+	title: '',
+	content: '',
 	content_placeholder: '<--content-->',
 	html_pattern: /<--(.*)-->/g,
 	html_part: /<--(.*)-->/,
 	types: ['file','module','controller','action'],
 	path_aliases: ['ROOT_DIR','MODULES_DIR','CONTROLLERS_DIR','ACTIONS_DIR'],
 	
-	read: function(f){
-		return __fs.readFileSync(f, 'utf-8');
+	readRaw: function(f){
+		return fs.readFileSync(f);
 	},
-	getView: function(view){
-		view = this.read(this.VIEWS_DIR + '/' + view + this.config.viewExt);
+	read: function(f){
+		return fs.readFileSync(f, 'utf-8');
+	},
+	getView: function(view, dir_alias){
+		view = this.read(this[dir_alias || 'VIEWS_DIR'] + '/' + view + this.config.viewExt);
 		var parts = view.match(this.html_pattern);
 		if (parts){
-			this.msg(parts);
 			for (var i in parts){
 				view = view.replace(parts[i], eval(parts[i].replace(this.html_part, '$1')));
 			}
@@ -45,7 +50,8 @@ global.__app = {
 				else try{
 					if (type == 'file'){
 						this.msg('loading file: '+name);
-						this.end(this.read(path));
+						this.msg();
+						this.end(this.readRaw(path));
 					}
 					else{
 						this.msg('create '+type+' "'+name+'"');
@@ -55,6 +61,7 @@ global.__app = {
 				}
 				catch(e){
 					if (type === 'file'){
+						this.msg(e);
 						this.lmsg(type+' "'+name+'" was not found');
 						return;
 					}
@@ -66,9 +73,6 @@ global.__app = {
 		}
 	},
 	
-	echo: function(msg){
-		this.output.write(msg);
-	},
 	end: function(msg){
 		this.output.end(msg);
 	},
@@ -76,13 +80,21 @@ global.__app = {
 		this.vm.create(this.getView(view), params);
 	},
 	
+	writeHead: function(code, type){
+		this.output.writeHead(code || 200, {'Content-Type': type || 'text/html'});
+	},
+	getMetas: function(){
+		return	h.meta({charset: 'utf-8'})+
+				h.meta({'http-equiv': 'X-UA-Compatible', content: 'IE=edge'})+
+				h.meta({name: 'viewport', content: 'width=device-width, initial-scale=1'});
+	},
 	setLayout: function(success){
 		if (this.layout){
 			success(this.layout);
 			return;
 		}
 		
-		var result = '';
+		this.head = this.getMetas() + h.title(this.title);
 		var f;
 		var async = [];
 		
@@ -94,22 +106,19 @@ global.__app = {
 				async.push({name: f, ext: ext});
 			}
 			else{
-				result += this.getFile(f, ext);
+				this.head += this.getFile(f, ext);
 			}
 		}
 		
 		if (async.length){
 			this.renderAsync(async, (res) => {
-				this.renderLayout(result + res, success);
+				this.head += res;
+				success();
 			});
 		}
 		else{
-			this.renderLayout(result, success);
+			success();
 		}
-	},
-	renderLayout: function(head, success){
-		this.layout = '<html><head>' + head + '</head><body>'+this.content_placeholder+'</body></html>';
-		success(this.layout);
 	},
 	
 	renderAsync: function(arr){
@@ -145,12 +154,6 @@ global.__app = {
 		return '<style>'+content+'</style>';
 	},
 	
-	getComponent: function(){
-		
-	},
-	setComponent: function(type, name){
-		
-	},
 	setComponents(){
 		this.msg('components loading:');
 		
@@ -178,7 +181,7 @@ global.__app = {
 	},
 	
 	msg: function(m){
-		__server.msg(m || 'uncatched msg');
+		__server.msg(m || '---');
 	},
 	line: function(){
 		__server.line();

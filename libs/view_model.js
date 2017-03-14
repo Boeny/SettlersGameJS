@@ -18,8 +18,10 @@ module.exports = {
 					return __app.output.status(500).send('Server Error');
 				}
 				
-				__app.setLayout(function(layout){
-					__app.end(layout.replace(__app.content_placeholder, html));
+				__app.content = html;
+				
+				__app.setLayout(function(){
+					__app.end(__app.getView('main', 'LAYOUT_DIR'));
 				});
 			}
 		);
