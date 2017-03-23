@@ -66,7 +66,7 @@ global.__app = {
 						return;
 					}
 					this.lmsg(e);
-					this.lmsg(type+' "'+path+'" with params: {'+params.toString()+'} was not found');
+					this.lmsg(type+' "'+path+'" was not found');
 				}
 				return;
 			}

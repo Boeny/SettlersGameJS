@@ -1,7 +1,7 @@
 var Vue = require(__app.VUE);
-__app.msg('--vue loaded');
+__app.msg(' -vue loaded');
 var renderer = require(__app.VUE_RENDERER).createRenderer();
-__app.lmsg('--vue-renderer loaded');
+__app.msg(' -vue-renderer loaded');
 
 module.exports = {
 	instance: null,
