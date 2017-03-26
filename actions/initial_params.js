@@ -1,7 +1,7 @@
-var initialParams = function(){
+var initialParams = function(app){
 	this.name = 'initial_params';
 	
-	__app.render(this.name, {
+	app.render(this.name, {
 		show: true,
 		cls: '',
 		title: 'Введите кол-во игроков',
@@ -12,7 +12,7 @@ var initialParams = function(){
 };
 initialParams.prototype = {
 	run: function(){
-		__app.msg(this.name+' run');
+		__server.msg(this.name+' run');
 	}
 };
 
