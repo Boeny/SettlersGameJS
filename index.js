@@ -1,3 +1,4 @@
 var config = require('./config');
-var app = new require(config.APP)(config, __dirname);
+var App = require(config.APP);
+var app = new App(config, __dirname);
 module.exports = app.route();
