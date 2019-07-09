@@ -582,3 +582,38 @@ function str_replace(_from, _to, subject){
 
 	return subject.toString().replace(_from, _to);
 }
+
+function DeleteConfirmation(msg){
+	return confirm('Вы уверены, что хотите удалить '+msg+'?');
+}
+function removeHTML(s,rep){
+	return s ? s.toString().replace(/(<.*?>)/g, rep || '').replace('<br>','\r\n').replace(/&quot;/g,'"').replace(/&laquo;/g,'«').replace(/&raquo;/g,'»') : '';
+}
+function hasDigits(s){
+	return s.match(/[0-9]+/g);
+}
+function removeDigits(s,rep){
+	return s.replace(/[0-9]+/g, rep || '');
+}
+function hasLiterals(s){
+	return s.match(/[^0-9]+/g);
+}
+function removeLiterals(s,rep){
+	return s.replace(/[^0-9]+/g, rep || '');
+}
+function GetSelector(s, d){
+	return d + s.split(' ').join(d);
+}
+
+function ToggleElement(){
+	var elem = arguments[0];
+	var v = arguments[1];
+	// заимствуем у массива метод копирования себя
+	arguments.slice = Array.prototype.slice;
+
+	// может, это селектор?
+	if (!is_object(elem)) elem = $(elem);
+
+	// передаем массив аргументов без первых двух
+	elem[v ? 'show' : 'hide'].apply(elem, arguments.slice(2));
+}
