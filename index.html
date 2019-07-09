@@ -2,198 +2,32 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-
+<link rel="stylesheet" href="style.css">
 <script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
 <script src="base.js"></script>
 <script src="rules.js"></script>
 <script src="map.js"></script>
 <script src="player.js"></script>
 <script src="game.js"></script>
+<script src="views.js"></script>
 <script>
 $(function(){
 	var game = new Game({
-		map: 'map',
-		description: 'description',
-		step_over_button: 'step_btn'
+		views: Views,
+		elements: {
+			map_elem: '.map',
+			descr_elem: '.description',
+			step_over_button: '.step_btn'
+		}
 	});
 
-	$(document).on('click', '.gen_btn', function(){
-		game.Start();
-		game.Step();
-	});
-	$(document).on('click', '.step_btn', function(){
-		game.Step();
-	});
-	$(document).on('click', '.description [data-res]', function(){
-		if (!$(this).is('.disabled')){
-			game.Select($(this).data('type'));
-		}
+	game.Bind('click', {
+		'.gen_btn'	: 'StartAndStep',
+		'.step_btn'	: 'Step',
+		'.description [data-res]': 'ShowSelectableFields'
 	});
 });
 </script>
-
-<style>
-.modal-message {
-	color: #444;
-	background: #f5f5f5;
-	box-shadow: 0 4px 12px #666;
-	border-radius: 2px;
-
-	padding: 3px 8px;
-	position: fixed;
-	z-index: 100;
-
-	top: 44%;
-	height: 20px;
-
-	left: 50%;
-	margin-left: -50px;
-
-	opacity: 1;
-	transition: opacity .3s ease;
-}
-.modal-message.hidden {
-	opacity: 0;
-	z-index: -1;
-}
-
-.pull-left {
-	float: left;
-}
-.pull-right {
-	float: right;
-}
-
-.game {
-	margin: 0 auto;
-	width: 402px;
-}
-
-.map td {
-	position: relative;
-	width: 20px;
-	height: 20px;
-}
-
-.map [data-name="sea"] {
-	background: #316cf7;
-}
-
-[data-name="stone"] {
-	background: #c5c5c5;
-}
-[data-name="wood"] {
-	background: #bd5d08;
-}
-[data-name="sheep"] {
-	background: #78d478;
-}
-[data-name="wheat"] {
-	background: #efea24;
-}
-[data-name="clay"] {
-	background: #ff9445;
-}
-
-.map td * {
-	position: absolute;
-	z-index: 1;
-	width: 14px;
-	height: 14px;
-	background: #fff;
-	border: 1px solid #333;
-	opacity: 0;
-	transition: opacity .1s ease-out;
-}
-.map td .corner {
-	border-radius: 50%;
-	z-index: 2;
-}
-.map td .line {
-
-}
-.map.corner-hover td .corner,
-.map.line-hover td .line {
-	opacity: 1;
-}
-.map.corner-hover td .corner:hover,
-.map.line-hover td .line:hover {
-	background: #ff2d2d;
-	border: 1px solid #fff;
-    box-shadow: 3px 3px 6px #444;
-	cursor: pointer;
-}
-
-.map td .line-top {
-	top: -4px;
-	height: 4px;
-	left: -1px;
-	width: 100%;
-}
-.map td .line-bottom {
-	bottom: -4px;
-	height: 4px;
-	left: -1px;
-	width: 100%;
-}
-.map td .line-left {
-	left: -4px;
-	height: 100%;
-	top: -1px;
-	width: 4px;
-}
-.map td .line-right {
-	right: -4px;
-	height: 100%;
-	top: -1px;
-	width: 4px;
-}
-
-.map td .top-left {
-	top: -9px;
-	left: -9px;
-}
-.map td .bottom-left {
-	bottom: -9px;
-	left: -9px;
-}
-.map td .top-right {
-	top: -9px;
-	right: -9px;
-}
-.map td .bottom-right {
-	bottom: -9px;
-	right: -9px;
-}
-
-.description {
-	line-height: 18px;
-	width: 400px;
-	border: 1px solid #ccc;
-	border-bottom: none;
-}
-.description > div{
-	height: 21px;
-	border-bottom: 1px solid #ccc;
-	padding: 5px;
-	padding-right: 15px;
-}
-.description > div:hover{
-	cursor: pointer;
-	background: #eee;
-}
-.description > div.disabled,
-.description > div.disabled:hover{
-	cursor: default;
-	color: #999;
-	background: #f3cece;
-}
-.description [data-name] {
-	width: 40px;
-	height: 20px;
-	margin-right: 5px;
-}
-</style>
 </head>
 
 <body>

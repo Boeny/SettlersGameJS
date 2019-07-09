@@ -14,7 +14,7 @@ Rules.prototype = {
 	height: 10,
 
 	game: {
-		prepare: [{objects: {village: 1, road: 1}}, {order: -1, objects: {village: 1, road: 1}}]
+		prepare: [{objects: {village: 1, road: 1, min_count: 1}}, {order: -1, objects: {village: 1, road: 1, min_count: 1}}]
 	},
 	resources: {
 		stone: {count: 10},
