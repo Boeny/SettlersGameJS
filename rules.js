@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 window.Rules = function(){
 	this.tmp = {
@@ -48,10 +48,15 @@ Rules.prototype = {
 			
 			for (var h in freq){
 				var delta = freq[h];
+				
 				if (is_array(delta)){
 					for (var d in delta){
+						if (in_str('*',delta[d])){
+							delta[d] = delta[d].split('*')[1];
+						}
+						
 						if (delta[d] < 0){
-							delta[d] = this.width - delta[d] - 1;
+							delta[d] += this.width;
 						}
 					}
 				}

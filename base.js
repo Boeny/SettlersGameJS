@@ -374,7 +374,7 @@ function in_str(s, str){
 
 		return false;
 	}
-	return str.indexOf(s) != -1;
+	return str.toString().indexOf(s) != -1;
 }
 function in_obj_keys(k, o){
 	return in_array(k, obj_keys(o));
