@@ -14,7 +14,7 @@ $(function(){
 			
 			for (var j in _data[i]){
 				var cell = _data[i][j];
-				row += Html.td({style: 'background: '+cell.color+'; width: '+cell.width+'px; height: '+cell.height+'px'});
+				row += Html.td({'data-name': cell.name});
 			}
 			
 			content += Html.tr(row);
@@ -36,6 +36,34 @@ $(function(){
 	map.Create();
 });
 </script>
+
+<style>
+.map td {
+	width: 20px;
+	height: 20px;
+}
+
+.map [data-name="sea"] {
+	background: #316cf7;
+}
+
+.map [data-name="stone"] {
+	background: #c5c5c5;
+}
+.map [data-name="wood"] {
+	background: #bd5d08;
+}
+.map [data-name="sheep"] {
+	background: #78d478;
+}
+.map [data-name="wheat"] {
+	background: #efea24;
+}
+.map [data-name="clay"] {
+	background: #ff9445;
+}
+</style>
+
 <body>
 	<button class="gen_btn">Generate map</button>
 	<div class="map"></div>
