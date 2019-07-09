@@ -1,0 +1,43 @@
+<html>
+<script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
+<script src="base.js"></script>
+<script src="map.js"></script>
+<script src="rules.js"></script>
+<script>
+$(function(){
+	var getTable = function(_data){
+		var content = '';
+		
+		for (var i in _data)
+		{
+			var row = '';
+			
+			for (var j in _data[i]){
+				var cell = _data[i][j];
+				row += Html.td({style: 'background: '+cell.color+'; width: '+cell.width+'px; height: '+cell.height+'px'});
+			}
+			
+			content += Html.tr(row);
+		}
+		
+		return Html.table(content);
+	};
+	
+	var map = new Map();
+	
+	map.Create = function(){
+		$('.map').html(getTable(this.Generate()));
+	};
+	
+	$(document).on('click', '.gen_btn', function(){
+		map.Create();
+	});
+	
+	map.Create();
+});
+</script>
+<body>
+	<button class="gen_btn">Generate map</button>
+	<div class="map"></div>
+</body>
+</html>
