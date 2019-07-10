@@ -1,9 +1,6 @@
 window.Game = function(o){
 	this.Init(o);
-	this.Render('enter_number', {
-		title: 'Введите кол-во игроков:',
-		target: 'players_count'
-	});
+	this.EnterPlayersCount('Create');
 };
 Game.prototype = {
 	Init: function(o){
@@ -22,16 +19,18 @@ Game.prototype = {
 			return _views[name](o);
 		};
 
-		this.Bind = function(event, params){
-			if (is_object(event)){
-				for (var e in event){
-					this.Bind(e, event[e]);
+		this.Bind = function(_e, params){
+			if (is_object(_e)){
+				for (var e in _e){
+					this.Bind(e, _e[e]);
 				}
 				return;
 			}
 
+			var $this = this;
+
 			if (!is_object(params)){
-				_views.Bind(event, function(e, elem){
+				_views.Bind(_e, function(e, elem){
 					if (is_callable(params)){
 						params(e, elem);
 					}
@@ -42,10 +41,8 @@ Game.prototype = {
 				return;
 			}
 
-			var $this = this;
-
 			for (var name in params){
-				_views.Bind(event, name, function(e, elem){
+				_views.Bind(_e, name, function(e, elem){
 					var method = params[name];
 
 					if (is_callable(method)){
@@ -60,7 +57,13 @@ Game.prototype = {
 	},
 
 	// Game Process
-
+	EnterPlayersCount: function(action){
+		this.Render('enter_number', {
+			title: 'Введите кол-во игроков:',
+			target: 'players_count',
+			action: action
+		});
+	},
 	Create: function(){
 		this.map = new this.Map();
 		var map_params = this.Start();
@@ -140,7 +143,7 @@ Game.prototype = {
 		var p = this.getCurrentPlayer();
 
 		return {
-			header: {step: false},
+			header: {step: false, start: !p.ai},
 			message: {
 				text: p.getRoundMessage(),
 				ms: p.getMessageTimeout()

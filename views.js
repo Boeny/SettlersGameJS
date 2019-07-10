@@ -1,11 +1,13 @@
 window.Views = {
-	Bind: function(event, elem, handler){
+	Bind: function(_e, elem, handler){
 		if (is_callable(elem)){
-			handler = elem;
-			elem = document;
+			$(document).on(_e, function(e){
+				return elem(e, $(this));
+			});
+			return;
 		}
 
-		$(elem).on(event, function(e){
+		$(document).on(_e, elem, function(e){
 			return handler(e, $(this));
 		});
 	},
@@ -28,13 +30,6 @@ window.Views = {
 		$(elem).addClass('disabled');
 	},
 	toggle: function(elem, show){
-		if (is_object(show)){
-			for (var name in show){
-				this.toggle($(elem).find(name), show[name]);
-			}
-			return;
-		}
-
 		this[show ? 'enable' : 'disable'](elem);
 	},
 
@@ -74,7 +69,8 @@ window.Views = {
 		var elem = this.prompt_elem;
 
 		if (elem){
-			elem.data('target', target);
+			elem.data('target', o.target);
+			elem.data('action', o.action);
 			elem.find('.title').html(o.title);
 			this.showModalMessage(elem);
 		}
@@ -82,6 +78,7 @@ window.Views = {
 			elem = $(this.html.div({
 				'class': 'modal-message prompt',
 				'data-target': o.target,
+				'data-action': o.action,
 				style: 'width: 300px; height: 200px',
 
 				content: this.html.div(o.title, {'class': 'title'})+
@@ -147,11 +144,11 @@ window.Views = {
 	next_step: function(o){
 		this.map.ToggleHover(o.map.hover);
 
+		o.header = o.header || {};
 		for (var name in o.header){
-			o.header[name] = '.'+o.header[name]+'_btn';
+			this.toggle($('.'+name+'_btn'), o.header[name]);
 		}
 
-		this.toggle(this.header_elem, o.header);
 		//if (!o.is_human) this.disable(this.getDescrElem());
 
 		var $this = this;

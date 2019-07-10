@@ -28,7 +28,7 @@ Game.prototype.Player.prototype = {
 		return this.ai ? 'Ходит игрок №'+(this.index+1) : 'Ваш ход';
 	},
 	getMessageTimeout: function(){
-		return this.ai ? 700 : 300;
+		return 300;
 	},
 
 	AddObject: function(type){

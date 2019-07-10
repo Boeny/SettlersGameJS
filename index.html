@@ -21,7 +21,11 @@ $(function(){
 	game.Bind({
 		'next_step': 'NextStep',
 		'click' : {
-			'.start_btn': 'NewGame',
+			'.start_btn': function(e, elem){
+				if (!Views.isDisabled(elem)){
+					game.EnterPlayersCount('NewGame');
+				}
+			},
 			'.step_btn': function(e, elem){
 				if (!Views.isDisabled(elem)){
 					Views.Trigger('next_step');
@@ -37,7 +41,7 @@ $(function(){
 				if (game.setPlayersCount(elem.find('input').val()))
 				{
 					Views.hideModalMessage(elem);
-					game.Create();
+					game[elem.data('action')]();
 				}
 			}
 		}
