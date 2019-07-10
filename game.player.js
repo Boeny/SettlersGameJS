@@ -76,7 +76,7 @@ Game.prototype.Player.prototype = {
 						if (this.hasObject(obj.need)){
 							enabled.push(type);
 						}
-
+						alert(obj.need);
 						filtered.push(type);
 					}
 					else{
@@ -85,6 +85,7 @@ Game.prototype.Player.prototype = {
 				}
 			}
 		}
+		alert((this.ai ? 'comp':'human')+', filtered='+filtered.length+', enabled='+enabled.length);
 
 		return {
 			filtered: filtered,

@@ -72,7 +72,6 @@ Game.prototype = {
 
 		step_params.map = map_params;
 		step_params.description.types = this.rules.getReceipts();
-
 		this.Render('main', step_params);
 	},
 	NewGame: function(){

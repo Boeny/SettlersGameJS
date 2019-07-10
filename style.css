@@ -258,7 +258,7 @@ body {
 	padding: 5px;
 	padding-right: 15px;
 }
-.description .receipt :hover{
+.description .receipt:hover {
 	cursor: pointer;
 	background: #eee;
 }

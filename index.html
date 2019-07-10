@@ -14,6 +14,11 @@
 <script src="views.map.js"></script>
 <script src="views.map.hover.js"></script>
 <script>
+window.onerror = function (msg, url, line) {
+ alert(msg + "\n" + url + "\n" + "\n" + line);
+ return true;
+};
+
 $(function(){
 	Views.setElements({main_elem: '.game'});
 	var game = new Game({views: Views});

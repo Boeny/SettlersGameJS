@@ -173,7 +173,7 @@ window.Views = {
 		if (this.needFilter(elem))
 			this.map.CreateNearest(type);
 		else
-			this.map.CreateHoverTable(type);
+			this.map.CreateHovers(type);
 	},
 
 	// Objects Description
@@ -213,6 +213,7 @@ window.Views = {
 	},
 
 	toggleHoverTable: function(elem, type){
+	this.map.setType(type);
 		this.CheckFilter(elem);
 		var res = this.getType(elem);
 		var not_same = type !== res;
