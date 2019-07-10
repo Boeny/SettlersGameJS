@@ -31,16 +31,20 @@ Views.Map.prototype.Hover.prototype = {
 
 	get: function(o){
 		var elements = this[o.added ? 'added' : 'cached'];
-		return o.i === undefined && !o.coo ? elements : elements[this.getCooStr(o.coo ? o.coo : o.i, o.j, o.direction)];
+		return o.i === undefined && !o.coo ? elements : elements[this.getCooStr(o)];
 	},
 	set: function(o){
-		this.cached[this.getCooStr(o.coo ? o.coo : o.i, o.j, o.direction)] = o.element;
+		this.elements[this.getCooStr(o)] = o.element;
 	},
 
 	getCooArray: function(str){
 		return this.parent.getCooArray(str);
 	},
 	getCooStr: function(i,j,dir){
+		if (is_object(i)){
+			i = i.coo ? i.coo : i.i;
+			dir = dir ? dir : i.direction
+		}
 		var coo = this.parent.getCooStr(i,j);
 		dir = this.parent.getCooStr(dir);
 		return this.parent.getCooStr(coo, dir);

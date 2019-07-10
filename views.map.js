@@ -53,7 +53,20 @@ Views.Map.prototype = {
 
 		this.hover[type].Toggle(show);
 	},
-
+	setObject: function(elem){
+		elem = $(elem);
+		elem.addClass('added');
+		this.setHover({
+			added: true,
+			element: elem,
+			type: this.parent.getType(elem),
+			coo: this.getCoo(elem, true),
+			direction: this.getDir(elem)
+		});
+	},
+	ObjectIsSet: function(elem){
+		return $(elem).is('.added');
+	},
 	isObjectType: function(type){
 		return in_array(type, this.object_types);
 	},
@@ -71,7 +84,7 @@ Views.Map.prototype = {
 		return is_array(i) ? i.join('-') : i+(j ? '-'+j : '');
 	},
 
-	getType: function(elem){
+	getType: function(){
 		return this.parent.getType(this.DOM);
 	},
 	setType: function(type){
@@ -79,6 +92,10 @@ Views.Map.prototype = {
 	},
 	removeType: function(){
 		this.parent.removeType(this.DOM);
+	},
+
+	getDir: function(elem){
+		return elem.data('dir');
 	},
 
 	getCell: function(i,j){
@@ -92,15 +109,18 @@ Views.Map.prototype = {
 				direction: dir
 			};
 		}
-		return this.hover[type].get(o);
+		return this.hover[o.type].get(o);
 	},
 	setHover: function(type, elem, coo, dir){
-		this.hover[type].set({
-			type: type,
-			element: elem,
-			coo: coo,
-			direction: dir
-		});
+		if (!is_object(o)){
+			o = {
+				type: o,
+				element: elem,
+				coo: coo,
+				direction: dir
+			};
+		}
+		this.hover[o.type].set(o);
 	},
 
 	CreateNearest(type){

@@ -179,28 +179,26 @@ window.Views = {
 	// Objects Description
 	description_view: function(o){
 		var content = '';
-		var row, obj, title, type;
+		var row, obj, res;
 		var list = o.list;
 
-		for (var i in list){
+		for (var i in o.types){
 			row = '';
-			obj = list[0][0];
-			title = obj.title;
-			type = obj.type;
+			obj = o.types[i];
 
-			for (var j in list[i]){
-				obj = list[i][j];
+			for (var j in obj.resources){
+				res = obj.resources[j];
 
-				for (var k=0; k<obj.count; k++){
-					row += this.html.div({'class': 'pull-left', 'data-type': obj.resource});
+				for (var k=0; k<res.count; k++){
+					row += this.html.div({'class': 'resource pull-left', 'data-type': res.type});
 				}
 			}
 
-			var classes = [];
-			if (in_array(type, o.enabled)) classes.push('disabled');
-			if (in_array(type, o.filtered)) classes.push('filtered');
+			var classes = ['receipt'];
+			if (in_array(obj.type, o.enabled)) classes.push('disabled');
+			if (in_array(obj.type, o.filtered)) classes.push('filtered');
 
-			content += this.html.div(row + this.html.div(title, {'class': 'pull-right'}), {'data-type': type, 'class': classes.join(' ')});
+			content += this.html.div(row + this.html.div(obj.title, {'class': 'pull-right'}), {'data-type': obj.type, 'class': classes.join(' ')});
 		}
 
 		this.descr_elem.html(content);
@@ -216,17 +214,10 @@ window.Views = {
 
 	toggleHoverTable: function(elem, type){
 		this.CheckFilter(elem);
-		var res = this.getRes(elem);
-		return this.toggle_hover_table(elem, type !== res) ? res : null;
-	},
-
-	setObject: function(elem){
-		elem = $(elem);
-		elem.addClass('added');
-		this.added_elem[this.getType(elem)][this.map.getCoo(elem, true)] = elem;
-	},
-	ObjectIsSet: function(elem){
-		return $(elem).is('.added');
+		var res = this.getType(elem);
+		var not_same = type !== res;
+		this.map.ToggleHover(res, not_same);
+		return not_same ? res : null;
 	},
 
 	needFilter: function(elem){

@@ -31,7 +31,7 @@ $(function(){
 			Views.Trigger('next_step');
 		}
 	});
-	$(document).on('click', '.description [data-type]', function(){
+	$(document).on('click', '.description .receipt', function(){
 		game.setCurrentObjectType( Views.toggleHoverTable(this, game.getCurrentObjectType()) );
 	});
 	$(document).on('click', '.map .corner, .map .line', function(){

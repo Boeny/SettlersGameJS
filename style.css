@@ -106,23 +106,23 @@ body {
 	height: 20px;
 }
 
-.map [data-type="sea"] {
+[data-type="sea"] {
 	background: #316cf7;
 }
 
-.map [data-type="stone"] {
+[data-type="stone"] {
 	background: #c5c5c5;
 }
-.map [data-type="wood"] {
+[data-type="wood"] {
 	background: #bd5d08;
 }
-.map [data-type="sheep"] {
+[data-type="sheep"] {
 	background: #78d478;
 }
-.map [data-type="wheat"] {
+[data-type="wheat"] {
 	background: #efea24;
 }
-.map [data-type="clay"] {
+[data-type="clay"] {
 	background: #ff9445;
 }
 
@@ -252,23 +252,23 @@ body {
 	border: 1px solid #ccc;
 	border-bottom: none;
 }
-.description > div{
+.description .receipt {
 	height: 21px;
 	border-bottom: 1px solid #ccc;
 	padding: 5px;
 	padding-right: 15px;
 }
-.description > div:hover{
+.description .receipt :hover{
 	cursor: pointer;
 	background: #eee;
 }
-.description > div.disabled,
-.description > div.disabled:hover{
+.description .receipt.disabled,
+.description .receipt.disabled:hover{
 	cursor: default;
 	color: #999;
 	background: #f3cece;
 }
-.description [data-type] {
+.description .resource {
 	width: 40px;
 	height: 20px;
 	margin-right: 5px;

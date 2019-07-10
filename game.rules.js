@@ -80,18 +80,20 @@ Game.prototype.Rules.prototype = {
 		var receipts_names = obj_keys(this.receipts);
 
 		for (var type in this.receipts){
+			var receipt = {
+				type: type,
+				title: this.objects[type].title,
+				resources: []
+			};
+
 			var obj = this.receipts[type];
-			var obj_info = this.objects[type];
-			var receipt = [];
 
 			for (var res in obj){
 				if (in_array(res, receipts_names)) continue;
 
-				receipt.push({
-					resource: res,
-					type: type,
-					count: obj[res],
-					title: obj_info.title
+				receipt.resources.push({
+					type: res,
+					count: obj[res]
 				});
 			}
 
