@@ -19,22 +19,46 @@ Game.prototype = {
 			}
 		}
 		else{
-			var $this = this;
+			var $this = this, method;
+
 			for (var name in params){
+				method = params[name];
+
+				if (!is_callable(method)){
+					method = in_str(',', method) ? method.split(',') : to_arr(method);
+
+					for (var i in method){
+						method[i] = method[i].trim();
+
+						if (in_str('.',method[i])){
+							method[i] = method[i].split('.');
+						}
+					}
+				}
+
 				this.views.Bind(event, name, function(e, elem){
-					$this[params[name]](e, elem);
+					if (is_callable(method)){
+						method(e, elem);
+						return;
+					}
+
+					var object, m;
+
+					for (var i in method){
+						if (is_array(method[i])){
+							object = method[i][0];
+							m = method[i][1];
+						}
+						else{
+							object = $this;
+							m = method[i];
+						}
+
+						object[m](e, elem);
+					}
 				});
 			}
 		}
-	},
-
-	// Events
-	StartAndStep: function(){
-		this.Start();
-		this.Step();
-	},
-	ShowSelectableFields: function(e, elem){
-		this.Render('show_hover_table', elem);
 	},
 
 	Message: function(text, ms){
@@ -45,7 +69,7 @@ Game.prototype = {
 		var count = this.Render('enter_number', 'Введите кол-во игроков:');
 
 		this.players = Player.prototype.Create(this, count);
-		this.current_player = -1;
+		this.current_player_index = -1;
 	},
 	CreateHoverTable: function(){
 		for (var i=0; i<this.map.getHeight(); i++){
@@ -71,19 +95,23 @@ Game.prototype = {
 		this.CreateHoverTable();
 	},
 
+	toggleObject: function(name, enable){
+		this.views[(enable ? 'enable' : 'disable')+'Object'](name);
+	},
+
 	// Game Process
 	setNextPlayer: function(order){
 		if (order === undefined) order = 1;
 
-		if (order > 0) this.current_player++;
-		else if(order < 0) this.current_player--;
+		if (order > 0) this.current_player_index++;
+		else if(order < 0) this.current_player_index--;
 
-		if (this.current_player >= this.players.length){
-			this.current_player = 0;
+		if (this.current_player_index >= this.players.length){
+			this.current_player_index = 0;
 			return true;
 		}
-		if (this.current_player < 0){
-			this.current_player = this.players.length-1;
+		if (this.current_player_index < 0){
+			this.current_player_index = this.players.length-1;
 			return true;
 		}
 
@@ -91,7 +119,7 @@ Game.prototype = {
 	},
 	Step: function(){
 		this.Render('hide_hover_table');
-		this.toggleTurnButton(false);
+		this.views.toggleTurnButton(false);
 
 		var rule = this.rules.getCurrentRule();
 
@@ -99,29 +127,27 @@ Game.prototype = {
 		{
 			this.rules.setNextRound();
 			rule = this.rules.getCurrentRule();
-			this.current_player = rule.order < 0 ? this.players.length-1 : 0;
+			this.current_player_index = rule.order < 0 ? this.players.length-1 : 0;
 		}
 
-		var p = this.players[this.current_player];
+		this.current_player = this.players[this.current_player_index];
 		var $this = this;
 
-		if (p.ai) this.disableObject();
+		if (this.current_player.ai) this.views.disableObject();
 
-		this.Message(p.ai ? 'Ходит игрок №'+(p.index+1) : 'Ваш ход', function(){
-			p.Step(rule);
-
-			if (p.ai) $this.Step();
+		this.Message(this.current_player.ai ? 'Ходит игрок №'+(this.current_player.index+1) : 'Ваш ход', function(){
+			$this.current_player.Step(rule);
+			if ($this.current_player.ai) $this.Step();
 		});
 	},
 
-	// Craftable Objects
-	enableObject: function(res_name){
-		this.Render('enableObject', res_name);
+	ShowHoverTable: function(e, elem){
+		this.current_object = this.Render('show_hover_table') ? this.views.getRes(elem) : null;
 	},
-	disableObject: function(res_name){
-		this.Render('disableObject', res_name);
-	},
-	toggleTurnButton: function(show){
-		this.Render('toggleTurnButton', show);
+	SetObject: function(e, elem){
+		if (!this.current_object) return;
+		this.views.SetObject(elem);
+		this.current_player.AddObject(this.current_object);
+		this.current_player.Step();
 	}
 };

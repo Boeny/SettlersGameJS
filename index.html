@@ -22,9 +22,10 @@ $(function(){
 	});
 
 	game.Bind('click', {
-		'.gen_btn'	: 'StartAndStep',
+		'.gen_btn'	: 'Start, Step',
 		'.step_btn'	: 'Step',
-		'.description [data-res]': 'ShowSelectableFields'
+		'.description [data-res]': 'ShowHoverTable',
+		'.map .corner, .map .line': 'SetObject'
 	});
 });
 </script>

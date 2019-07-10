@@ -14,7 +14,7 @@ Rules.prototype = {
 	height: 10,
 
 	game: {
-		prepare: [{objects: {village: 1, road: 1, min_count: 1}}, {order: -1, objects: {village: 1, road: 1, min_count: 1}}]
+		prepare: [{objects: {village: 1, road: {count: 1, need: 'village'}, exact_count: 1}}, {order: -1, objects: {village: 1, road: {count: 1, need: 'village'}, exact_count: 1}}]
 	},
 	resources: {
 		stone: {count: 10},
@@ -46,13 +46,7 @@ Rules.prototype = {
 		this.round++;
 	},
 	getCurrentRule: function(){
-		var preparing_rounds = this.game.prepare;
-
-		if (this.round < preparing_rounds.length){
-			return preparing_rounds[this.round];
-		}
-
-		return preparing_rounds[this.round] || {};
+		return merge({}, this.game.prepare[this.round] || {});
 	},
 
 	getCellType: function(i,j){

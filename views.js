@@ -160,6 +160,9 @@
 		getType: function(elem){
 			return $(elem).data('type');
 		},
+		getRes: function(elem){
+			return $(elem).data('res');
+		},
 
 		getCell: function(i,j){
 			if (is_array(i)){
@@ -228,7 +231,7 @@
 					type.hor = types.hor[j];
 
 					if (_data[type.hor]){
-						content += Html.div({'class': 'corner '+type.vert+'-'+type.hor, 'data-res': _data.resources[type.vert][type.hor].join('-')});
+						content += Html.div({'class': 'corner '+type.vert+'-'+type.hor, 'data-type': 'corner', 'data-res': _data.resources[type.vert][type.hor].join('-')});
 					}
 				}
 			}
@@ -244,7 +247,7 @@
 				type = types[i];
 
 				if (o.data[type]){
-					content += Html.div({'class': 'line line-'+type});
+					content += Html.div({'class': 'line line-'+type, 'data-type': 'line'});
 				}
 			}
 
@@ -299,6 +302,10 @@
 
 		toggleTurnButton: function(show){
 			this.step_over_button.prop('disabled', show);
+		},
+
+		SetObject: function(elem){
+			elem.addClass('added');
 		}
 	};
 })(window);
