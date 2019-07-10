@@ -148,12 +148,12 @@ window.Views = {
 			descr_elem: '.description'
 		});
 
+		this.setDescrData(o.description);
 		this.new_game(o);
 	},
 	new_game: function(o){
 		this.setMapData(o.map);
-		this.setDescrData(o.description);
-		//this.Trigger('next_step');
+		this.Trigger('next_step');
 	},
 	next_step: function(o){
 		this.map.ToggleHover(o.map.hover);
@@ -162,6 +162,8 @@ window.Views = {
 		for (var name in o.header){
 			this.toggle($('.'+name+'_btn'), o.header[name]);
 		}
+
+		_Error.ThrowTypeIf(!o.is_human && o.description.enabled.length, 'all must be disabled while comp is stepping', 'views.next_step');
 
 		this.description.Toggle(o.description.enabled);
 		this.description.Filter(o.description.filtered);
@@ -189,6 +191,8 @@ window.Views = {
 	},
 	CheckFilter: function(elem){
 		var type = this.getType(elem);
+		_Error.ThrowTypeIf(!type, 'cell has no type');
+		this.map.setType(type);
 
 		if (this.needFilter(elem))
 			this.map.CreateNearest(type);

@@ -151,17 +151,9 @@ Game.prototype = {
 		};
 	},
 
-	toggleObjectDescription: function(name, enable){
-		this.views[(enable ? 'enable' : 'disable')+'Object'](name);
-	},
-	hideHoverTable: function(elem){
-		this.views.toggle_hover_table(elem, false);
-		this.current_object_type = null;
-	},
-
 	// Getters & Setters
 	getCurrentPlayer: function(){
-		return this.current_player;
+		return this.Validate(this.current_player, 'current_player');
 	},
 	setCurrentPlayer: function(){
 		this.current_player = this.players[this.current_player_index];
@@ -178,8 +170,8 @@ Game.prototype = {
 	getCurrentObjectType: function(){
 		return this.current_object_type;
 	},
-	setCurrentObjectType: function(o){
-		this.current_object_type = o;
+	setCurrentObjectType: function(type){
+		this.current_object_type = type;
 	},
 
 	setObject: function(){
@@ -191,10 +183,5 @@ Game.prototype = {
 			map: {hover: false},
 			description: p.Step()
 		});
-	},
-
-	// Filter
-	setFilter: function(type){
-		this.views.setFilter(this.views.getDescrElem(type));
 	}
 };

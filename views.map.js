@@ -56,6 +56,7 @@ Views.Map.prototype = {
 	setObject: function(elem){
 		elem = $(elem);
 		elem.addClass('added');
+
 		this.setHover({
 			added: true,
 			element: elem,
@@ -99,9 +100,26 @@ Views.Map.prototype = {
 	},
 
 	getCell: function(i,j){
-		return is_array(i) ? this.getCell(i[0],i[1]) : this.data[this.getCooStr(i,j)];
+		var cell = is_array(i) ? this.getCell(i[0],i[1]) : this.DOM.find('.cell[data-coo="'+this.getCooStr(i,j)+'"]');
+		if (!cell.length) _Error.ThrowType('cell not found, coo = '+this.getCooStr(i,j), 'views.map.getCell');
+		return cell;
 	},
-	getHover: function(o, coo, dir){
+	getHover: function(o, coo, dir, as_array){
+		if (as_array)
+		{
+			dir = to_arr(dir);
+
+			var result = [];
+			var elem;
+
+			for (var i in dir){
+				elem = this.getHover(o, coo, dir[i]);
+				if (elem) result.push(elem);
+			}
+
+			return result;
+		}
+
 		if (!is_object(o)){
 			o = {
 				type: o,
@@ -109,6 +127,7 @@ Views.Map.prototype = {
 				direction: dir
 			};
 		}
+		_Error.ThrowTypeIf(!o.type, 'type are empty', 'views.map.getHover');
 		return this.hover[o.type].get(o);
 	},
 	setHover: function(o, elem, coo, dir){
@@ -120,6 +139,7 @@ Views.Map.prototype = {
 				direction: dir
 			};
 		}
+		_Error.ThrowTypeIf(!o.type || !o.element || !o.coo || !o.direction, 'some params are empty', 'views.map.setHover');
 		this.hover[o.type].set(o);
 	},
 
@@ -148,7 +168,7 @@ Views.Map.prototype = {
 	},
 	getNearestCorners: function(type){
 		var result = [];
-		var objects = this.getAddedObjects(type);
+		var objects = this.getAddedObjects('road');
 		var elem, coo, direction, cell_pos, corner_dir;
 
 		for (var pos in objects){
@@ -179,13 +199,13 @@ Views.Map.prototype = {
 				elem = this.getHover(type, coo[i], tmp);
 
 				if (!elem){
-					this.setElemByType(this.getCell(cell_pos), type, tmp, cell_pos);
+					this.setElemByType(type, tmp, cell_pos);
 					elem = this.getHover(type, coo[i], tmp);
+					if (!elem) _Error.ThrowType('corner element coo='+this.getCooStr(coo[i])+' in cell coo='+this.getCooStr(cell_pos)+' not found');
 				}
 
-				elem.each(function(){
-					if (!$(this).is('.added')) result.push($(this));
-				});
+				if (is_array(elem)) _Error.ThrowType('corner element has not to be array, coo='+this.getCooStr(coo[i])+' in cell coo='+this.getCooStr(cell_pos));
+				if (!this.ObjectIsSet(elem)) result.push(elem);
 			}
 		}
 
@@ -193,7 +213,7 @@ Views.Map.prototype = {
 	},
 	getNearestLines: function(type){
 		var result = [];
-		var objects = this.getAddedObjects(type);
+		var objects = this.getAddedObjects('village');
 		var elem, coo, cell_pos, line_dir;
 
 		for (var pos in objects){
@@ -213,7 +233,7 @@ Views.Map.prototype = {
 						break;
 				}
 
-				elem = this.getHover(type, coo[i], line_dir);
+				elem = this.getHover(type, coo[i], line_dir, true);// returns array
 
 				if (!elem.length){
 					cell_pos = [pos[0],pos[1]];
@@ -227,31 +247,36 @@ Views.Map.prototype = {
 							break;
 					}
 
-					this.setElemByType(this.getCell(cell_pos), type, line_dir, cell_pos);
-					elem = this.getHover(type, coo[i], line_dir);
+					this.setElemByType(type, line_dir, cell_pos);
+					elem = this.getHover(type, coo[i], line_dir, true);// returns array
+					if (!elem || !elem.length) _Error.ThrowType('line elements coo='+this.getCooStr(coo[i])+' in cell coo='+this.getCooStr(cell_pos)+' not found');
 				}
 
-				elem.each(function(){
-					if (!$(this).is('.added')) result.push($(this));
-				});
+				_Error.ThrowTypeIf(!is_array(elem), 'line element must be array, coo='+this.getCooStr(coo[i])+' in cell coo='+this.getCooStr(cell_pos));
+
+				for (var j in elem){
+					if (!this.ObjectIsSet(elem[j])) result.push(elem[j]);
+				}
 			}
 		}
 
 		return result;
 	},
 
-	setElemByType: function(elem, type, direction, pos){
+	setElemByType: function(type, direction, pos){
+		var cell_elem = this.getCell(pos);
+
 		switch (type){
 			case 'road':
-				this.setLine(elem, type, direction, pos);
+				this.setLine(cell_elem, type, direction, pos);
 				break;
 			case 'village':
 			case 'town':
-				this.setCorner(elem, type, direction, pos);
+				this.setCorner(cell_elem, type, direction, pos);
 				break;
 		}
 	},
-	setCorner: function(elem, type, direction, pos){
+	setCorner: function(cell_elem, type, direction, pos){
 		if (!in_array('left',direction) && !in_array('right',direction) || !in_array('top',direction) && !in_array('bottom',direction)) return;
 
 		var vert = [], hor = [], dir;
@@ -283,13 +308,11 @@ Views.Map.prototype = {
 					'data-type': type
 				}));
 				this.setHover(type, hover_elem, coo, dir);
-				elem.append(hover_elem);
+				cell_elem.append(hover_elem);
 			}
 		}
 	},
-	setLine: function(elem, direction, pos){
-		var type = 'line';
-
+	setLine: function(cell_elem, type, direction, pos){
 		for (var i in direction){
 			var dir = direction[i];
 			var coo = [pos[0],pos[1]];
@@ -307,7 +330,7 @@ Views.Map.prototype = {
 				'data-type': type
 			}));
 			this.setHover(type, hover_elem, coo, dir);
-			elem.append(hover_elem);
+			cell_elem.append(hover_elem);
 		}
 	}
 };

@@ -50,13 +50,21 @@ Game.prototype.Rules.prototype = {
 				_Error.ThrowType('map data is less than mult of width & height', type);
 			break;
 
+			case 'receipts':
+				_Error.ThrowTypeIf(!v || !v.length, 'receipts for description are empty', type);
+			break;
+
 			case 'rule':
 				if (in_array(this.round, [0,1])){
-					var need = null;//v.objects.road.need;
+					var need = v.objects.road.need;
 					if (!need || !need.length){
 						_Error.ThrowType('something wrong with road need, round='+this.round, type);
 					}
 				}
+			break;
+
+			case 'current_player':
+				if (!v) _Error.ThrowType('player index is wrong', type);
 			break;
 		}
 

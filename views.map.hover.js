@@ -14,9 +14,7 @@ Views.Map.prototype.Hover.prototype = {
 		if (this.filled) return;
 
 		for (var coo in cells_info){
-			coo = this.getCooArray(coo);
-
-			var elem = this.parent.getCell(coo);
+			coo = this.parent.getCooArray(coo);
 			var dir = {top:1,bottom:1,left:1,right:1};
 
 			if (coo[0] == 0) delete dir.top;
@@ -24,7 +22,7 @@ Views.Map.prototype.Hover.prototype = {
 			if (coo[0] == this.parent.height-1 || cells_info[ this.parent.getCooStr(coo[0]-1,coo[1]) ]) delete dir.bottom;
 			if (coo[1] == this.parent.width-1 || cells_info[ this.parent.getCooStr(coo[0],coo[1]-1) ]) delete dir.right;
 
-			this.parent.setElemByType(elem, this.type, obj_keys(dir), coo);
+			this.parent.setElemByType(this.type, obj_keys(dir), coo);
 		}
 
 		this.filled = true;
@@ -32,25 +30,29 @@ Views.Map.prototype.Hover.prototype = {
 
 	get: function(o){
 		if (!o) return this.cached;
-		var elements = this[o.added ? 'added' : 'cached'];
+
+		var elements = this.getElem(o.added);
 		return o.i === undefined && !o.coo ? elements : elements[this.getCooStr(o)];
 	},
 	set: function(o){
-		var elements = this[o.added ? 'added' : 'cached'];
-		this.elements[this.getCooStr(o)] = o.element;
+		_Error.CheckType(o, 'object', true);// strict
+		this.getElem(o.added, true)[this.getCooStr(o)] = o.element;
+	},
+	getElem: function(added, check){
+		var type = added ? 'added' : 'cached';
+		var elements = this[type];
+		if (check) _Error.ThrowTypeIf(!elements, type+' elements are empty', 'views.hover.getElem');
+
+		return elements;
 	},
 
-	getCooArray: function(str){
-		return this.parent.getCooArray(str);
-	},
-	getCooStr: function(i,j,dir){
-		if (is_object(i)){
-			i = i.coo ? i.coo : i.i;
-			dir = dir ? dir : i.direction
-		}
-		var coo = this.parent.getCooStr(i,j);
-		dir = this.parent.getCooStr(dir);
-		return this.parent.getCooStr(coo, dir);
+	getCooStr: function(o){
+		_Error.CheckType(o, 'object', true);
+		o.i = o.coo ? o.coo : o.i;
+
+		o.coo = this.parent.getCooStr(o.i, o.j);
+		o.direction = this.parent.getCooStr(o.direction);
+		return this.parent.getCooStr(o.coo, o.direction);
 	},
 
 	Hide: function(){

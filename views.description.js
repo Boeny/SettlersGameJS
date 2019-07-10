@@ -33,13 +33,14 @@ Views.Description.prototype = {
 	},
 
 	getElem: function(o){
+		_Error.ThrowTypeIf(!obj_length(this.cached), 'description cache is empty', 'views.description.getElem');
 		if (!o) return this.cached;
 
 		if (is_('object', o)){
 			o = is_array(o) ? o : obj_keys(o);
 		}
 		else
-			o = [o];
+			return this.cached[o];
 
 		var result = [];
 

@@ -39,8 +39,6 @@ Game.prototype.Player.prototype = {
 
 		if (this.rule.objects[type].count <= 0){
 			delete this.rule.objects[type];
-			this.parent.toggleObjectDescription(type, false);
-			this.parent.hideHoverTable(type);
 		}
 	},
 	hasObject: function(type){

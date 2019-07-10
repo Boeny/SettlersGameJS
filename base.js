@@ -1,9 +1,10 @@
 ;
 window._Error = {
 	_alert: false,
+	_in: 'in',
 	Throw: function(msg, type, caller_name){
 		caller_name = caller_name || this.Throw.caller.name;
-		msg = (msg || '') + (caller_name ? ' в '+caller_name : '');
+		msg = (msg || '') + (caller_name ? ' '+this._in+' '+caller_name : '');
 
 		if (this._alert) alert(msg);
 		throw type ? new TypeError(msg) : new Error(msg);
@@ -84,7 +85,6 @@ function in_obj_arr(arr, f, v){
 	}
 	return false;
 }
-
 function sort_obj_arr(arr, f){
 	arr.sort(function(a,b){
 		return a[f] - b[f];
@@ -218,6 +218,9 @@ function arr_first(a){
 }
 function arr_last(a){
 	return a[a.length - 1];
+}
+function arr_remove(a,v){
+	a.splice(a.indexOf(v),1);
 }
 /**
  * говорит, есть ли хотя бы одна подстрока(-и) s в строке str

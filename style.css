@@ -35,6 +35,10 @@ body {
 	transition: opacity .3s ease;
 }
 .hidden {
+	display: none;
+}
+.modal-message.msg.hidden {
+	display: block;
 	opacity: 0;
 	z-index: -1;
 }
@@ -88,9 +92,6 @@ body {
 .btn:active {
     box-shadow: inset 2px 2px 3px 0px #777;
     background: #eee;
-}
-.btn.hidden {
-	display: none;
 }
 .btn.disabled,
 .btn.disabled:hover,
@@ -150,8 +151,9 @@ body {
 }
 
 .map td .added,
-.map.corner-hover td .corner:not(.disabled),
-.map.line-hover td .line:not(.disabled) {
+.map[data-type="village"] td .corner:not(.disabled),
+.map[data-type="town"] td .corner:not(.disabled),
+.map[data-type="road"] td .line:not(.disabled) {
 	opacity: 1;
 	z-index: 1;
 }
@@ -164,12 +166,12 @@ body {
 	height: 11px;
 }
 .map td .added,
-.map[data-type="village"] td .corner:hover,
-.map[data-type="town"] td .corner:hover,
-.map[data-type="road"] td .line:hover {
+.map[data-type="village"] td .corner:not(.disabled):hover,
+.map[data-type="town"] td .corner:not(.disabled):hover,
+.map[data-type="road"] td .line:not(.disabled):hover {
 	background: #ff2d2d;
 	border: 1px solid #fff;
-    box-shadow: 3px 3px 6px #444;
+    box-shadow: 5px 4px 9px #000;
 	cursor: pointer;
 }
 

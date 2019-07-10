@@ -41,7 +41,7 @@ $(function(){
 		game.setCurrentObjectType( Views.isDisabled(this) ? null : Views.toggleHoverTable(this, game.getCurrentObjectType()) );
 	});
 	$(document).on('click', '.map .corner, .map .line', function(){
-		if (game.getCurrentObjectType() && !Views.ObjectIsSet(this))
+		if (game.getCurrentObjectType() && !Views.map.ObjectIsSet(this))
 		{
 			Views.map.setObject(this);
 			game.setObject();
@@ -63,9 +63,13 @@ $(function(){
 	$(document).on('enter_string', '.prompt', function(){
 		var elem = $(this);
 		var validator = elem.data('validator');
-		var v = elem.find('input').val();
+		var input = elem.find('input');
+		var v = input.val();
 
-		if (validator && !game[validator](v)) return;
+		if (validator && !game[validator](v)){
+			input.val('');
+			return;
+		}
 
 		Views.hideModalMessage(this);
 		game[elem.data('action')](v);
