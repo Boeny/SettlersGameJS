@@ -45,8 +45,9 @@ $(function(){
 			Views.Trigger('number_entered', elem);
 		}
 	});
-	$(document).on('click', '.prompt .cancel', function(e){
-		Views.hideModalMessage('.prompt');
+	$(document).on('click', '.prompt .cancel, .prompt .overlay', function(e){
+		if (game.getCurrentPlayer())
+			Views.hideModalMessage('.prompt');
 	});
 	$(document).on('number_entered', '.prompt[data-target="players_count"]', function(){
 		if (game.setPlayersCount($(this).find('input').val()))
