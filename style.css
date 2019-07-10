@@ -53,6 +53,9 @@ body {
 .modal-message.prompt .container,
 .modal-message.prompt .container * {
 	z-index: 1;
+}
+.modal-message.prompt .container,
+.modal-message.prompt .container *:not(.btn) {
 	background: #fff;
 }
 

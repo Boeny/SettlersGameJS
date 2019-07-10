@@ -23,15 +23,15 @@ Views.Map.prototype = {
 	},
 	Create: function(){
 		var content = '';
+		var coo;
 
 		for (var i=0; i<this.height; i++){
 			var row = '';
 
 			for (var j=0; j<this.width; j++)
 			{
-				var coo = this.getCooStr(i,j);
-				var cell = this.data[coo];
-				row += this.html.td(cell && cell.type && {'class': 'cell', 'data-type': cell.type, 'data-coo': coo} || '');
+				coo = this.getCooStr(i,j);
+				row += this.html.td({'class': 'cell', 'data-type': this.data[coo].type, 'data-coo': coo});
 			}
 			content += this.html.tr(row);
 		}
@@ -81,7 +81,7 @@ Views.Map.prototype = {
 		return [+str[0],+str[1]];
 	},
 	getCooStr: function(i,j){
-		return is_array(i) ? i.join('-') : i+(j ? '-'+j : '');
+		return is_array(i) ? i.join('-') : i+(j === undefined ? '' : '-'+j);
 	},
 
 	getType: function(){

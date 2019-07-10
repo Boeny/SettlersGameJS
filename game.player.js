@@ -3,21 +3,23 @@ Game.prototype.Player = function(o){
 };
 Game.prototype.Player.prototype = {
 	Init: function(o){
-		$.extend(this, o);
+		this.index = o.index;
+		this.ai = o.ai;
+		this.parent = o.parent
 
 		this.resources = {};
 		this.objects = {};
 	},
-	Create: function(game, count){
+	Create: function(parent, count){
 		var pc_index = random(0, count-1);
 		var players = [];
 
 		for (var i=0; i<count; i++)
 		{
-			players.push(new game.Player({
+			players.push(new parent.Player({
 				index: i,
 				ai: i !== pc_index,
-				game: game
+				parent: parent
 			}));
 		}
 
@@ -37,8 +39,8 @@ Game.prototype.Player.prototype = {
 
 		if (this.rule.objects[type].count <= 0){
 			delete this.rule.objects[type];
-			this.game.toggleObjectDescription(type, false);
-			this.game.hideHoverTable(type);
+			this.parent.toggleObjectDescription(type, false);
+			this.parent.hideHoverTable(type);
 		}
 	},
 	hasObject: function(type){

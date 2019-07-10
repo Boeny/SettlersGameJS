@@ -68,20 +68,21 @@ window.Views = {
 		var $this = this;
 		setTimeout(function(){$this.hideModalMessage(elem); (o.success && o.success())}, o.ms || 1000);
 	},
-	enter_number: function(o){
+	enter_string: function(o){
 		var elem = this.prompt_elem;
 
 		if (elem){
-			elem.attr('data-target', o.target);
+			if (o.cls) elem.removeClass().addClass('modal-message prompt '+cls);
+			elem.attr('data-validator', o.validator);
 			elem.data('action', o.action);
 			elem.find('.title').html(o.title);
-			this.toggleModalMessage(elem.find('.cancel'), o.cancel);
+
 			this.showModalMessage(elem);
 		}
 		else{
 			elem = $(this.html.div({
 				'class': 'modal-message prompt'+(o.cls ? ' '+o.cls : ''),
-				'data-target': o.target,
+				'data-validator': o.validator,
 				'data-action': o.action,
 
 				content: this.html.div({'class': 'overlay'})+
@@ -89,7 +90,7 @@ window.Views = {
 						this.html.div(o.title, {'class': 'title'})+
 						this.html.form(
 							this.html.div(this.html.input({required: 'required'}))+
-							this.html.div(this.html.button('OK', {type: 'submit', 'class': 'btn'})+this.html.span('Отмена', {'class': 'btn cancel'+(o.cancel ? '' : ' hidden')}))
+							this.html.div(this.html.button('OK', {type: 'submit', 'class': 'btn'})+this.html.span('Отмена', {'class': 'btn cancel'}))
 						),
 						{'class': 'container'}
 					)
@@ -98,11 +99,27 @@ window.Views = {
 			this.main_elem.append(elem);
 			this.prompt_elem = elem;
 		}
+
+		var cancel_btn = elem.find('.cancel');
+		var overlay = elem.find('.overlay');
+
+		if (o.cancel){
+			cancel_btn.show();
+			cancel_btn.attr('data-cancel',1);
+			overlay.attr('data-cancel',1);
+		}
+		else{
+			cancel_btn.hide();
+			cancel_btn.removeAttr('data-cancel');
+			overlay.removeAttr('data-cancel');
+		}
+
+		if (o.focus) elem.find('[type="text"]').focus();
 	},
 
 	// Game
 	main: function(o){
-		this.main_elem.html(
+		this.main_elem.append(
 			this.html.div({
 				'class': 'header',
 
@@ -125,9 +142,6 @@ window.Views = {
 			})
 		);
 
-		this.prompt_elem = null;
-		this.enter_number({cls: 'hidden'});
-
 		this.setElements({
 			header_elem: '.header',
 			map_elem: '.map',
@@ -139,7 +153,7 @@ window.Views = {
 	new_game: function(o){
 		this.setMapData(o.map);
 		this.setDescrData(o.description);
-		this.next_step(o);
+		//this.Trigger('next_step');
 	},
 	next_step: function(o){
 		this.map.ToggleHover(o.map.hover);

@@ -15,14 +15,14 @@
 <script src="views.map.hover.js"></script>
 <script src="views.description.js"></script>
 <script>
-window.onerror = function (){
-	alert([].join.apply(arguments,[', ']));
-	return true;
-};
 
 $(function(){
-	Views.setElements({main_elem: '.game',validation:true});
-	var game = new Game({views: Views});
+	Views.setElements({main_elem: '.game'});
+
+	var game = new Game({
+		views: Views,
+		validation: true
+	});
 
 	$(document).on('next_step', function(){
 		game.NextStep();
@@ -48,24 +48,27 @@ $(function(){
 		}
 	});
 	$(document).on('click', '.prompt [type="submit"]', function(e){
-		var elem = $('.prompt');
+		var elem = $(this).closest('form');
 
 		if (elem.find('[type="text"]').val()){
 			e.preventDefault();
-			Views.Trigger('number_entered', elem);
+			Views.Trigger('enter_string', elem.parent().parent());
 		}
 	});
 	$(document).on('click', '.prompt .cancel, .prompt .overlay', function(){
-		if (game.getCurrentPlayer()){
+		if ($(this).data('cancel')){
 			Views.hideModalMessage('.prompt');
 		}
 	});
-	$(document).on('number_entered', '.prompt[data-target="players_count"]', function(){
-		if (game.setPlayersCount($(this).find('input').val()))
-		{
-			Views.hideModalMessage(this);
-			game[$(this).data('action')]();
-		}
+	$(document).on('enter_string', '.prompt', function(){
+		var elem = $(this);
+		var validator = elem.data('validator');
+		var v = elem.find('input').val();
+
+		if (validator && !game[validator](v)) return;
+
+		Views.hideModalMessage(this);
+		game[elem.data('action')](v);
 	});
 });
 </script>

@@ -22,13 +22,9 @@ Views.Description.prototype = {
 				}
 			}
 
-			var classes = ['receipt'];
-
-			if (!in_array(obj.type, o.enabled)) classes.push('disabled');
-			if (in_array(obj.type, o.filtered)) classes.push('filtered');
-
 			this.cached[obj.type] = $(this.html.div({
-				'data-type': obj.type, 'class': classes.join(' '),
+				'data-type': obj.type,
+				'class': 'receipt disabled',
 				content: object + this.html.div(obj.title, {'class': 'pull-right'}),
 			}));
 

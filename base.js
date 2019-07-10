@@ -1,8 +1,11 @@
 ;
 window._Error = {
+	_alert: false,
 	Throw: function(msg, type, caller_name){
 		caller_name = caller_name || this.Throw.caller.name;
 		msg = (msg || '') + (caller_name ? ' в '+caller_name : '');
+
+		if (this._alert) alert(msg);
 		throw type ? new TypeError(msg) : new Error(msg);
 	},
 	ThrowType: function(msg, caller_name){

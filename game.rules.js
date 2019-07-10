@@ -1,13 +1,5 @@
 Game.prototype.Rules = function(){
-	this.tmp = {
-		resources: {}
-	};
-
-	for (var i in this.resources){
-		this.tmp.resources[i] = this.resources[i].count || this.resources[i];
-	}
-
-	this.round = 0;
+	this.Init();
 };
 Game.prototype.Rules.prototype = {
 	width: 10,
@@ -48,21 +40,27 @@ Game.prototype.Rules.prototype = {
 	},
 
 	Validate: function(v, type){
-        switch (type) {
-            case 'map':
-                if (v.width * v.height !== v.data.length)
-                    alert('map data is less than mult of wh');
-                break;
-            case 'rule':
-                if (in_array(this.round, [0, 1])) {
-                    var need = null;//v.objects.road.need;
-                    if (!need || !need.length) {
-                        alert('something wrong with road need, round=' + this.round);
-                    }
-                }
-                break;
-        }
-        //return v;
+		switch(type){
+			case 'random_res':
+				if (!v.type) _Error.ThrowType('random res type is undefined', type);
+			break;
+
+			case 'map':
+				if (v.width * v.height !== obj_length(v.data))
+				_Error.ThrowType('map data is less than mult of width & height', type);
+			break;
+
+			case 'rule':
+				if (in_array(this.round, [0,1])){
+					var need = null;//v.objects.road.need;
+					if (!need || !need.length){
+						_Error.ThrowType('something wrong with road need, round='+this.round, type);
+					}
+				}
+			break;
+		}
+
+		return v;
 	},
 
 	getTypes: function(){
@@ -121,6 +119,27 @@ Game.prototype.Rules.prototype = {
 		return result;
 	},
 
+	Init: function(){
+		this.tmp = {
+			resources: {},
+			res_by_count: [],
+			cells: {}
+		};
+
+		for (var i in this.resources){
+			this.tmp.resources[i] = this.resources[i].count || this.resources[i];
+
+			for (var j=0; j<this.tmp.resources[i]; j++){
+				this.tmp.res_by_count.push(i);
+			}
+		}
+
+		for (var i in this.cells){
+			this.tmp.cells[i] = this.cells[i].count;
+		}
+
+		this.round = 0;
+	},
 	getCellType: function(i,j){
 		var c = {};// conditions[cell]
 
@@ -170,20 +189,19 @@ Game.prototype.Rules.prototype = {
 	},
 	getRandomRes: function(i,j){
 		var type = this.getCellType(i,j);
-		var all_res = this.tmp[type] || this.cells;
-		var names = obj_keys(all_res);
+		var all_res = this.tmp[type] || this.tmp.cells;
+		var names = type === 'resources' ? this.tmp.res_by_count : obj_keys(all_res);
 
 		if (!names.length) {
-			all_res = this.cells;
-			names = obj_keys(all_res);
+			type = 'cells';
+			names = obj_keys(this.cells);
 		}
 
 		var res = random_elem(names);
 
 		if (type === 'resources')
 		{
-			all_res[res]--;
-			if (!all_res[res]) delete all_res[res];
+			names.splice(names.indexOf(res), 1);
 		}
 
 		return {type: res};

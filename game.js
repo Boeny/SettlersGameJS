@@ -5,13 +5,18 @@ window.Game = function(o){
 Game.prototype = {
 	Init: function(o){
 		this.players = [];
-		this.players_count = 0;
 		this.current_player = null;
 		this.current_player_index = -1;
 
 		this.current_object_type = '';
 		this.map = null;
 		this.rules = null;
+
+		var validation = o.validation;
+
+		this.Validate = function(v, type){
+			return validation ? this.rules.Validate(v, type) : v;
+		};
 
 		var _views = o.views;
 
@@ -58,53 +63,51 @@ Game.prototype = {
 
 	// Game Process
 	EnterPlayersCount: function(action, cancel){
-		this.Render('enter_number', {
+		this.Render('enter_string', {
 			title: 'Введите кол-во игроков:',
-			target: 'players_count',
+			validator: 'ValidatePlayersCount',
 			action: action,
-			cancel: cancel
+			cancel: cancel,
+			focus: true
 		});
 	},
-	Validate: function(v, type){
-	    return this.validation ? this.rules.Validate(v, type) : v;
-	},
-	Create: function(){
-		this.map = new this.Map();
-		var map_params = this.Validate(this.Start(),'map');
-		alert('!');return;
-		var step_params = this.Step();
+	Create: function(players_count){
+		this.rules = new this.Rules();
+		this.map = new this.Map({
+			parent: this,
+			rules: this.rules
+		});
 
-		step_params.map = map_params;
-		step_params.description.types = this.rules.getReceipts();
-		this.Render('main', step_params);
+		this.CreatePlayers(players_count);
+
+		this.Render('main', {
+			map:  this.CreateMap(),
+			description: {types: this.Validate(this.rules.getReceipts(), 'receipts')}
+		});
 	},
-	NewGame: function(){
-		var map_params = this.Start();
-		var step_params = this.Step();
-		step_params.map = map_params;
-		this.Render('new_game', step_params);
+	CreateMap: function(generate){
+		if (generate) this.map.Generate(this.rules);
+
+		return this.Validate({
+			object_types: this.map.getTypes(),
+			data: this.map.getData(),
+			resources: this.map.getRes(),
+			width: this.map.getWidth(),
+			height: this.map.getHeight()
+		}, 'map');
+	},
+	NewGame: function(players_count){
+		this.CreatePlayers(players_count);
+		this.Render('new_game', {map:  this.CreateMap(true)});
 	},
 	NextStep: function(){
 		this.Render('next_step', this.Step());
 	},
 
-	// Start
+	// Players
 
 	CreatePlayers: function(count){
 		this.players = this.Player.prototype.Create(this, count);
-	},
-	Start: function(){
-		this.CreatePlayers(this.getPlayersCount());
-		this.rules = new this.Rules();
-		this.map.Generate(this.rules);
-
-		return {
-			object_types: this.map.getTypes(),
-			data: this.map.data,
-			resources: this.map.res_data,
-			width: this.map.getWidth(),
-			height: this.map.getHeight()
-		};
 	},
 
 	// Step
@@ -116,32 +119,22 @@ Game.prototype = {
 			this.current_player_index++;
 		else
 			this.current_player_index--;
-
+	},
+	ValidatePlayerIndex: function(rule){
 		var count = this.getPlayersCount();
 
-		if (this.current_player_index === count){
-			this.current_player_index = 0;
-			return true;
-		}
-		if (this.current_player_index < 0){
-			this.current_player_index = count - 1;
-			return true;
-		}
+		if (this.current_player_index < 0 || this.current_player_index === count){
+			this.rules.setNextRound();
+			rule = this.rules.getCurrentRule();
 
-		return false;
-	},
-	CheckPlayerIndex: function(order){
-		this.current_player_index = order < 0 ? this.getPlayersCount() - 1 : 0;
+			// initial index depends on order
+			this.current_player_index = rule.order < 0 ? count - 1 : 0;
+		}
 	},
 	Step: function(){
 		var rule = this.Validate(this.rules.getCurrentRule(), 'rule');
-
-		if (this.setNextPlayer(rule.order))// round ended
-		{
-			this.rules.setNextRound();
-			rule = this.rules.getCurrentRule();
-			this.CheckPlayerIndex(rule.order);
-		}
+		this.setNextPlayer(rule.order);
+		this.ValidatePlayerIndex();
 
 		this.setCurrentPlayer();
 		var p = this.getCurrentPlayer();
@@ -175,13 +168,11 @@ Game.prototype = {
 	},
 
 	getPlayersCount: function(){
-		return this.players_count;
+		return this.players.length;
 	},
-	setPlayersCount: function(count){
+	ValidatePlayersCount: function(count){
 		count = +count;
-		if (!count || count < 2) return false;
-		this.players_count = count;
-		return true;
+		return count && count > 1;
 	},
 
 	getCurrentObjectType: function(){
