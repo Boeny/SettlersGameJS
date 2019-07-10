@@ -28,14 +28,14 @@ Game.prototype.Player.prototype = {
 		return this.ai ? 700 : 300;
 	},
 
-	AddObject: function(name){
-		this.objects[name] = (this.objects[name] || 0) + 1;
-		this.rule.objects[name].count--;
+	AddObject: function(type){
+		this.objects[type] = (this.objects[type] || 0) + 1;
+		this.rule.objects[type].count--;
 
-		if (this.rule.objects[name].count <= 0){
-			delete this.rule.objects[name];
-			this.game.toggleObjectDescription(name, false);
-			this.game.hideHoverTable(name);
+		if (this.rule.objects[type].count <= 0){
+			delete this.rule.objects[type];
+			this.game.toggleObjectDescription(type, false);
+			this.game.hideHoverTable(type);
 		}
 	},
 	hasObject: function(type){
@@ -63,24 +63,28 @@ Game.prototype.Player.prototype = {
 		}
 		else{
 			if (this.rule.objects){
-				var result = {};
+				var result = [];
+				var filtered = [];
 
-				for (var name in this.rule.objects){
-					var obj = this.rule.objects[name];
+				for (var type in this.rule.objects){
+					var obj = this.rule.objects[type];
 
 					if (obj.need){
 						if (this.hasObject(obj.need)){
-							result[name] = 1;
+							result.push(type);
 						}
 
-						this.game.setFilter(name);
+						filtered.push(type);
 					}
 					else{
-						result[name] = 1;
+						result.push(type);
 					}
 				}
 
-				this.game.toggleObjectDescription(result, true);
+				return {
+					filtered: filtered,
+					enabled: result
+				};
 			}
 		}
 	}

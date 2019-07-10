@@ -1,14 +1,23 @@
 window.Views = {
-	Bind: function(event, name, handler){
-		$(document).on(event, name, function(e){
-			handler(e, this, name);
+	Bind: function(event, elem, handler){
+		if (is_callable(elem)){
+			handler = elem;
+			elem = document;
+		}
+
+		$(elem).on(event, function(e){
+			return handler(e, $(this));
 		});
 	},
-	setElem: function(names){
+	Trigger: function(event_name, elem){
+		$(elem || document).trigger(event_name);
+	},
+	setElements: function(names){
 		for (var i in names){
 			this[i] = $(names[i]);
 		}
 	},
+
 	isDisabled: function(elem){
 		return $(elem).is('.disabled');
 	},
@@ -18,36 +27,142 @@ window.Views = {
 	disable: function(elem){
 		$(elem).addClass('disabled');
 	},
+	toggle: function(elem, show){
+		if (is_object(show)){
+			for (var name in show){
+				this.toggle($(elem).find(name), show[name]);
+			}
+			return;
+		}
+
+		this[show ? 'enable' : 'disable'](elem);
+	},
+
 	getType: function(elem){
-		return $(elem).data('type');
+		return $(elem).attr('data-type');
 	},
-	getRes: function(elem){
-		return $(elem).data('res');
+	setType: function(elem, type){
+		$(elem).attr('data-type', type);
 	},
 
+	showModalMessage: function(elem){
+		elem.removeClass('hidden');
+	},
+	hideModalMessage: function(elem){
+		elem.addClass('hidden');
+	},
 	message: function(o){
-		var m = this.message_elem;
+		var elem = this.message_elem;
 
-		if (m){
-			m.removeClass('hidden');
-			m.html(o.text);
+		if (elem){
+			elem.html(o.text);
+			this.showModalMessage(elem);
 		}
 		else{
-			m = $(this.html.span(o.text, {'class': 'modal-message'}));
-			$('body').append(m);
-			this.message_elem = m;
+			elem = $(this.html.span(o.text, {'class': 'modal-message msg'}));
+			$('body').append(elem);
+			this.message_elem = elem;
 		}
 
-		setTimeout(function(){m.addClass('hidden'); (o.success && o.success())}, o.ms || 1000);
+		var $this = this;
+		setTimeout(function(){$this.hideModalMessage(elem); (o.success && o.success())}, o.ms || 1000);
 	},
-	enter_number: function(title){
-		return prompt(title);
+	enter_number: function(o){
+		var elem = this.prompt_elem;
+
+		if (elem){
+			elem.data('target', target);
+			elem.find('.title').html(o.title);
+			this.showModalMessage(elem);
+		}
+		else{
+			elem = $(this.html.div({
+				'class': 'modal-message prompt',
+				'data-target': o.target,
+				style: 'width: 300px; height: 200px',
+
+				content: this.html.div(o.title, {'class': 'title'})+
+					this.html.form(
+						this.html.div(this.html.input({required: 'required'}))+
+						this.html.div(this.html.button('OK', {type: 'submit'}))
+					)
+			}));
+
+			$('body').append(elem);
+
+			this.prompt_elem = elem;
+			var input = elem.find('[type="text"]');
+
+			var $this = this;
+			this.Bind('click', elem.find('[type="submit"]'), function(e){
+				if (input.val()){
+					e.preventDefault();
+					$this.Trigger('number_entered', elem);
+				}
+			});
+		}
+	},
+
+	// Game
+	main: function(o){
+		this.main_elem.html(
+			this.html.div({
+				'class': 'header',
+
+				content: this.html.button('Новая игра', {'class': 'start_btn btn'})+
+					this.html.button('Завершить ход', {'class': 'step_btn btn disabled'})
+			})+
+			this.html.div({
+				'class': 'game_field',
+
+				content: this.html.span({
+						'class': 'map_container',
+						content: this.html.span({'class': 'map'})
+					})+
+					this.html.span({'class': 'actual'})
+			})+
+			this.html.div({
+				'class': 'bottom',
+
+				content: this.html.div({'class': 'description'})
+			})
+		);
+
+		this.setElements({
+			header_elem: '.header',
+			map_elem: '.map',
+			descr_elem: '.description'
+		});
+
+		this.new_game(o);
+	},
+	new_game: function(o){
+		this.map_view(o.map);
+		this.description_view(o.description);
+		this.next_step(o);
+	},
+	next_step: function(){
+		this.map.hover.Toggle(o.hover);
+
+		for (var name in o.header){
+			o.header[name] = '.'+o.header[name]+'_btn';
+		}
+
+		this.toggle(this.header_elem, o.header);
+
+		var $this = this;
+		o.message.success = function(){
+			if (!o.is_human){
+				$this.Trigger('next_step');
+			}
+		};
+		this.message(o.message);
 	},
 
 	// Map
-	map_view: function(map){
+	map_view: function(o){
 		var content = '';
-		this.setMapData(map);
+		this.setMapData(o);
 
 		for (var i=0; i<this.map.height; i++){
 			var row = '';
@@ -62,16 +177,10 @@ window.Views = {
 
 		this.map_elem.html(this.html.table(content));
 	},
-	setMapData: function(map){
-		this.map = new this.Map({
-			parent: this,
-			DOM: this.map_elem,
-			object_types: map.getTypes(),
-			data: map.data,
-			resources: map.res_data,
-			width: map.getWidth(),
-			height: map.getHeight()
-		});
+	setMapData: function(params){
+		params.parent = this;
+		params.DOM = this.map_elem;
+		this.map = new this.Map(params);
 	},
 	CheckFilter: function(elem){
 		var type = this.getType(elem);
@@ -83,28 +192,33 @@ window.Views = {
 	},
 
 	// Objects Description
-	description: function(receipts){
+	description_view: function(o){
 		var content = '';
-		var res, tmp, title, obj, type;
+		var row, obj, title, type;
+		var list = o.list;
 
-		for (var i in receipts){
-			res = '';
+		for (var i in list){
+			row = '';
+			obj = list[0][0];
+			title = obj.title;
+			type = obj.type;
 
-			for (var j in receipts[i]){
-				tmp = receipts[i][j];
+			for (var j in list[i]){
+				obj = list[i][j];
 
-				for (var k=0; k<tmp.count; k++){
-					res += this.html.div({'class': 'pull-left', 'data-name': tmp.name});
+				for (var k=0; k<obj.count; k++){
+					row += this.html.div({'class': 'pull-left', 'data-type': obj.resource});
 				}
-				title = tmp.title;
-				obj = tmp.object;
-				type = tmp.type;
 			}
-			content += this.html.div(res+this.html.div(title, {'class': 'pull-right'}), {'data-type': type, 'data-res': obj, 'class': 'disabled'});
+
+			var classes = [];
+			if (in_array(type, o.enabled)) classes.push('disabled');
+			if (in_array(type, o.filtered)) classes.push('filtered');
+
+			content += this.html.div(row + this.html.div(title, {'class': 'pull-right'}), {'data-type': type, 'class': classes.join(' ')});
 		}
 
 		this.descr_elem.html(content);
-		this.descr_elements = this.descr_elem.find('[data-res]');
 	},
 	getDescrElem: function(o){
 		if (o){
@@ -121,8 +235,10 @@ window.Views = {
 		this.getDescrElem(o).addClass('disabled');
 	},
 
-	toggleTurnButton: function(show){
-		this.step_over_button.prop('disabled', show);
+	toggleHoverTable: function(elem, type){
+		this.CheckFilter(elem);
+		var res = this.getRes(elem);
+		return this.toggle_hover_table(elem, type !== res) ? res : null;
 	},
 
 	setObject: function(elem){

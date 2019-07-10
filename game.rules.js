@@ -34,9 +34,9 @@ Game.prototype.Rules.prototype = {
 		//town: {village:1,stone:3,wheat:2}
 	},
 	objects: {
-		road: {type:'line',title:'дорога',place:['road','village']},
-		village: {type:'corner',title:'поселение',place:'road'},
-		//town: {type:'corner',title:'город (требуется поселение)',replace:'village'}
+		road: {title:'дорога',place:['road','village']},
+		village: {title:'поселение',place:'road'},
+		//town: {title:'город (требуется поселение)',replace:'village'}
 	},
 	bonuses: {
 		village: {resources: 1},
@@ -47,18 +47,11 @@ Game.prototype.Rules.prototype = {
 		resources: 1
 	},
 
-	getType: function(name){
-		return this.objects[name].type;
-	},
 	getTypes: function(){
-		var types = [];
-		for (var name in this.objects){
-			types.push(this.getType(name));
-		}
-		return types;
+		return obj_keys(this.objects);
 	},
-	getPlace: function(name){
-		return this.objects[name].place;
+	getPlace: function(type){
+		return this.objects[type].place;
 	},
 
 	setNextRound: function(){
@@ -68,14 +61,14 @@ Game.prototype.Rules.prototype = {
 		var rule = merge({}, this.game.prepare[this.round] || {});
 		if (!rule.objects) return rule;
 
-		for (var name in rule.objects){
-			var obj = rule.objects[name];
+		for (var type in rule.objects){
+			var obj = rule.objects[type];
 			var is_obj = is_object(obj);
 
-			rule.objects[name] = {
+			rule.objects[type] = {
 				count: is_obj ? obj.count : obj,
-				need: is_obj && obj.place ? this.getPlace(name) : null,
-				type: this.getType(name)
+				need: is_obj && obj.place ? this.getPlace(type) : null,
+				type: type
 			};
 		}
 
@@ -86,20 +79,19 @@ Game.prototype.Rules.prototype = {
 		var result = [];
 		var receipts_names = obj_keys(this.receipts);
 
-		for (var name in this.receipts){
-			var obj = this.receipts[name];
-			var obj_info = this.objects[name];
+		for (var type in this.receipts){
+			var obj = this.receipts[type];
+			var obj_info = this.objects[type];
 			var receipt = [];
 
 			for (var res in obj){
 				if (in_array(res, receipts_names)) continue;
 
 				receipt.push({
-					name: res,
-					object: name,
+					resource: res,
+					type: type,
 					count: obj[res],
-					title: obj_info.title,
-					type: obj_info.type
+					title: obj_info.title
 				});
 			}
 
@@ -174,6 +166,6 @@ Game.prototype.Rules.prototype = {
 			if (!all_res[res]) delete all_res[res];
 		}
 
-		return {name: res};
+		return {type: res};
 	}
 };

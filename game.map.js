@@ -8,7 +8,6 @@ Game.prototype.Map.prototype = {
 	getHeight: function(){
 		return this.rules.height;
 	},
-
 	getTypes: function(){
 		return this.rules.getTypes();
 	},
@@ -20,7 +19,7 @@ Game.prototype.Map.prototype = {
 	},
 	isRes: function(i,j){
 		if (!is_object(i)) i = this.getData(i,j);
-		return in_array(i.name, obj_keys(this.rules.resources));
+		return in_array(i.type, obj_keys(this.rules.resources));
 	},
 
 	Generate: function(rules){

@@ -33,6 +33,12 @@
 	margin: 0 auto;
 	width: 402px;
 }
+.btn.disabled,
+.btn.disabled:hover,
+.btn.disabled:active {
+	background: #ccc;
+	color: #999;
+}
 
 .map td {
 	position: relative;
@@ -40,23 +46,23 @@
 	height: 20px;
 }
 
-.map [data-name="sea"] {
+.map [data-type="sea"] {
 	background: #316cf7;
 }
 
-[data-name="stone"] {
+.map [data-type="stone"] {
 	background: #c5c5c5;
 }
-[data-name="wood"] {
+.map [data-type="wood"] {
 	background: #bd5d08;
 }
-[data-name="sheep"] {
+.map [data-type="sheep"] {
 	background: #78d478;
 }
-[data-name="wheat"] {
+.map [data-type="wheat"] {
 	background: #efea24;
 }
-[data-name="clay"] {
+.map [data-type="clay"] {
 	background: #ff9445;
 }
 
@@ -201,7 +207,7 @@
 	color: #999;
 	background: #f3cece;
 }
-.description [data-name] {
+.description [data-type] {
 	width: 40px;
 	height: 20px;
 	margin-right: 5px;

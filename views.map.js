@@ -33,7 +33,7 @@ Views.Map.prototype = {
 
 	getElem: function(i,j, cls){
 		if (i === null){
-			return this.map_elem.find(j);
+			return this.DOM.find(j);
 		}
 
 		if (is_array(i)){
@@ -46,7 +46,7 @@ Views.Map.prototype = {
 		var type = cls && in_str('.',cls) && cls.split('.')[1];
 		var cached = this.map.isObjectType(type) && this.hover_elem[type][coo];
 
-		return cached ? cached : this.map_elem.find((cls || '')+'[data-coo="'+coo+'"]');
+		return cached ? cached : this.DOM.find((cls || '')+'[data-coo="'+coo+'"]');
 	},
 
 	// Hover Elements
@@ -72,7 +72,7 @@ Views.Map.prototype = {
 			}
 		},
 		Change: function(cls){
-			this.map_elem.removeClass().addClass('map'+(cls ? ' '+cls : ''));
+			this.DOM.removeClass().addClass('map'+(cls ? ' '+cls : ''));
 		},
 		Hide: function(){
 			this.change_hover_table();

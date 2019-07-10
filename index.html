@@ -14,42 +14,39 @@
 <script src="views.map.js"></script>
 <script>
 $(function(){
-	var game = new Game({
-		views: Views,
-		elements: {
-			map_elem: '.map',
-			descr_elem: '.description',
-			step_over_button: '.step_btn'
-		}
-	});
+	Views.setElements({main_elem: '.game'});
 
-	game.Bind('click', {
-		'.gen_btn'	: 'Start, Step',
-		'.step_btn'	: 'Step',
-		'.description [data-res]': 'toggleHoverTable',
-		'.map .corner, .map .line': 'setObject'
+	var game = new Game({views: Views});
+
+	game.Bind({
+		'next_step': 'NextStep',
+		'click' : {
+			'.start_btn': 'NewGame',
+			'.step_btn': function(e, elem){
+				if (!Views.isDisabled(elem)){
+					Views.Trigger('next_step');
+				}
+			},
+			'.description [data-res]'	: function(e, elem){
+				game.setCurrentObject( Views.toggleHoverTable(elem, game.getCurrentObject()) );
+			},
+			'.map .corner, .map .line'	: 'setObject'
+		},
+		'number_entered': {
+			'.prompt[data-target="players_count"]': function(e, elem){
+				if (game.setPlayersCount(elem.find('input').val()))
+				{
+					Views.hideModalMessage(elem);
+					game.Create();
+				}
+			}
+		}
 	});
 });
 </script>
 </head>
 
 <body>
-	<div class="game">
-		<div class="header">
-			<button class="gen_btn">Новая игра</button>
-			<button class="step_btn" disabled>Завершить ход</button>
-		</div>
-
-		<div class="game_field">
-			<span class="map_container">
-				<span class="map"></span>
-			</span>
-			<span class="actual"></span>
-		</div>
-
-		<div class="bottom">
-			<div class="description"></div>
-		</div>
-	</div>
+	<div class="game"></div>
 </body>
 </html>

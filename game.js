@@ -1,12 +1,10 @@
 window.Game = function(o){
 	this.views = o.views;
-	this.views.setElem(o.elements);
 
-	this.map = new this.Map();
-
-	this.Start();
-	this.Render('description', this.rules.getReceipts());
-	this.Step();
+	this.Render('enter_number', {
+		title: 'Введите кол-во игроков:',
+		target: 'players_count'
+	});
 };
 Game.prototype = {
 	Render: function(name, o){
@@ -17,87 +15,81 @@ Game.prototype = {
 			for (var e in event){
 				this.Bind(e, event[e]);
 			}
+			return;
 		}
-		else{
-			var $this = this;
 
-			for (var name in params){
+		if (!is_object(params)){
+			this.views.Bind(event, function(e, elem){
+				if (is_callable(params)){
+					params(e, elem);
+				}
+				else{
+					$this[params]();
+				}
+			});
+			return;
+		}
+
+		var $this = this;
+
+		for (var name in params){
+			this.views.Bind(event, name, function(e, elem){
 				var method = params[name];
 
-				if (!is_callable(method)){
-					method = in_str(',', method) ? method.split(',') : to_arr(method);
-
-					for (var i in method){
-						method[i] = method[i].trim();
-
-						var object, m;
-
-						if (in_str('.',method[i])){
-							method[i] = method[i].split('.');
-
-							method[i] = {
-								object: method[i][0],
-								method: method[i][1]
-							};
-						}
-						else{
-							method[i] = {
-								object: this,
-								method: method[i]
-							};
-						}
-					}
-
-					params[name] = method;
+				if (is_callable(method)){
+					method(e, elem);
 				}
-
-				this.views.Bind(event, name, function(e, elem, _name){
-					if (is_callable(params[_name].method)){
-						params[_name].method(e, elem);
-					}
-					else{
-						for (var i in params[_name]){
-							var o = params[_name][i];
-
-							if (!is_object(o.object)) o.object = this[o.object];
-							o.object[o.method](e, elem);
-						}
-					}
-				});
-			}
+				else{
+					$this[method]();
+				}
+			});
 		}
 	},
 
-	Message: function(text, ms, success){
-		if (is_callable(ms)){
-			success = ms;
-			ms = null;
-		}
-		this.Render('message', {text: text, ms: ms, success: success});
+	// Game Process
+
+	Create: function(){
+		this.map = new this.Map();
+		var map_params = this.Start();
+		var step_params = this.Step();
+
+		step_params.map = map_params;
+		step_params.description.list = this.rules.getReceipts();
+
+		this.Render('main', step_params);
+	},
+	NewGame: function(){
+		var map_params = this.Start();
+		var step_params = this.Step();
+		step_params.map = map_params;
+		this.Render('new_game', step_params);
+	},
+	NextStep: function(){
+		this.Render('next_step', this.Step());
 	},
 
-	CreatePlayers: function(){
-		var count = this.Render('enter_number', 'Введите кол-во игроков:');
+	// Start
 
+	CreatePlayers: function(count){
 		this.players = this.Player.prototype.Create(this, count);
 		this.current_player_index = -1;
 	},
 	Start: function(){
-		this.CreatePlayers();
+		this.CreatePlayers(this.getPlayersCount());
 		this.rules = new this.Rules();
 		this.map.Generate(this.rules);
-		this.Render('map_view', this.map);
+
+		return {
+			object_types: this.map.getTypes(),
+			data: this.map.data,
+			resources: this.map.res_data,
+			width: this.map.getWidth(),
+			height: this.map.getHeight()
+		};
 	},
 
-	toggleObjectDescription: function(name, enable){
-		this.views[(enable ? 'enable' : 'disable')+'Object'](name);
-	},
-	hideHoverTable: function(elem){
-		this.views.toggle_hover_table(elem, false);
-		this.current_object = null;
-	},
+	// Step
 
-	// Game Process
 	setNextPlayer: function(order){
 		if (order === undefined) order = 1;
 
@@ -119,9 +111,6 @@ Game.prototype = {
 		this.current_player_index = order < 0 ? this.players.length-1 : 0;
 	},
 	Step: function(){
-		this.Render('hide_hover_table');
-		this.views.toggleTurnButton(false);
-
 		var rule = this.rules.getCurrentRule();
 
 		if (this.setNextPlayer(rule.order))// round ended
@@ -136,18 +125,45 @@ Game.prototype = {
 
 		if (p.ai) this.views.disableObject();
 
-		this.Message(p.getRoundMessage(), p.getMessageTimeout(), function(){
-			p.Step(rule);
-			if (p.ai) $this.Step();
-		});
+		return {
+			header: {step: false},
+			message: {
+				text: p.getRoundMessage(),
+				ms: p.getMessageTimeout()
+			},
+			is_human: !p.ai,
+			map: {hover: false},
+			description: p.Step(rule)
+		};
 	},
 
-	// Events
-	toggleHoverTable: function(e, elem){
-		this.views.CheckFilter(elem);
-		var res = this.views.getRes(elem);
-		this.current_object = this.views.toggle_hover_table(elem, this.current_object !== res) ? res : null;
+	toggleObjectDescription: function(name, enable){
+		this.views[(enable ? 'enable' : 'disable')+'Object'](name);
 	},
+	hideHoverTable: function(elem){
+		this.views.toggle_hover_table(elem, false);
+		this.current_object = null;
+	},
+
+	// Getters & Setters
+
+	getPlayersCount: function(){
+		return this.players_count;
+	},
+	setPlayersCount: function(count){
+		count = +count;
+		if (!count || count < 2) return false;
+		this.players_count = count;
+		return true;
+	},
+
+	getCurrentObject: function(){
+		return this.current_object;
+	},
+	setCurrentObject: function(o){
+		this.current_object = o;
+	},
+
 	setObject: function(e, elem){
 		if (!this.current_object || this.views.ObjectIsSet(elem)) return;
 		this.views.setObject(elem);
@@ -156,7 +172,7 @@ Game.prototype = {
 	},
 
 	// Filter
-	setFilter: function(name){
-		this.views.setFilter(this.views.getDescrElem(name));
+	setFilter: function(type){
+		this.views.setFilter(this.views.getDescrElem(type));
 	}
 };
