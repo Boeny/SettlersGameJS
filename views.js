@@ -149,15 +149,19 @@ window.Views = {
 			this.toggle($('.'+name+'_btn'), o.header[name]);
 		}
 
-		//if (!o.is_human) this.disable(this.getDescrElem());
+		if (!o.is_human) this.disable(this.getDescrElem());
 
-		var $this = this;
-		o.message.success = function(){
-			if (!o.is_human){
-				$this.Trigger('next_step');
-			}
-		};
-		this.message(o.message);
+		if (o.message){
+			var $this = this;
+
+			o.message.success = function(){
+				if (!o.is_human){
+					$this.Trigger('next_step');
+				}
+			};
+
+			this.message(o.message);
+		}
 	},
 
 	// Map
@@ -212,13 +216,17 @@ window.Views = {
 		return this.descr_elements;
 	},
 
-	toggleHoverTable: function(elem, type){
-	this.map.setType(type);
-		this.CheckFilter(elem);
-		var res = this.getType(elem);
-		var not_same = type !== res;
-		this.map.ToggleHover(res, not_same);
-		return not_same ? res : null;
+	toggleHoverTable: function(elem, old_type){
+		var type = this.getType(elem);
+		var show = old_type !== type;
+
+		if (show){
+			this.map.setType(type);
+			this.CheckFilter(elem);
+		}
+
+		this.map.ToggleHover(type, show);
+		return show ? type : null;
 	},
 
 	needFilter: function(elem){

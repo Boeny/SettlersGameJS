@@ -187,11 +187,15 @@ Game.prototype = {
 		this.current_object_type = o;
 	},
 
-	setObject: function(e, elem){
-		if (!this.current_object_type || this.views.ObjectIsSet(elem)) return;
-		this.views.setObject(elem);
-		this.current_player.AddObject(this.current_object_type);
-		this.current_player.Step();
+	setObject: function(){
+		var p = this.getCurrentPlayer();
+		p.AddObject(this.getCurrentObjectType());
+
+		this.Render('next_step', {
+			is_human: !p.ai,
+			map: {hover: false},
+			description: p.Step()
+		});
 	},
 
 	// Filter
