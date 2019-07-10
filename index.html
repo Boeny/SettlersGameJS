@@ -15,13 +15,13 @@
 <script src="views.map.hover.js"></script>
 <script src="views.description.js"></script>
 <script>
-/*window.onerror = function (msg, url, line){
-	alert(msg + "\n" + url + "\n" + "\n" + line);
+window.onerror = function (){
+	alert([].join.apply(arguments,[', ']));
 	return true;
-};*/
+};
 
 $(function(){
-	Views.setElements({main_elem: '.game'});
+	Views.setElements({main_elem: '.game',validation:true});
 	var game = new Game({views: Views});
 
 	$(document).on('next_step', function(){

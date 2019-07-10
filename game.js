@@ -65,9 +65,13 @@ Game.prototype = {
 			cancel: cancel
 		});
 	},
+	Validate: function(v, type){
+	    return this.validation ? this.rules.Validate(v, type) : v;
+	},
 	Create: function(){
 		this.map = new this.Map();
-		var map_params = this.Start();
+		var map_params = this.Validate(this.Start(),'map');
+		alert('!');return;
 		var step_params = this.Step();
 
 		step_params.map = map_params;
@@ -130,7 +134,7 @@ Game.prototype = {
 		this.current_player_index = order < 0 ? this.getPlayersCount() - 1 : 0;
 	},
 	Step: function(){
-		var rule = this.rules.getCurrentRule();
+		var rule = this.Validate(this.rules.getCurrentRule(), 'rule');
 
 		if (this.setNextPlayer(rule.order))// round ended
 		{

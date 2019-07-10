@@ -47,6 +47,24 @@ Game.prototype.Rules.prototype = {
 		resources: 1
 	},
 
+	Validate: function(v, type){
+        switch (type) {
+            case 'map':
+                if (v.width * v.height !== v.data.length)
+                    alert('map data is less than mult of wh');
+                break;
+            case 'rule':
+                if (in_array(this.round, [0, 1])) {
+                    var need = null;//v.objects.road.need;
+                    if (!need || !need.length) {
+                        alert('something wrong with road need, round=' + this.round);
+                    }
+                }
+                break;
+        }
+        //return v;
+	},
+
 	getTypes: function(){
 		return obj_keys(this.objects);
 	},

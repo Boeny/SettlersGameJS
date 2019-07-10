@@ -10,6 +10,7 @@ Views.Map.prototype.Hover.prototype = {
 		this.filled = false;
 	},
 	Create: function(cells_info){
+		var length = obj_length(this.get());
 		if (this.filled) return;
 
 		for (var coo in cells_info){
@@ -35,6 +36,7 @@ Views.Map.prototype.Hover.prototype = {
 		return o.i === undefined && !o.coo ? elements : elements[this.getCooStr(o)];
 	},
 	set: function(o){
+		var elements = this[o.added ? 'added' : 'cached'];
 		this.elements[this.getCooStr(o)] = o.element;
 	},
 
