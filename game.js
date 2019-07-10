@@ -2,7 +2,7 @@ window.Game = function(o){
 	this.views = o.views;
 	this.views.setElem(o.elements);
 
-	this.map = new Map();
+	this.map = new this.Map();
 
 	this.Start();
 	this.Render('description', this.rules.getReceipts());
@@ -79,31 +79,14 @@ Game.prototype = {
 	CreatePlayers: function(){
 		var count = this.Render('enter_number', 'Введите кол-во игроков:');
 
-		this.players = Player.prototype.Create(this, count);
+		this.players = this.Player.prototype.Create(this, count);
 		this.current_player_index = -1;
-	},
-	CreateHoverTable: function(){
-		for (var i=0; i<this.map.getHeight(); i++){
-			for (var j=0; j<this.map.getWidth(); j++)
-			{
-				if (!this.map.isRes(i,j)) continue;
-
-				this.Render('lines', {
-					data: this.map.getLines(i,j),
-					pos: [i,j]
-				});
-				this.Render('corners', {
-					data: this.map.getCorners(i,j),
-					pos: [i,j]
-				});
-			}
-		}
 	},
 	Start: function(){
 		this.CreatePlayers();
-		this.rules = new Rules();
-		this.Render('map', this.map.Generate(this.rules));
-		this.CreateHoverTable();
+		this.rules = new this.Rules();
+		this.map.Generate(this.rules);
+		this.Render('map_view', this.map);
 	},
 
 	toggleObjectDescription: function(name, enable){
@@ -132,6 +115,9 @@ Game.prototype = {
 
 		return false;
 	},
+	ChangePlayersOrder: function(order){
+		this.current_player_index = order < 0 ? this.players.length-1 : 0;
+	},
 	Step: function(){
 		this.Render('hide_hover_table');
 		this.views.toggleTurnButton(false);
@@ -142,7 +128,7 @@ Game.prototype = {
 		{
 			this.rules.setNextRound();
 			rule = this.rules.getCurrentRule();
-			this.current_player_index = rule.order < 0 ? this.players.length-1 : 0;
+			this.ChangePlayersOrder(rule.order);
 		}
 
 		var p = this.current_player = this.players[this.current_player_index];

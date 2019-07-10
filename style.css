@@ -103,46 +103,46 @@
 	cursor: pointer;
 }
 
-.map td .line-top {
+.map td .line.line-top {
 	top: -6px;
 	height: 8px;
 	left: -1px;
 	width: 100%;
 }
-.map td .line-bottom {
+.map td .line.line-bottom {
 	bottom: -6px;
 	height: 8px;
 	left: -1px;
 	width: 100%;
 }
-.map td .line-left {
+.map td .line.line-left {
 	left: -6px;
 	height: 100%;
 	top: -1px;
 	width: 8px;
 }
-.map td .line-right {
+.map td .line.line-right {
 	right: -6px;
 	height: 100%;
 	top: -1px;
 	width: 8px;
 }
 
-.map td .line-top .added {
+.map td .line.line-top .added {
 	top: -4px;
-	height: 4px;
+	height: 4px!important;
 }
-.map td .line-bottom.added {
+.map td .line.line-bottom.added {
 	bottom: -4px;
-	height: 4px;
+	height: 4px!important;
 }
-.map td .line-left.added {
+.map td .line.line-left.added {
 	left: -4px;
-	width: 4px;
+	width: 4px!important;
 }
-.map td .line-right.added {
+.map td .line.line-right.added {
 	right: -4px;
-	width: 4px;
+	width: 4px!important;
 }
 
 .map td .top-left {
