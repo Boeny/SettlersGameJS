@@ -253,8 +253,7 @@
 							'class': 'corner '+type.vert+'-'+type.hor,
 							'data-coo': ci+'-'+cj,
 							'data-dir': type.vert+'-'+type.hor,
-							'data-type': 'corner',
-							'data-res': _data.resources[type.vert][type.hor].join('-')
+							'data-type': 'corner'
 						});
 					}
 				}
