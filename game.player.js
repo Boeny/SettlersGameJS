@@ -56,40 +56,45 @@ Game.prototype.Player.prototype = {
 		return in_array(type, obj_keys(this.objects));
 	},
 
-	Step: function(rule){
-		this.rule = rule || this.rule;
+	Step: function(r){
+		this.rule = r || this.rule;
 		var enabled = [];
 		var filtered = [];
 
-
 		if (this.ai){
-			/*if (rule.objects){
-				this.game.setRandomObject(rule.objects);
-			}*/
-		}
-		else{
-			if (this.rule.objects){
-				for (var type in this.rule.objects){
-					var obj = this.rule.objects[type];
+			for (var type in this.rule.objects){
+				var obj = this.rule.objects[type];
 
-					if (obj.need){
-						if (this.hasObject(obj.need)){
-							enabled.push(type);
-						}
-						alert(obj.need);
-						filtered.push(type);
-					}
-					else{
+				if (obj.need){
+					if (this.hasObject(obj.need)){
 						enabled.push(type);
 					}
+					filtered.push(type);
+				}
+				else{
+					enabled.push(type);
 				}
 			}
 		}
-		alert((this.ai ? 'comp':'human')+', filtered='+filtered.length+', enabled='+enabled.length);
+		else{
+			for (var type in this.rule.objects){
+				var obj = this.rule.objects[type];
+
+				if (obj.need){
+					if (this.hasObject(obj.need)){
+						enabled.push(type);
+					}
+					filtered.push(type);
+				}
+				else{
+					enabled.push(type);
+				}
+			}
+		}
 
 		return {
 			filtered: filtered,
-			enabled: enabled
+			enabled: this.ai ? [] : enabled
 		};
 	}
 };

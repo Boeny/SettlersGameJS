@@ -1,6 +1,6 @@
 Views.Map = function(o){
 	this.Init(o);
-	this.Create(o);
+	this.Create();
 };
 Views.Map.prototype = {
 	Init: function(o){
@@ -99,7 +99,7 @@ Views.Map.prototype = {
 	},
 
 	getCell: function(i,j){
-		return is_array(i) ? this.getCell(i[0],i[1]) : this.cached[this.getCooStr(i,j)];
+		return is_array(i) ? this.getCell(i[0],i[1]) : this.data[this.getCooStr(i,j)];
 	},
 	getHover: function(o, coo, dir){
 		if (!is_object(o)){
@@ -111,7 +111,7 @@ Views.Map.prototype = {
 		}
 		return this.hover[o.type].get(o);
 	},
-	setHover: function(type, elem, coo, dir){
+	setHover: function(o, elem, coo, dir){
 		if (!is_object(o)){
 			o = {
 				type: o,

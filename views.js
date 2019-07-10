@@ -138,7 +138,7 @@ window.Views = {
 	},
 	new_game: function(o){
 		this.setMapData(o.map);
-		this.description_view(o.description);
+		this.setDescrData(o.description);
 		this.next_step(o);
 	},
 	next_step: function(o){
@@ -149,7 +149,8 @@ window.Views = {
 			this.toggle($('.'+name+'_btn'), o.header[name]);
 		}
 
-		if (!o.is_human) this.disable(this.getDescrElem());
+		this.description.Toggle(o.description.enabled);
+		this.description.Filter(o.description.filtered);
 
 		if (o.message){
 			var $this = this;
@@ -166,10 +167,11 @@ window.Views = {
 
 	// Map
 	setMapData: function(params){
-		params.parent = this;
-		params.DOM = this.map_elem;
-		params.html = this.html;
-		this.map = new this.Map(params);
+		var o = $.extend({},params);
+		o.parent = this;
+		o.DOM = this.map_elem;
+		o.html = this.html;
+		this.map = new this.Map(o);
 	},
 	CheckFilter: function(elem){
 		var type = this.getType(elem);
@@ -179,43 +181,6 @@ window.Views = {
 		else
 			this.map.CreateHovers(type);
 	},
-
-	// Objects Description
-	description_view: function(o){
-		var content = '';
-		var row, obj, res;
-		var list = o.list;
-
-		for (var i in o.types){
-			row = '';
-			obj = o.types[i];
-
-			for (var j in obj.resources){
-				res = obj.resources[j];
-
-				for (var k=0; k<res.count; k++){
-					row += this.html.div({'class': 'resource pull-left', 'data-type': res.type});
-				}
-			}
-
-			var classes = ['receipt'];
-			if (in_array(obj.type, o.enabled)) classes.push('disabled');
-			if (in_array(obj.type, o.filtered)) classes.push('filtered');
-
-			content += this.html.div(row + this.html.div(obj.title, {'class': 'pull-right'}), {'data-type': obj.type, 'class': classes.join(' ')});
-		}
-
-		this.descr_elem.html(content);
-	},
-	getDescrElem: function(o){
-		if (o){
-			if (is_object(o)) o = obj_keys(o).join('"], [data-type="');
-			return this.descr_elem.find('[data-type="'+o+'"]');
-		}
-
-		return this.descr_elements;
-	},
-
 	toggleHoverTable: function(elem, old_type){
 		var type = this.getType(elem);
 		var show = old_type !== type;
@@ -229,11 +194,26 @@ window.Views = {
 		return show ? type : null;
 	},
 
+	// Description
+
+	setDescrData: function(params){
+		var o = $.extend({},params);
+		o.parent = this;
+		o.DOM = this.descr_elem;
+		o.html = this.html;
+		this.description = new this.Description(o);
+	},
+
+	// Filter
+
 	needFilter: function(elem){
 		return $(elem).is('.filtered');
 	},
 	setFilter: function(elem){
 		$(elem).addClass('filtered');
+	},
+	toggleFilter: function(elem, filter){
+		this[filter ? 'setFilter' : 'removeFilter'](elem);
 	},
 	removeFilter: function(elem){
 		$(elem).removeClass('filtered');

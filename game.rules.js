@@ -51,28 +51,28 @@ Game.prototype.Rules.prototype = {
 		return obj_keys(this.objects);
 	},
 	getPlace: function(type){
-		return this.objects[type].place;
+		return copy_elements([], to_arr(this.objects[type].place));
 	},
 
 	setNextRound: function(){
 		this.round++;
 	},
 	getCurrentRule: function(){
-		var rule = merge({}, this.game.prepare[this.round] || {});
-		if (!rule.objects) return rule;
+		var result = {objects: {}};
+		var rule = this.game.prepare[this.round];
 
 		for (var type in rule.objects){
 			var obj = rule.objects[type];
 			var is_obj = is_object(obj);
 
-			rule.objects[type] = {
+			result.objects[type] = {
 				count: is_obj ? obj.count : obj,
 				need: is_obj && obj.place ? this.getPlace(type) : null,
 				type: type
 			};
 		}
 
-		return rule;
+		return result;
 	},
 
 	getReceipts: function(){

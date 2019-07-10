@@ -30,6 +30,7 @@ Views.Map.prototype.Hover.prototype = {
 	},
 
 	get: function(o){
+		if (!o) return this.cached;
 		var elements = this[o.added ? 'added' : 'cached'];
 		return o.i === undefined && !o.coo ? elements : elements[this.getCooStr(o)];
 	},

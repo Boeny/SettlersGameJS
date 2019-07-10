@@ -13,6 +13,7 @@
 <script src="views.html.js"></script>
 <script src="views.map.js"></script>
 <script src="views.map.hover.js"></script>
+<script src="views.description.js"></script>
 <script>
 /*window.onerror = function (msg, url, line){
 	alert(msg + "\n" + url + "\n" + "\n" + line);
@@ -37,7 +38,7 @@ $(function(){
 		}
 	});
 	$(document).on('click', '.description .receipt', function(){
-		game.setCurrentObjectType( Views.toggleHoverTable(this, game.getCurrentObjectType()) );
+		game.setCurrentObjectType( Views.isDisabled(this) ? null : Views.toggleHoverTable(this, game.getCurrentObjectType()) );
 	});
 	$(document).on('click', '.map .corner, .map .line', function(){
 		if (game.getCurrentObjectType() && !Views.ObjectIsSet(this))
