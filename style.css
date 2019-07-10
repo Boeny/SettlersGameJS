@@ -72,13 +72,27 @@
 }
 .map td .corner {
 	border-radius: 50%;
-	z-index: 2;
 }
+.map td .line {
+	border-radius: 35%;
+}
+.map td .line.added {
+	border-radius: 45%;
+}
+
 .map td .added,
-.map.corner-hover td .corner,
-.map.line-hover td .line {
+.map.corner-hover td .corner:not(.disabled),
+.map.line-hover td .line:not(.disabled) {
 	opacity: 1;
 	z-index: 1;
+}
+.map.corner-hover td .corner,
+.map td .corner.added {
+	z-index: 2;
+}
+.map td .corner.added {
+	width: 11px;
+	height: 11px;
 }
 .map td .added,
 .map.corner-hover td .corner:hover,
@@ -90,27 +104,44 @@
 }
 
 .map td .line-top {
-	top: -4px;
-	height: 4px;
+	top: -6px;
+	height: 8px;
 	left: -1px;
 	width: 100%;
 }
 .map td .line-bottom {
-	bottom: -4px;
-	height: 4px;
+	bottom: -6px;
+	height: 8px;
 	left: -1px;
 	width: 100%;
 }
 .map td .line-left {
-	left: -4px;
+	left: -6px;
 	height: 100%;
 	top: -1px;
-	width: 4px;
+	width: 8px;
 }
 .map td .line-right {
-	right: -4px;
+	right: -6px;
 	height: 100%;
 	top: -1px;
+	width: 8px;
+}
+
+.map td .line-top .added {
+	top: -4px;
+	height: 4px;
+}
+.map td .line-bottom.added {
+	bottom: -4px;
+	height: 4px;
+}
+.map td .line-left.added {
+	left: -4px;
+	width: 4px;
+}
+.map td .line-right.added {
+	right: -4px;
 	width: 4px;
 }
 
@@ -129,6 +160,23 @@
 .map td .bottom-right {
 	bottom: -9px;
 	right: -9px;
+}
+
+.map td .top-left.added {
+	top: -7px;
+	left: -7px;
+}
+.map td .bottom-left.added {
+	bottom: -7px;
+	left: -7px;
+}
+.map td .top-right.added {
+	top: -7px;
+	right: -7px;
+}
+.map td .bottom-right.added {
+	bottom: -7px;
+	right: -7px;
 }
 
 .description {

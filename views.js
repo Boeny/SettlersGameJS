@@ -144,9 +144,9 @@
 	};
 
 	w.Views = {
-		Bind: function(event, elem, handler){
-			$(document).on(event, elem, function(e){
-				handler(e, this);
+		Bind: function(event, name, handler){
+			$(document).on(event, name, function(e){
+				handler(e, this, name);
 			});
 		},
 		setElem: function(names){
@@ -157,6 +157,12 @@
 		isDisabled: function(elem){
 			return $(elem).is('.disabled');
 		},
+		enable: function(elem){
+			$(elem).removeClass('disabled');
+		},
+		disable: function(elem){
+			$(elem).addClass('disabled');
+		},
 		getType: function(elem){
 			return $(elem).data('type');
 		},
@@ -164,12 +170,26 @@
 			return $(elem).data('res');
 		},
 
-		getCell: function(i,j){
+		needFilter: function(elem){
+			return $(elem).is('.filtered');
+		},
+		setFilter: function(elem){
+			$(elem).addClass('filtered');
+		},
+		removeFilter: function(elem){
+			$(elem).removeClass('filtered');
+		},
+
+		getElem: function(i,j, cls){
 			if (is_array(i)){
+				cls = j;
 				j = i[1];
 				i = i[0];
 			}
-			return this.map_elem.find('[data-coo="'+i+'-'+j+'"]');
+			return this.map_elem.find((cls || '')+'[data-coo="'+i+'-'+j+'"]');
+		},
+		getCoo: function(elem){
+			return elem.data('coo').split('-');
 		},
 
 		message: function(o){
@@ -185,14 +205,9 @@
 				this.message_elem = m;
 			}
 
-			var success;
-			if (is_callable(o.ms)){
-				success = o.ms;
-				o.ms = null;
-			}
-
-			setTimeout(function(){m.addClass('hidden'); (success && success())}, o.ms || 1000);
+			setTimeout(function(){m.addClass('hidden'); (o.success && o.success())}, o.ms || 1000);
 		},
+
 		description: function(receipts){
 			var content = '';
 			var res, tmp, title, obj, type;
@@ -231,12 +246,21 @@
 					type.hor = types.hor[j];
 
 					if (_data[type.hor]){
-						content += Html.div({'class': 'corner '+type.vert+'-'+type.hor, 'data-type': 'corner', 'data-res': _data.resources[type.vert][type.hor].join('-')});
+						var ci = type.vert == 'top' ? o.pos[0] : o.pos[0]+1;
+						var cj = type.hor == 'left' ? o.pos[1] : o.pos[1]+1;
+
+						content += Html.div({
+							'class': 'corner '+type.vert+'-'+type.hor,
+							'data-coo': ci+'-'+cj,
+							'data-dir': type.vert+'-'+type.hor,
+							'data-type': 'corner',
+							'data-res': _data.resources[type.vert][type.hor].join('-')
+						});
 					}
 				}
 			}
 
-			this.getCell(o.pos).append(content);
+			this.getElem(o.pos).append(content);
 		},
 		lines: function(o){
 			var types = ['top','bottom','left','right'];
@@ -247,11 +271,20 @@
 				type = types[i];
 
 				if (o.data[type]){
-					content += Html.div({'class': 'line line-'+type, 'data-type': 'line'});
+					var top_left = type == 'top' || type == 'left';
+					var li = top_left ? o.pos[0] : o.pos[0]+1;
+					var lj = top_left ? o.pos[1] : o.pos[1]+1;
+
+					content += Html.div({
+						'class': 'line line-'+type,
+						'data-coo': li+'-'+lj,
+						'data-dir': type,
+						'data-type': 'line'
+					});
 				}
 			}
 
-			this.getCell(o.pos).append(content);
+			this.getElem(o.pos).append(content);
 		},
 		map: function(_data){
 			var content = '';
@@ -276,19 +309,110 @@
 		hide_hover_table: function(){
 			this.change_hover_table();
 		},
-		show_hover_table: function(object_elem){
-			if (!this.isDisabled(object_elem)){
-				this.change_hover_table(this.getType(object_elem)+'-hover');
+		show_hover_table: function(elem){
+			var enabled = !this.isDisabled(elem);
+			if (enabled){
+				this.change_hover_table(this.getType(elem)+'-hover');
 			}
+			return enabled;
+		},
+		toggle_hover_table: function(elem, show){
+			return this[(show ? 'show' : 'hide')+'_hover_table'](elem);
 		},
 
 		enter_number: function(title){
 			return prompt(title);
 		},
 
+		getObjectElem: function(o){
+			if (o){
+				if (is_object(o)) o = obj_keys(o).join('"], [data-type="');
+				return this.map_elem.find('[data-type="'+o+'"]');
+			}
+
+			return this.map_elem.find('[data-type]');
+		},
+		getAddedObject: function(type){
+			return this.map_elem.find('added[data-type="'+type+'"]')
+		},
+		getFreeObject: function(type){
+			return this.map_elem.find('[data-type="'+type+'"]:not(.added)');
+		},
+		getNearest: function(type){
+			switch (type){
+				case 'line':
+					return this.getNearestLines();
+				case 'corner':
+					return this.getNearestCorners();
+				default:
+					return [];
+			}
+		},
+		getNearestCorners: function(){
+			var result = [];
+			var $this = this;
+
+			this.getAddedObject('line').each(function(){
+				var elem = $(this);
+				var pos = $this.getCoo(elem);
+				var coo = [pos];
+
+				switch (elem.data('dir')){
+					case 'top':
+					case 'bottom':
+						coo.push([pos[0],pos[1]+1]);
+						break;
+
+					case 'left':
+					case 'right':
+						coo.push([pos[0]+1,pos[1]]);
+						break;
+				}
+
+				for (var i in coo){
+					$this.getElem(coo[i], '.corner').each(function(){
+						if (!$(this).is('.added')) result.push(this);
+					});
+				}
+			});
+
+			return result;
+		},
+		getNearestLines: function(){
+			var result = [];
+			var $this = this;
+
+			this.getAddedObject('corner').each(function(){
+				var elem = $(this);
+				var pos = $this.getCoo(elem);
+				var coo = [pos, [pos[0]-1,pos[1]], [pos[0],pos[1]-1]];
+
+				for (var i in coo){
+					$this.getElem(coo[i], '.line').each(function(){
+						if (!$(this).is('.added')) result.push(this);
+					});
+				}
+			});
+
+			return result;
+		},
+		enableNearest(type){
+			this.disable(this.getFreeObject(type));
+			var nearest = this.getNearest(type);
+
+			for (var i in nearest){
+				this.enable(nearest[i]);
+			}
+		},
+		CheckFilter: function(elem){
+			if (this.needFilter(elem))
+				this.enableNearest(this.getType(elem));
+		},
+
 		getDescrElem: function(o){
 			if (o){
-				return this.descr_elem.find('[data-res="'+obj_keys(o).join('"], [data-res="')+'"]');
+				if (is_object(o)) o = obj_keys(o).join('"], [data-res="');
+				return this.descr_elem.find('[data-res="'+o+'"]');
 			}
 
 			return this.descr_elements;
@@ -304,8 +428,11 @@
 			this.step_over_button.prop('disabled', show);
 		},
 
-		SetObject: function(elem){
-			elem.addClass('added');
+		setObject: function(elem){
+			$(elem).addClass('added');
+		},
+		ObjectIsSet: function(elem){
+			return $(elem).is('.added');
 		}
 	};
 })(window);

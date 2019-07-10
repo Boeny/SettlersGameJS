@@ -5,7 +5,7 @@ window.Game = function(o){
 	this.map = new Map();
 
 	this.Start();
-	this.Render('description', this.map.getReceipts());
+	this.Render('description', this.rules.getReceipts());
 	this.Step();
 };
 Game.prototype = {
@@ -19,10 +19,10 @@ Game.prototype = {
 			}
 		}
 		else{
-			var $this = this, method;
+			var $this = this;
 
 			for (var name in params){
-				method = params[name];
+				var method = params[name];
 
 				if (!is_callable(method)){
 					method = in_str(',', method) ? method.split(',') : to_arr(method);
@@ -30,39 +30,50 @@ Game.prototype = {
 					for (var i in method){
 						method[i] = method[i].trim();
 
+						var object, m;
+
 						if (in_str('.',method[i])){
 							method[i] = method[i].split('.');
-						}
-					}
-				}
 
-				this.views.Bind(event, name, function(e, elem){
-					if (is_callable(method)){
-						method(e, elem);
-						return;
-					}
-
-					var object, m;
-
-					for (var i in method){
-						if (is_array(method[i])){
-							object = method[i][0];
-							m = method[i][1];
+							method[i] = {
+								object: method[i][0],
+								method: method[i][1]
+							};
 						}
 						else{
-							object = $this;
-							m = method[i];
+							method[i] = {
+								object: this,
+								method: method[i]
+							};
 						}
+					}
 
-						object[m](e, elem);
+					params[name] = method;
+				}
+
+				this.views.Bind(event, name, function(e, elem, _name){
+					if (is_callable(params[_name].method)){
+						params[_name].method(e, elem);
+					}
+					else{
+						for (var i in params[_name]){
+							var o = params[_name][i];
+
+							if (!is_object(o.object)) o.object = this[o.object];
+							o.object[o.method](e, elem);
+						}
 					}
 				});
 			}
 		}
 	},
 
-	Message: function(text, ms){
-		this.Render('message', {text: text, ms: ms});
+	Message: function(text, ms, success){
+		if (is_callable(ms)){
+			success = ms;
+			ms = null;
+		}
+		this.Render('message', {text: text, ms: ms, success: success});
 	},
 
 	CreatePlayers: function(){
@@ -95,8 +106,12 @@ Game.prototype = {
 		this.CreateHoverTable();
 	},
 
-	toggleObject: function(name, enable){
+	toggleObjectDescription: function(name, enable){
 		this.views[(enable ? 'enable' : 'disable')+'Object'](name);
+	},
+	hideHoverTable: function(elem){
+		this.views.toggle_hover_table(elem, false);
+		this.current_object = null;
 	},
 
 	// Game Process
@@ -130,24 +145,32 @@ Game.prototype = {
 			this.current_player_index = rule.order < 0 ? this.players.length-1 : 0;
 		}
 
-		this.current_player = this.players[this.current_player_index];
+		var p = this.current_player = this.players[this.current_player_index];
 		var $this = this;
 
-		if (this.current_player.ai) this.views.disableObject();
+		if (p.ai) this.views.disableObject();
 
-		this.Message(this.current_player.ai ? 'Ходит игрок №'+(this.current_player.index+1) : 'Ваш ход', function(){
-			$this.current_player.Step(rule);
-			if ($this.current_player.ai) $this.Step();
+		this.Message(p.getRoundMessage(), p.getMessageTimeout(), function(){
+			p.Step(rule);
+			if (p.ai) $this.Step();
 		});
 	},
 
-	ShowHoverTable: function(e, elem){
-		this.current_object = this.Render('show_hover_table') ? this.views.getRes(elem) : null;
+	// Events
+	toggleHoverTable: function(e, elem){
+		this.views.CheckFilter(elem);
+		var res = this.views.getRes(elem);
+		this.current_object = this.views.toggle_hover_table(elem, this.current_object !== res) ? res : null;
 	},
-	SetObject: function(e, elem){
-		if (!this.current_object) return;
-		this.views.SetObject(elem);
+	setObject: function(e, elem){
+		if (!this.current_object || this.views.ObjectIsSet(elem)) return;
+		this.views.setObject(elem);
 		this.current_player.AddObject(this.current_object);
 		this.current_player.Step();
+	},
+
+	// Filter
+	setFilter: function(name){
+		this.views.setFilter(this.views.getDescrElem(name));
 	}
 };

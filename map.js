@@ -115,32 +115,5 @@ Map.prototype = {
 		if (j == last.hor) delete types.right;
 
 		return types;
-	},
-
-	getReceipts: function(){
-		var result = [];
-		var receipts = this.rules.receipts;
-		var resceipts_names = obj_keys(receipts);
-		var receipt, tmp;
-
-		for (var obj in receipts){
-			receipt = [];
-			tmp = receipts[obj];
-
-			for (var res in tmp){
-				if (res === 'title' || in_array(res, resceipts_names)) continue;
-
-				receipt.push({
-					name: res,
-					object: obj,
-					count: tmp[res],
-					title: tmp.title,
-					type: tmp.type
-				});
-			}
-			result.push(receipt);
-		}
-
-		return result;
 	}
 };

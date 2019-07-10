@@ -21,11 +21,26 @@ Player.prototype = {
 		return players;
 	},
 
-	AddObject: function(type){
-		this.objects[type] = (this.objects[type] || 0) + 1;
-		this.rule.objects[type].count ? this.rule.objects[type].count-- : this.rule.objects[type]--;
+	getRoundMessage: function(){
+		return this.ai ? 'Ходит игрок №'+(this.index+1) : 'Ваш ход';
+	},
+	getMessageTimeout: function(){
+		return this.ai ? 1000 : 300;
+	},
+
+	AddObject: function(name){
+		this.objects[name] = (this.objects[name] || 0) + 1;
+		this.rule.objects[name].count--;
+
+		if (this.rule.objects[name].count <= 0){
+			delete this.rule.objects[name];
+			this.game.toggleObjectDescription(name, false);
+			this.game.hideHoverTable(name);
+		}
 	},
 	hasObject: function(type){
+		if (!type) return false;
+
 		if (is_array(type)){
 			var result = false;
 
@@ -37,6 +52,7 @@ Player.prototype = {
 
 		return in_array(type, obj_keys(this.objects));
 	},
+
 	Step: function(rule){
 		this.rule = rule || this.rule;
 
@@ -46,47 +62,24 @@ Player.prototype = {
 			}*/
 		}
 		else{
-			if (rule.objects){
-				var exact = rule.objects.min_count;
-				var min = rule.objects.min_count;
-				var max = rule.objects.min_count;
-				var obj;
+			if (this.rule.objects){
+				var result = {};
 
-				for (var name in rule.objects){
-					obj = rule.objects[name];
-					var enable = false;
-					var is_obj = is_object(obj);
-					var count = is_obj ? obj.count : obj;
+				for (var name in this.rule.objects){
+					var obj = this.rule.objects[name];
 
-					if (is_obj){
-						if (obj.need)
-							enable = this.hasObject(obj.need);
-
-						if (obj.exact_count){
-							enable = enable && count == obj.exact_count;
+					if (obj.need){
+						if (this.hasObject(obj.need)){
+							result[name] = 1;
 						}
-						else{
-							if (obj.max_count)
-								enable =  enable && count < max_count;
-
-							if (obj.min_count && count >= min_count)
-								this.game.toggleTurnButton(true);
-						}
-					}
-
-					if (exact){
-						enable = enable && count == exact;
+						this.game.setFilter(name);
 					}
 					else{
-						if (max)
-							enable =  enable && count < max;
-
-						if (min)
-							enable =  enable && count < min;
+						result[name] = 1;
 					}
-
-					this.game.toggleObject(name, enable);
 				}
+
+				this.game.toggleObjectDescription(result, true);
 			}
 		}
 	}

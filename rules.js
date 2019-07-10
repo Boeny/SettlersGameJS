@@ -14,7 +14,7 @@ Rules.prototype = {
 	height: 10,
 
 	game: {
-		prepare: [{objects: {village: 1, road: {count: 1, need: 'village'}, exact_count: 1}}, {order: -1, objects: {village: 1, road: {count: 1, need: 'village'}, exact_count: 1}}]
+		prepare: [{objects: {village: 1, road: {count: 1, place: true}}}, {order: -1, objects: {village: 1, road: {count: 1, place: true}}}]
 	},
 	resources: {
 		stone: {count: 10},
@@ -29,9 +29,14 @@ Rules.prototype = {
 		sea: {freq:{0: '*', height: '*', '*': [0,-1]}}
 	},
 	receipts: {
-		road: {type:'line',title:'дорога',stone:1,clay:1},
-		village: {type:'corner',title:'поселение',road:'from_exist',wheat:1,wood:1,sheep:1,clay:1},
-		//town: {type:'corner',title:'город (требуется поселение)',village:'self',stone:3,wheat:2}
+		road: {stone:1,clay:1},
+		village: {wheat:1,wood:1,sheep:1,clay:1},
+		//town: {village:1,stone:3,wheat:2}
+	},
+	objects: {
+		road: {type:'line',title:'дорога',place:['road','village']},
+		village: {type:'corner',title:'поселение',place:'road'},
+		//town: {type:'corner',title:'город (требуется поселение)',replace:'village'}
 	},
 	bonuses: {
 		village: {resources: 1},
@@ -46,7 +51,48 @@ Rules.prototype = {
 		this.round++;
 	},
 	getCurrentRule: function(){
-		return merge({}, this.game.prepare[this.round] || {});
+		var rule = merge({}, this.game.prepare[this.round] || {});
+		if (!rule.objects) return rule;
+
+		for (var name in rule.objects){
+			var obj = rule.objects[name];
+			var is_obj = is_object(obj);
+
+			rule.objects[name] = {
+				count: is_obj ? obj.count : obj,
+				need: is_obj && obj.place ? this.objects[name].place : null,
+				type: this.objects[name].type
+			};
+		}
+
+		return rule;
+	},
+
+	getReceipts: function(){
+		var result = [];
+		var receipts_names = obj_keys(this.receipts);
+
+		for (var name in this.receipts){
+			var obj = this.receipts[name];
+			var obj_info = this.objects[name];
+			var receipt = [];
+
+			for (var res in obj){
+				if (in_array(res, receipts_names)) continue;
+
+				receipt.push({
+					name: res,
+					object: name,
+					count: obj[res],
+					title: obj_info.title,
+					type: obj_info.type
+				});
+			}
+
+			result.push(receipt);
+		}
+
+		return result;
 	},
 
 	getCellType: function(i,j){
