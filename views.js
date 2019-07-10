@@ -43,11 +43,14 @@ window.Views = {
 		$(elem).removeAttr('data-type');
 	},
 
+	toggleModalMessage: function(elem, show){
+		this[(show ? 'show' : 'hide')+'ModalMessage'](elem);
+	},
 	showModalMessage: function(elem){
-		elem.removeClass('hidden');
+		$(elem).removeClass('hidden');
 	},
 	hideModalMessage: function(elem){
-		elem.addClass('hidden');
+		$(elem).addClass('hidden');
 	},
 	message: function(o){
 		var elem = this.message_elem;
@@ -58,7 +61,7 @@ window.Views = {
 		}
 		else{
 			elem = $(this.html.span(o.text, {'class': 'modal-message msg'}));
-			$('body').append(elem);
+			this.main_elem.append(elem);
 			this.message_elem = elem;
 		}
 
@@ -69,37 +72,31 @@ window.Views = {
 		var elem = this.prompt_elem;
 
 		if (elem){
-			elem.data('target', o.target);
+			elem.attr('data-target', o.target);
 			elem.data('action', o.action);
 			elem.find('.title').html(o.title);
+			this.toggleModalMessage(elem.find('.cancel'), o.cancel);
 			this.showModalMessage(elem);
 		}
 		else{
 			elem = $(this.html.div({
-				'class': 'modal-message prompt',
+				'class': 'modal-message prompt'+(o.cls ? ' '+o.cls : ''),
 				'data-target': o.target,
 				'data-action': o.action,
-				style: 'width: 300px; height: 200px',
 
-				content: this.html.div(o.title, {'class': 'title'})+
-					this.html.form(
-						this.html.div(this.html.input({required: 'required'}))+
-						this.html.div(this.html.button('OK', {type: 'submit'}))
+				content: this.html.div({'class': 'overlay'})+
+					this.html.div(
+						this.html.div(o.title, {'class': 'title'})+
+						this.html.form(
+							this.html.div(this.html.input({required: 'required'}))+
+							this.html.div(this.html.button('OK', {type: 'submit', 'class': 'btn'})+this.html.span('Отмена', {'class': 'btn cancel'+(o.cancel ? '' : ' hidden')}))
+						),
+						{'class': 'container'}
 					)
 			}));
 
-			$('body').append(elem);
-
+			this.main_elem.append(elem);
 			this.prompt_elem = elem;
-			var input = elem.find('[type="text"]');
-
-			var $this = this;
-			this.Bind('click', elem.find('[type="submit"]'), function(e){
-				if (input.val()){
-					e.preventDefault();
-					$this.Trigger('number_entered', elem);
-				}
-			});
 		}
 	},
 
@@ -127,6 +124,9 @@ window.Views = {
 				content: this.html.div({'class': 'description'})
 			})
 		);
+
+		this.prompt_elem = null;
+		this.enter_number({cls: 'hidden'});
 
 		this.setElements({
 			header_elem: '.header',

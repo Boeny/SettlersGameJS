@@ -18,32 +18,41 @@ $(function(){
 	Views.setElements({main_elem: '.game'});
 	var game = new Game({views: Views});
 
-	game.Bind({
-		'next_step': 'NextStep',
-		'click' : {
-			'.start_btn': function(e, elem){
-				if (!Views.isDisabled(elem)){
-					game.EnterPlayersCount('NewGame');
-				}
-			},
-			'.step_btn': function(e, elem){
-				if (!Views.isDisabled(elem)){
-					Views.Trigger('next_step');
-				}
-			},
-			'.description [data-type]'	: function(e, elem){
-				game.setCurrentObjectType( Views.toggleHoverTable(elem, game.getCurrentObjectType()) );
-			},
-			'.map .corner, .map .line'	: 'setObject'
-		},
-		'number_entered': {
-			'.prompt[data-target="players_count"]': function(e, elem){
-				if (game.setPlayersCount(elem.find('input').val()))
-				{
-					Views.hideModalMessage(elem);
-					game[elem.data('action')]();
-				}
-			}
+	$(document).on('next_step', function(){
+		game.NextStep();
+	});
+	$(document).on('click', '.start_btn', function(){
+		if (!Views.isDisabled(this)){
+			game.EnterPlayersCount('NewGame', true);
+		}
+	});
+	$(document).on('click', '.step_btn', function(){
+		if (!Views.isDisabled(this)){
+			Views.Trigger('next_step');
+		}
+	});
+	$(document).on('click', '.description [data-type]', function(){
+		game.setCurrentObjectType( Views.toggleHoverTable(this, game.getCurrentObjectType()) );
+	});
+	$(document).on('click', '.map .corner, .map .line', function(){
+		game.setObject();
+	});
+	$(document).on('click', '.prompt [type="submit"]', function(e){
+		var elem = $('.prompt');
+
+		if (elem.find('[type="text"]').val()){
+			e.preventDefault();
+			Views.Trigger('number_entered', elem);
+		}
+	});
+	$(document).on('click', '.prompt .cancel', function(e){
+		Views.hideModalMessage('.prompt');
+	});
+	$(document).on('number_entered', '.prompt[data-target="players_count"]', function(){
+		if (game.setPlayersCount($(this).find('input').val()))
+		{
+			Views.hideModalMessage(this);
+			game[$(this).data('action')]();
 		}
 	});
 });

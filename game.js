@@ -57,11 +57,12 @@ Game.prototype = {
 	},
 
 	// Game Process
-	EnterPlayersCount: function(action){
+	EnterPlayersCount: function(action, cancel){
 		this.Render('enter_number', {
 			title: 'Введите кол-во игроков:',
 			target: 'players_count',
-			action: action
+			action: action,
+			cancel: cancel
 		});
 	},
 	Create: function(){
