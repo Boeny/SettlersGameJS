@@ -407,6 +407,9 @@ function is_(type, o){
 
 	return typeof o == type;
 }
+function is_bool(o){
+	return is_('boolean', o);
+}
 function isDom(o){
 	return o && is_object(o) && o.length && (o.selector !== undefined) && o.context && true;
 }

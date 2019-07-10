@@ -1,19 +1,59 @@
 Views.Map = function(o){
-	$.extend(this,o);
-
-	this.hover_elem = this.initCachedElem();
-	this.added_elem = this.initCachedElem();
+	this.Init(o);
+	this.Create(o);
 };
 Views.Map.prototype = {
-	initCachedElem: function(){
-		var obj = {};
+	Init: function(o){
+		$.extend(this,o);
 
-		for (var i in object_types){
-			obj[object_types[i]] = {};
+		var show_hover = this.hover;
+		this.hover = {};
+		var type;
+
+		for (var i in this.object_types){
+			type = this.object_types[i];
+
+			this.hover[type] = new this.Hover({
+				parent: this,
+				type: type
+			});
 		}
 
-		return obj;
+		if (show_hover) this.CreateHovers(show_hover);
 	},
+	Create: function(){
+		var content = '';
+
+		for (var i=0; i<this.height; i++){
+			var row = '';
+
+			for (var j=0; j<this.width; j++)
+			{
+				var coo = this.getCooStr(i,j);
+				var cell = this.data[coo];
+				row += this.html.td(cell && cell.type && {'class': 'cell', 'data-type': cell.type, 'data-coo': coo} || '');
+			}
+			content += this.html.tr(row);
+		}
+
+		this.DOM.html(this.html.table(content));
+	},
+	CreateHovers: function(type){
+		this.hover[type].Create(this.resources);
+	},
+	ToggleHover: function(type, show){
+		type = type || false;
+
+		if (is_bool(type)){
+			for (var t in this.hover){
+				this.hover[t].Toggle(type);
+			}
+			return;
+		}
+
+		this.hover[type].Toggle(show);
+	},
+
 	isObjectType: function(type){
 		return in_array(type, this.object_types);
 	},
@@ -23,102 +63,77 @@ Views.Map.prototype = {
 		var coo = $(elem).data('coo');
 		return as_str ? coo : this.getCooArray(coo);
 	},
-	getCooArray: function(s){
-		s = s.split('-');
-		return [+s[0],+s[1]];
+	getCooArray: function(str){
+		str = str.split('-');
+		return [+str[0],+str[1]];
 	},
 	getCooStr: function(i,j){
-		return is_array(i) ? i.join('-') : i+'-'+j;
+		return is_array(i) ? i.join('-') : i+(j ? '-'+j : '');
 	},
 
-	getElem: function(i,j, cls){
-		if (i === null){
-			return this.DOM.find(j);
-		}
-
-		if (is_array(i)){
-			cls = j;
-			j = i[1];
-			i = i[0];
-		}
-
-		var coo = this.map.getCooStr(i,j);
-		var type = cls && in_str('.',cls) && cls.split('.')[1];
-		var cached = this.map.isObjectType(type) && this.hover_elem[type][coo];
-
-		return cached ? cached : this.DOM.find((cls || '')+'[data-coo="'+coo+'"]');
+	getType: function(elem){
+		return this.parent.getType(this.DOM);
+	},
+	setType: function(type){
+		this.parent.setType(this.DOM, type);
+	},
+	removeType: function(){
+		this.parent.removeType(this.DOM);
 	},
 
-	// Hover Elements
-	hover: {
-		Create: function(type){
-			var length = obj_length(this.hover_elem[type]);
-			if (length > 0 && $('.'+type).length == length) return;
-
-			var res = this.resources;
-
-			for (var coo in res){
-				coo = this.map.getCooArray(coo);
-
-				var elem = this.getElem(coo, '.cell');
-				var dir = {top:1,bottom:1,left:1,right:1};
-
-				if (coo[0] == 0) delete dir.top;
-				if (coo[1] == 0) delete dir.left;
-				if (coo[0] == this.map.height-1 || res[ this.map.getCooStr(coo[0]-1,coo[1]) ]) delete dir.bottom;
-				if (coo[1] == this.map.width-1 || res[ this.map.getCooStr(coo[0],coo[1]-1) ]) delete dir.right;
-
-				this.setElemByType(elem, type, obj_keys(dir), coo);
-			}
-		},
-		Change: function(cls){
-			this.DOM.removeClass().addClass('map'+(cls ? ' '+cls : ''));
-		},
-		Hide: function(){
-			this.change_hover_table();
-		},
-		Show: function(elem){
-			var enabled = !this.isDisabled(elem);
-			if (enabled){
-				this.change_hover_table(this.getType(elem)+'-hover');
-			}
-			return enabled;
-		},
-		Toggle: function(elem, show){
-			return this[(show ? 'show' : 'hide')+'_hover_table'](elem);
+	getCell: function(i,j){
+		return is_array(i) ? this.getCell(i[0],i[1]) : this.cached[this.getCooStr(i,j)];
+	},
+	getHover: function(o, coo, dir){
+		if (!is_object(o)){
+			o = {
+				type: o,
+				coo: coo,
+				direction: dir
+			};
 		}
+		return this.hover[type].get(o);
+	},
+	setHover: function(type, elem, coo, dir){
+		this.hover[type].set({
+			type: type,
+			element: elem,
+			coo: coo,
+			direction: dir
+		});
 	},
 
 	CreateNearest(type){
-		this.disable(this.getElem(null, '.added.'+type));
+		this.parent.disable(this.getHover(type));
 		var nearest = this.getNearest(type);
 
 		for (var i in nearest){
-			this.enable(nearest[i]);
+			this.parent.enable(nearest[i]);
 		}
 	},
 
 	getAddedObjects: function(type){
-		return this.added_elem[type];
+		return this.getHover({type: type, added: true});
 	},
 	getNearest: function(type){
 		switch (type){
-			case 'line':
-				return this.getNearestLines();
-			case 'corner':
-				return this.getNearestCorners();
+			case 'road':
+				return this.getNearestLines(type);
+			case 'village':
+			case 'town':
+				return this.getNearestCorners(type);
 			default:
 				return [];
 		}
 	},
-	getNearestCorners: function(){
+	getNearestCorners: function(type){
 		var result = [];
-		var objects = this.getAddedObjects('line');
+		var objects = this.getAddedObjects(type);
 		var elem, coo, direction, cell_pos, corner_dir;
 
 		for (var pos in objects){
 			direction = objects[pos].data('dir');
-			pos = this.map.getCooArray(pos);
+			pos = this.getCooArray(pos);
 			coo = [pos];
 			cell_pos = [pos[0],pos[1]];
 			corner_dir = ['top','left'];
@@ -140,11 +155,12 @@ Views.Map.prototype = {
 			}
 
 			for (var i in coo){
-				elem = this.getElem(coo[i], '.corner');
+				var tmp = i == 0 ? ['top','left'] : corner_dir;
+				elem = this.getHover(type, coo[i], tmp);
 
-				if (!elem.length){
-					this.setCorner(this.getElem(cell_pos, '.cell'), i == 0 ? ['top','left'] : corner_dir, cell_pos);
-					elem = this.getElem(coo[i], '.corner');
+				if (!elem){
+					this.setElemByType(this.getCell(cell_pos), type, tmp, cell_pos);
+					elem = this.getHover(type, coo[i], tmp);
 				}
 
 				elem.each(function(){
@@ -155,37 +171,44 @@ Views.Map.prototype = {
 
 		return result;
 	},
-	getNearestLines: function(){
+	getNearestLines: function(type){
 		var result = [];
-		var objects = this.getAddedObjects('corner');
+		var objects = this.getAddedObjects(type);
 		var elem, coo, cell_pos, line_dir;
 
 		for (var pos in objects){
-			pos = this.map.getCooArray(pos);
+			pos = this.getCooArray(pos);
 			coo = [pos, [pos[0]-1,pos[1]], [pos[0],pos[1]-1]];
 
 			for (var i in coo){
-				elem = this.getElem(coo[i], '.line');
+				switch (+i){
+					case 0:
+						line_dir = ['top','left'];
+						break;
+					case 1:
+						line_dir = ['left'];
+						break;
+					case 2:
+						line_dir = ['top'];
+						break;
+				}
+
+				elem = this.getHover(type, coo[i], line_dir);
 
 				if (!elem.length){
 					cell_pos = [pos[0],pos[1]];
 
 					switch (+i){
-						case 0:
-							line_dir = ['top','left'];
-							break;
 						case 1:
-							line_dir = ['left'];
 							cell_pos[0]--
 							break;
 						case 2:
-							line_dir = ['top'];
 							cell_pos[1]--
 							break;
 					}
 
-					this.setLine(this.getElem(cell_pos, '.cell'), line_dir, cell_pos);
-					elem = this.getElem(coo[i], '.line');
+					this.setElemByType(this.getCell(cell_pos), type, line_dir, cell_pos);
+					elem = this.getHover(type, coo[i], line_dir);
 				}
 
 				elem.each(function(){
@@ -199,18 +222,18 @@ Views.Map.prototype = {
 
 	setElemByType: function(elem, type, direction, pos){
 		switch (type){
-			case 'line':
-				this.setLine(elem, direction, pos);
+			case 'road':
+				this.setLine(elem, type, direction, pos);
 				break;
-			case 'corner':
-				this.setCorner(elem, direction, pos);
+			case 'village':
+			case 'town':
+				this.setCorner(elem, type, direction, pos);
 				break;
 		}
 	},
-	setCorner: function(elem, direction, pos){
+	setCorner: function(elem, type, direction, pos){
 		if (!in_array('left',direction) && !in_array('right',direction) || !in_array('top',direction) && !in_array('bottom',direction)) return;
 
-		var type = 'corner';
 		var vert = [], hor = [], dir;
 
 		for (var i in direction){
@@ -224,22 +247,22 @@ Views.Map.prototype = {
 
 		for (var i in vert){
 			for (var j in hor){
-				dir = this.map.getCooStr(vert[i], hor[j]);
+				dir = this.getCooStr(vert[i], hor[j]);
 				var coo = [pos[0],pos[1]];
 
 				if (vert[i] == 'bottom') coo[0]++;
 				if (hor[j] == 'right') coo[1]++;
 
-				coo = this.map.getCooStr(coo);
-				if (elem.find('.'+type+'[data-coo="'+coo+'"][data-dir="'+dir+'"]').length) continue;
+				coo = this.getCooStr(coo);
+				if (this.getHover(type, coo, dir)) continue;
 
 				var hover_elem = $(this.html.div({
-					'class': type+' '+dir,
+					'class': 'corner '+dir,
 					'data-coo': coo,
 					'data-dir': dir,
 					'data-type': type
 				}));
-				this.hover_elem[type][coo] = hover_elem;
+				this.setHover(type, hover_elem, coo, dir);
 				elem.append(hover_elem);
 			}
 		}
@@ -254,16 +277,16 @@ Views.Map.prototype = {
 			if (dir == 'bottom') coo[0]++;
 			if (dir == 'right') coo[1]++;
 
-			coo = this.map.getCooStr(coo);
-			if (elem.find('.'+type+'[data-coo="'+coo+'"][data-dir="'+dir+'"]').length) continue;
+			coo = this.getCooStr(coo);
+			if (this.getHover(type, coo, dir)) continue;
 
 			var hover_elem = $(this.html.div({
-				'class': type+' '+type+'-'+dir,
+				'class': 'line line-'+dir,
 				'data-coo': coo,
 				'data-dir': dir,
 				'data-type': type
 			}));
-			this.hover_elem[type][coo] = hover_elem;
+			this.setHover(type, hover_elem, coo, dir);
 			elem.append(hover_elem);
 		}
 	}

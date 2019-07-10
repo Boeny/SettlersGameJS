@@ -35,9 +35,13 @@
 }
 .btn.disabled,
 .btn.disabled:hover,
-.btn.disabled:active {
+.btn.disabled:active,
+.btn.disabled:focus {
 	background: #ccc;
 	color: #999;
+	border-radius: 3px;
+	border: none;
+	height: 21px;
 }
 
 .map td {
@@ -101,8 +105,9 @@
 	height: 11px;
 }
 .map td .added,
-.map.corner-hover td .corner:hover,
-.map.line-hover td .line:hover {
+.map[data-type="village"] td .corner:hover,
+.map[data-type="town"] td .corner:hover,
+.map[data-type="road"] td .line:hover {
 	background: #ff2d2d;
 	border: 1px solid #fff;
     box-shadow: 3px 3px 6px #444;

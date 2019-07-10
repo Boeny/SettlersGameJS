@@ -44,6 +44,9 @@ window.Views = {
 	setType: function(elem, type){
 		$(elem).attr('data-type', type);
 	},
+	removeType: function(elem){
+		$(elem).removeAttr('data-type');
+	},
 
 	showModalMessage: function(elem){
 		elem.removeClass('hidden');
@@ -137,18 +140,19 @@ window.Views = {
 		this.new_game(o);
 	},
 	new_game: function(o){
-		this.map_view(o.map);
+		this.setMapData(o.map);
 		this.description_view(o.description);
 		this.next_step(o);
 	},
-	next_step: function(){
-		this.map.hover.Toggle(o.hover);
+	next_step: function(o){
+		this.map.ToggleHover(o.map.hover);
 
 		for (var name in o.header){
 			o.header[name] = '.'+o.header[name]+'_btn';
 		}
 
 		this.toggle(this.header_elem, o.header);
+		//if (!o.is_human) this.disable(this.getDescrElem());
 
 		var $this = this;
 		o.message.success = function(){
@@ -160,26 +164,10 @@ window.Views = {
 	},
 
 	// Map
-	map_view: function(o){
-		var content = '';
-		this.setMapData(o);
-
-		for (var i=0; i<this.map.height; i++){
-			var row = '';
-
-			for (var j=0; j<this.map.width; j++)
-			{
-				var cell = this.map.data[i+'-'+j];
-				row += this.html.td(cell && cell.name && {'class': 'cell', 'data-name': cell.name, 'data-coo': i+'-'+j} || '');
-			}
-			content += this.html.tr(row);
-		}
-
-		this.map_elem.html(this.html.table(content));
-	},
 	setMapData: function(params){
 		params.parent = this;
 		params.DOM = this.map_elem;
+		params.html = this.html;
 		this.map = new this.Map(params);
 	},
 	CheckFilter: function(elem){
@@ -222,17 +210,11 @@ window.Views = {
 	},
 	getDescrElem: function(o){
 		if (o){
-			if (is_object(o)) o = obj_keys(o).join('"], [data-res="');
-			return this.descr_elem.find('[data-res="'+o+'"]');
+			if (is_object(o)) o = obj_keys(o).join('"], [data-type="');
+			return this.descr_elem.find('[data-type="'+o+'"]');
 		}
 
 		return this.descr_elements;
-	},
-	enableObject: function(o){
-		this.getDescrElem(o).removeClass('disabled');
-	},
-	disableObject: function(o){
-		this.getDescrElem(o).addClass('disabled');
 	},
 
 	toggleHoverTable: function(elem, type){

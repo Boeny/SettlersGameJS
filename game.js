@@ -1,49 +1,62 @@
 window.Game = function(o){
-	this.views = o.views;
-
+	this.Init(o);
 	this.Render('enter_number', {
 		title: 'Введите кол-во игроков:',
 		target: 'players_count'
 	});
 };
 Game.prototype = {
-	Render: function(name, o){
-		return this.views[name](o);
-	},
-	Bind: function(event, params){
-		if (is_object(event)){
-			for (var e in event){
-				this.Bind(e, event[e]);
+	Init: function(o){
+		this.players = [];
+		this.players_count = 0;
+		this.current_player = null;
+		this.current_player_index = -1;
+
+		this.current_object_type = '';
+		this.map = null;
+		this.rules = null;
+
+		var _views = o.views;
+
+		this.Render = function(name, o){
+			return _views[name](o);
+		};
+
+		this.Bind = function(event, params){
+			if (is_object(event)){
+				for (var e in event){
+					this.Bind(e, event[e]);
+				}
+				return;
 			}
-			return;
-		}
 
-		if (!is_object(params)){
-			this.views.Bind(event, function(e, elem){
-				if (is_callable(params)){
-					params(e, elem);
-				}
-				else{
-					$this[params]();
-				}
-			});
-			return;
-		}
+			if (!is_object(params)){
+				_views.Bind(event, function(e, elem){
+					if (is_callable(params)){
+						params(e, elem);
+					}
+					else{
+						$this[params]();
+					}
+				});
+				return;
+			}
 
-		var $this = this;
+			var $this = this;
 
-		for (var name in params){
-			this.views.Bind(event, name, function(e, elem){
-				var method = params[name];
+			for (var name in params){
+				_views.Bind(event, name, function(e, elem){
+					var method = params[name];
 
-				if (is_callable(method)){
-					method(e, elem);
-				}
-				else{
-					$this[method]();
-				}
-			});
-		}
+					if (is_callable(method)){
+						method(e, elem);
+					}
+					else{
+						$this[method]();
+					}
+				});
+			}
+		};
 	},
 
 	// Game Process
@@ -72,7 +85,6 @@ Game.prototype = {
 
 	CreatePlayers: function(count){
 		this.players = this.Player.prototype.Create(this, count);
-		this.current_player_index = -1;
 	},
 	Start: function(){
 		this.CreatePlayers(this.getPlayersCount());
@@ -93,22 +105,26 @@ Game.prototype = {
 	setNextPlayer: function(order){
 		if (order === undefined) order = 1;
 
-		if (order > 0) this.current_player_index++;
-		else if(order < 0) this.current_player_index--;
+		if (order > 0)
+			this.current_player_index++;
+		else
+			this.current_player_index--;
 
-		if (this.current_player_index >= this.players.length){
+		var count = this.getPlayersCount();
+
+		if (this.current_player_index === count){
 			this.current_player_index = 0;
 			return true;
 		}
 		if (this.current_player_index < 0){
-			this.current_player_index = this.players.length-1;
+			this.current_player_index = count - 1;
 			return true;
 		}
 
 		return false;
 	},
-	ChangePlayersOrder: function(order){
-		this.current_player_index = order < 0 ? this.players.length-1 : 0;
+	CheckPlayerIndex: function(order){
+		this.current_player_index = order < 0 ? this.getPlayersCount() - 1 : 0;
 	},
 	Step: function(){
 		var rule = this.rules.getCurrentRule();
@@ -117,13 +133,11 @@ Game.prototype = {
 		{
 			this.rules.setNextRound();
 			rule = this.rules.getCurrentRule();
-			this.ChangePlayersOrder(rule.order);
+			this.CheckPlayerIndex(rule.order);
 		}
 
-		var p = this.current_player = this.players[this.current_player_index];
-		var $this = this;
-
-		if (p.ai) this.views.disableObject();
+		this.setCurrentPlayer();
+		var p = this.getCurrentPlayer();
 
 		return {
 			header: {step: false},
@@ -142,10 +156,16 @@ Game.prototype = {
 	},
 	hideHoverTable: function(elem){
 		this.views.toggle_hover_table(elem, false);
-		this.current_object = null;
+		this.current_object_type = null;
 	},
 
 	// Getters & Setters
+	getCurrentPlayer: function(){
+		return this.current_player;
+	},
+	setCurrentPlayer: function(){
+		this.current_player = this.players[this.current_player_index];
+	},
 
 	getPlayersCount: function(){
 		return this.players_count;
@@ -157,17 +177,17 @@ Game.prototype = {
 		return true;
 	},
 
-	getCurrentObject: function(){
-		return this.current_object;
+	getCurrentObjectType: function(){
+		return this.current_object_type;
 	},
-	setCurrentObject: function(o){
-		this.current_object = o;
+	setCurrentObjectType: function(o){
+		this.current_object_type = o;
 	},
 
 	setObject: function(e, elem){
-		if (!this.current_object || this.views.ObjectIsSet(elem)) return;
+		if (!this.current_object_type || this.views.ObjectIsSet(elem)) return;
 		this.views.setObject(elem);
-		this.current_player.AddObject(this.current_object);
+		this.current_player.AddObject(this.current_object_type);
 		this.current_player.Step();
 	},
 

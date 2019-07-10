@@ -12,10 +12,10 @@
 <script src="views.js"></script>
 <script src="views.html.js"></script>
 <script src="views.map.js"></script>
+<script src="views.map.hover.js"></script>
 <script>
 $(function(){
 	Views.setElements({main_elem: '.game'});
-
 	var game = new Game({views: Views});
 
 	game.Bind({
@@ -27,8 +27,8 @@ $(function(){
 					Views.Trigger('next_step');
 				}
 			},
-			'.description [data-res]'	: function(e, elem){
-				game.setCurrentObject( Views.toggleHoverTable(elem, game.getCurrentObject()) );
+			'.description [data-type]'	: function(e, elem){
+				game.setCurrentObjectType( Views.toggleHoverTable(elem, game.getCurrentObjectType()) );
 			},
 			'.map .corner, .map .line'	: 'setObject'
 		},

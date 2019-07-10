@@ -1,10 +1,13 @@
 Game.prototype.Player = function(o){
-	$.extend(this, o);
-
-	this.resources = {};
-	this.objects = {};
+	this.Init(o);
 };
 Game.prototype.Player.prototype = {
+	Init: function(o){
+		$.extend(this, o);
+
+		this.resources = {};
+		this.objects = {};
+	},
 	Create: function(game, count){
 		var pc_index = random(0, count-1);
 		var players = [];
@@ -55,6 +58,9 @@ Game.prototype.Player.prototype = {
 
 	Step: function(rule){
 		this.rule = rule || this.rule;
+		var enabled = [];
+		var filtered = [];
+
 
 		if (this.ai){
 			/*if (rule.objects){
@@ -63,29 +69,26 @@ Game.prototype.Player.prototype = {
 		}
 		else{
 			if (this.rule.objects){
-				var result = [];
-				var filtered = [];
-
 				for (var type in this.rule.objects){
 					var obj = this.rule.objects[type];
 
 					if (obj.need){
 						if (this.hasObject(obj.need)){
-							result.push(type);
+							enabled.push(type);
 						}
 
 						filtered.push(type);
 					}
 					else{
-						result.push(type);
+						enabled.push(type);
 					}
 				}
-
-				return {
-					filtered: filtered,
-					enabled: result
-				};
 			}
 		}
+
+		return {
+			filtered: filtered,
+			enabled: enabled
+		};
 	}
 };
