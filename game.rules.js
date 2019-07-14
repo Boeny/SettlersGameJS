@@ -6,13 +6,14 @@ Game.prototype.Rules.prototype = {
 	height: 5,
 
 	game: {
-		prepare: [{objects: {village: 1, road: {count: 1, place: true}}}, {order: -1, objects: {village: 1, road: {count: 1, place: true}}}]
+		prepare: [{objects: {village: 1, road: {count: 1, place: true}}}, {order: -1, objects: {village: {count: 1, place: true}, road: {count: 1, place: true}}}],
+		main: {objects: {village: {place: true}, road: {place: true}}}
 	},
 	resources: {
 		stone: 2,
 		wood: 2,
-		sheep: 0,
-		wheat: 0,
+		sheep: 2,
+		wheat: 1,
 		clay: 0
 	},
 	cells: {
@@ -84,6 +85,7 @@ Game.prototype.Rules.prototype = {
 	getCurrentRule: function(){
 		var result = {objects: {}};
 		var rule = this.game.prepare[this.round];
+		if (!rule) rule = this.game.main;
 
 		for (var type in rule.objects){
 			var obj = rule.objects[type];

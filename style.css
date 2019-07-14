@@ -160,6 +160,7 @@ body {
 .map[data-type] td .corner {
 	z-index: 2;
 }
+
 .map td .line.added {
 	z-index: 3;
 	border-radius: 45%;
@@ -169,6 +170,13 @@ body {
 	width: 11px;
 	height: 11px;
 }
+.map td .line:hover {
+	z-index: 3;
+}
+.map td .corner:hover {
+	z-index: 4;
+}
+
 .map td .added,
 .map[data-type="village"] td .corner:not(.disabled):hover,
 .map[data-type="town"] td .corner:not(.disabled):hover,
@@ -204,7 +212,7 @@ body {
 	width: 8px;
 }
 
-.map td .line.line-top .added {
+.map td .line.line-top.added {
 	top: -4px;
 	height: 4px!important;
 }

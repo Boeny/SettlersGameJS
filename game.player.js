@@ -35,10 +35,13 @@ Game.prototype.Player.prototype = {
 
 	AddObject: function(type){
 		this.objects[type] = (this.objects[type] || 0) + 1;
-		this.rule.objects[type].count--;
 
-		if (this.rule.objects[type].count <= 0){
-			delete this.rule.objects[type];
+		if (this.rule.objects[type].count !== undefined){
+			this.rule.objects[type].count--;
+
+			if (this.rule.objects[type].count <= 0){
+				delete this.rule.objects[type];
+			}
 		}
 	},
 	hasObject: function(type){

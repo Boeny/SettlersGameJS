@@ -232,8 +232,8 @@ Views.Map.prototype = {
 				switch (+i){
 					case 0:
 						line_dir = ['top','left'];
-						if (in_str('right', direction)) arr_remove(line_dir, 'top');
 						if (in_str('bottom', direction)) arr_remove(line_dir, 'left');
+						if (direction == 'bottom-right') arr_remove(line_dir, 'top');
 						break;
 					case 1:
 						line_dir = ['left'];
@@ -322,9 +322,6 @@ Views.Map.prototype = {
 		}
 	},
 	setLine: function(type, direction, pos, enabled){
-		//if (!in_array('bottom',direction)) arr_remove(direction, 'top');
-		//if (!in_array('right',direction)) arr_remove(direction, 'left');
-
 		var cell_elem = this.getCell(pos);
 
 		for (var i in direction)
