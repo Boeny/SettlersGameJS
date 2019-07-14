@@ -61,6 +61,13 @@ Game.prototype = {
 		};
 	},
 
+	// Players
+
+	CreatePlayers: function(count){
+		this.current_player_index = -1;
+		this.players = this.Player.prototype.Create(this, count);
+	},
+
 	// Game Process
 	EnterPlayersCount: function(action, cancel){
 		this.Render('enter_string', {
@@ -100,15 +107,6 @@ Game.prototype = {
 		this.CreatePlayers(players_count);
 		this.Render('new_game', {map:  this.CreateMap(true)});
 	},
-	NextStep: function(){
-		this.Render('next_step', this.Step());
-	},
-
-	// Players
-
-	CreatePlayers: function(count){
-		this.players = this.Player.prototype.Create(this, count);
-	},
 
 	// Step
 
@@ -131,24 +129,46 @@ Game.prototype = {
 			this.current_player_index = rule.order < 0 ? count - 1 : 0;
 		}
 	},
+
 	Step: function(){
 		var rule = this.Validate(this.rules.getCurrentRule(), 'rule');
 		this.setNextPlayer(rule.order);
 		this.ValidatePlayerIndex();
 
 		this.setCurrentPlayer();
+		this.SubStep({
+			rule: rule,
+			message: true
+		});
+	},
+	SubStep: function(o){
+		o = o || {};
 		var p = this.getCurrentPlayer();
+		var step_params = p.Step(o.rule);
 
-		return {
-			header: {step: false, start: !p.ai},
-			message: {
+		o.is_human = !p.ai;
+
+		if (o.message){
+			o.message = {
 				text: p.getRoundMessage(),
 				ms: p.getMessageTimeout()
+			};
+		}
+
+		this.Render('next_step', $.extend(o, {
+			header: {
+				start: o.is_human,
+				step: o.is_human && !step_params.enabled.length
 			},
-			is_human: !p.ai,
 			map: {hover: false},
-			description: p.Step(rule)
-		};
+			description: step_params
+		}));
+	},
+
+	setObject: function(){
+		this.getCurrentPlayer().AddObject(this.getCurrentObjectType());
+		this.setCurrentObjectType(null);
+		this.SubStep();
 	},
 
 	// Getters & Setters
@@ -172,16 +192,5 @@ Game.prototype = {
 	},
 	setCurrentObjectType: function(type){
 		this.current_object_type = type;
-	},
-
-	setObject: function(){
-		var p = this.getCurrentPlayer();
-		p.AddObject(this.getCurrentObjectType());
-
-		this.Render('next_step', {
-			is_human: !p.ai,
-			map: {hover: false},
-			description: p.Step()
-		});
 	}
 };

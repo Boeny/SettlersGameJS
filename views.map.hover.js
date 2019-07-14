@@ -10,7 +10,7 @@ Views.Map.prototype.Hover.prototype = {
 		this.filled = false;
 	},
 	Create: function(cells_info){
-		var length = obj_length(this.get());
+		_Error.ThrowTypeIf(!cells_info || !obj_length(cells_info), 'need resources');
 		if (this.filled) return;
 
 		for (var coo in cells_info){
@@ -19,10 +19,10 @@ Views.Map.prototype.Hover.prototype = {
 
 			if (coo[0] == 0) delete dir.top;
 			if (coo[1] == 0) delete dir.left;
-			if (coo[0] == this.parent.height-1 || cells_info[ this.parent.getCooStr(coo[0]-1,coo[1]) ]) delete dir.bottom;
-			if (coo[1] == this.parent.width-1 || cells_info[ this.parent.getCooStr(coo[0],coo[1]-1) ]) delete dir.right;
+			if (coo[0] == this.parent.height-1 || this.parent.getRes(coo[0]+1, coo[1])) delete dir.bottom;
+			if (coo[1] == this.parent.width-1 || this.parent.getRes(coo[0], coo[1]+1)) delete dir.right;
 
-			this.parent.setElemByType(this.type, obj_keys(dir), coo);
+			this.parent.setElemByType(this.type, obj_keys(dir), coo, true);// enabled
 		}
 
 		this.filled = true;

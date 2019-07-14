@@ -132,13 +132,21 @@ body {
 
 .map td * {
 	position: absolute;
-	z-index: -1;
+	display: none;
 	width: 14px;
 	height: 14px;
 	background: #fff;
 	border: 1px solid #333;
-	opacity: 0;
 	transition: opacity .1s ease-out;
+}
+.map td .disabled {
+	display: none;
+}
+.map td .added,
+.map[data-type="road"] td  .line:not(.disabled),
+.map[data-type="village"] td  .corner:not(.disabled),
+.map[data-type="town"] td  .corner:not(.disabled) {
+	display: block;
 }
 .map td .corner {
 	border-radius: 50%;
@@ -146,22 +154,18 @@ body {
 .map td .line {
 	border-radius: 35%;
 }
-.map td .line.added {
-	border-radius: 45%;
-}
-
-.map td .added,
-.map[data-type="village"] td .corner:not(.disabled),
-.map[data-type="town"] td .corner:not(.disabled),
-.map[data-type="road"] td .line:not(.disabled) {
-	opacity: 1;
+.map[data-type] td .line {
 	z-index: 1;
 }
-.map.corner-hover td .corner,
-.map td .corner.added {
+.map[data-type] td .corner {
 	z-index: 2;
 }
+.map td .line.added {
+	z-index: 3;
+	border-radius: 45%;
+}
 .map td .corner.added {
+	z-index: 4;
 	width: 11px;
 	height: 11px;
 }

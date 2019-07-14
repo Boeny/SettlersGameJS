@@ -204,7 +204,6 @@ window.Views = {
 		var show = old_type !== type;
 
 		if (show){
-			this.map.setType(type);
 			this.CheckFilter(elem);
 		}
 

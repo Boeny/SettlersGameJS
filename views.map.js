@@ -39,7 +39,7 @@ Views.Map.prototype = {
 		this.DOM.html(this.html.table(content));
 	},
 	CreateHovers: function(type){
-		this.hover[type].Create(this.resources);
+		this.hover[type].Create(this.getRes());
 	},
 	ToggleHover: function(type, show){
 		type = type || false;
@@ -98,11 +98,18 @@ Views.Map.prototype = {
 	getDir: function(elem){
 		return elem.data('dir');
 	},
-
+	/**
+	 * returns DOM
+	 */
 	getCell: function(i,j){
+		if (i === undefined && j === undefined) return this.DOM.find('.cell');
 		var cell = is_array(i) ? this.getCell(i[0],i[1]) : this.DOM.find('.cell[data-coo="'+this.getCooStr(i,j)+'"]');
 		if (!cell.length) _Error.ThrowType('cell not found, coo = '+this.getCooStr(i,j), 'views.map.getCell');
 		return cell;
+	},
+	getRes: function(i,j){
+		if (i === undefined && j === undefined) return this.resources;
+		return is_array(i) ? this.getRes(i[0],i[1]) : this.resources[this.getCooStr(i,j)];
 	},
 	getHover: function(o, coo, dir, as_array){
 		if (as_array)
@@ -169,7 +176,7 @@ Views.Map.prototype = {
 	getNearestCorners: function(type){
 		var result = [];
 		var objects = this.getAddedObjects('road');
-		var elem, coo, direction, cell_pos, corner_dir;
+		var elem, coo, cell_pos, direction, corner_dir;
 
 		for (var pos in objects){
 			direction = objects[pos].data('dir');
@@ -214,9 +221,10 @@ Views.Map.prototype = {
 	getNearestLines: function(type){
 		var result = [];
 		var objects = this.getAddedObjects('village');
-		var elem, coo, cell_pos, line_dir;
+		var elem, coo, cell_pos, direction, line_dir;
 
 		for (var pos in objects){
+			direction = objects[pos].data('dir');
 			pos = this.getCooArray(pos);
 			coo = [pos, [pos[0]-1,pos[1]], [pos[0],pos[1]-1]];
 
@@ -224,6 +232,8 @@ Views.Map.prototype = {
 				switch (+i){
 					case 0:
 						line_dir = ['top','left'];
+						if (in_str('right', direction)) arr_remove(line_dir, 'top');
+						if (in_str('bottom', direction)) arr_remove(line_dir, 'left');
 						break;
 					case 1:
 						line_dir = ['left'];
@@ -263,22 +273,21 @@ Views.Map.prototype = {
 		return result;
 	},
 
-	setElemByType: function(type, direction, pos){
-		var cell_elem = this.getCell(pos);
-
+	setElemByType: function(type, direction, pos, enabled){
 		switch (type){
 			case 'road':
-				this.setLine(cell_elem, type, direction, pos);
+				this.setLine(type, direction, pos, enabled);
 				break;
 			case 'village':
 			case 'town':
-				this.setCorner(cell_elem, type, direction, pos);
+				this.setCorner(type, direction, pos, enabled);
 				break;
 		}
 	},
-	setCorner: function(cell_elem, type, direction, pos){
+	setCorner: function(type, direction, pos, enabled){
 		if (!in_array('left',direction) && !in_array('right',direction) || !in_array('top',direction) && !in_array('bottom',direction)) return;
 
+		var cell_elem = this.getCell(pos);
 		var vert = [], hor = [], dir;
 
 		for (var i in direction){
@@ -302,7 +311,7 @@ Views.Map.prototype = {
 				if (this.getHover(type, coo, dir)) continue;
 
 				var hover_elem = $(this.html.div({
-					'class': 'corner '+dir,
+					'class': (enabled?'':'disabled ')+'corner '+dir,
 					'data-coo': coo,
 					'data-dir': dir,
 					'data-type': type
@@ -312,8 +321,14 @@ Views.Map.prototype = {
 			}
 		}
 	},
-	setLine: function(cell_elem, type, direction, pos){
-		for (var i in direction){
+	setLine: function(type, direction, pos, enabled){
+		//if (!in_array('bottom',direction)) arr_remove(direction, 'top');
+		//if (!in_array('right',direction)) arr_remove(direction, 'left');
+
+		var cell_elem = this.getCell(pos);
+
+		for (var i in direction)
+		{
 			var dir = direction[i];
 			var coo = [pos[0],pos[1]];
 
@@ -324,7 +339,7 @@ Views.Map.prototype = {
 			if (this.getHover(type, coo, dir)) continue;
 
 			var hover_elem = $(this.html.div({
-				'class': 'line line-'+dir,
+				'class': (enabled?'':'disabled ')+'line line-'+dir,
 				'data-coo': coo,
 				'data-dir': dir,
 				'data-type': type
