@@ -1,6 +1,5 @@
 Game.prototype.Rules = function(w,h){
 	this.setSize(w,h);
-	//this.Init();
 };
 Game.prototype.Rules.prototype = {
 	width: 10,
@@ -114,10 +113,10 @@ Game.prototype.Rules.prototype = {
 		this.round++;
 	},
 	getPrepareStep: function(){
-		return this.game.prepare[this.round];
+		return this.game.prepare[this.round] || false;
 	},
 	getCurrentRule: function(){
-		var result = {objects: {}};
+		var objects = {};
 		var rule = this.getPrepareStep();
 		var is_main = !rule;
 		if (is_main) rule = this.game.main;
@@ -126,16 +125,19 @@ Game.prototype.Rules.prototype = {
 			var obj = rule.objects[type];
 			var is_obj = is_object(obj);
 
-			result.objects[type] = {
+			objects[type] = {
 				count: is_obj ? obj.count : obj,
 				need: is_obj && obj.place ? this.getPlace(type) : null,
 				receipt: is_main ? this.getReceipt(type) : null,
 				type: type
 			};
-			result.exchange = this.getExchange();
 		}
 
-		return result;
+		return {
+			order: rule.order || 1,
+			exchange: this.getExchange(),
+			objects: objects
+		};
 	},
 
 	getReceipts: function(){

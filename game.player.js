@@ -7,9 +7,11 @@ Game.prototype.Player.prototype = {
 		this.ai = o.ai;
 		this.parent = o.parent
 
+		this.rule = {};
 		this.resources = {};
 		this.objects = {};
-		this.exchange = {};
+		this.enabled = [];
+		this.filtered = [];
 	},
 	Create: function(parent, count){
 		var pc_index = random(0, count-1);
@@ -54,6 +56,44 @@ Game.prototype.Player.prototype = {
 			this.CheckExchange();
 		}
 	},
+	hasObject: function(type){
+		if (!type) return false;
+
+		if (is_array(type)){
+			var result = false;
+
+			for (var i in type){
+				if (this.hasObject(type[i])) return true;
+			}
+			return false;
+		}
+
+		return in_array(type, obj_keys(this.objects));
+	},
+	hasRuleObjects: function(){
+		return obj_length(this.rule.objects) > 0;
+	},
+	CheckObjects: function(){
+		this.enabled = [];
+		this.filtered = [];
+
+		for (var type in this.rule.objects){
+			var obj = this.rule.objects[type];
+
+			if (obj.need || obj.receipt){
+				if (this.hasObject(obj.need)){
+					if (!obj.receipt || this.hasRes(obj.receipt)){
+						this.enabled.push(type);
+					}
+				}
+				this.filtered.push(type);
+			}
+			else{
+				this.enabled.push(type);
+			}
+		}
+	},
+
 	DelRes: function(type, count){
 		if (this.resources[type]){
 			this.resources[type] -= count || 1;
@@ -86,48 +126,22 @@ Game.prototype.Player.prototype = {
 		this.AddRes(type2);
 	},
 
+	getFiltered: function(){
+		return this.filtered;
+	},
+
 	getEnabled: function(){
-		return obj_length(this.rule.objects) > 0;
+		return this.enabled;
 	},
-	Disable: function(type){
-		if (type) delete this.rule.objects[type];
-	},
-	hasObject: function(type){
-		if (!type) return false;
-
-		if (is_array(type)){
-			var result = false;
-
-			for (var i in type){
-				if (this.hasObject(type[i])) return true;
-			}
-			return false;
-		}
-
-		return in_array(type, obj_keys(this.objects));
+	setEnabled: function(arr){
+		this.enabled = arr;
 	},
 
-	Step: function(r){
+	setRule: function(r){
 		this.rule = r || this.rule;
-
-		var enabled = [];
-		var filtered = [];
-
-		for (var type in this.rule.objects){
-			var obj = this.rule.objects[type];
-
-			if (obj.need || obj.receipt){
-				if (this.hasObject(obj.need)){
-					if (!obj.receipt || this.hasRes(obj.receipt)){
-						enabled.push(type);
-					}
-				}
-				filtered.push(type);
-			}
-			else{
-				enabled.push(type);
-			}
-		}
+	},
+	Step: function(r){
+		this.setRule(r);
 
 		if (this.ai){
 
@@ -137,8 +151,8 @@ Game.prototype.Player.prototype = {
 		}
 
 		return {
-			filtered: filtered,
-			enabled: this.ai ? [] : enabled
+			filtered: this.filtered,
+			enabled: this.ai ? [] : this.enabled
 		};
 	}
 };

@@ -52,19 +52,17 @@ Views.Description.prototype = {
 	},
 
 	Toggle: function(types){
-		var elem;
+		var objects = this.getElem();
 
-		for (var type in this.getElem()){
-			elem = this.getElem(type);
-			this.parent.toggle(elem, in_array(type, types));
+		for (var type in objects){
+			this.parent.toggle(objects[type], in_array(type, types));
 		}
 	},
 	Filter: function(types){
-		var elem;
+		var objects = this.getElem();
 
-		for (var type in this.getElem()){
-			elem = this.getElem(type);
-			this.parent.toggleFilter(elem, in_array(type, types));
+		for (var type in objects){
+			this.parent.toggleFilter(objects[type], in_array(type, types));
 		}
 	}
 };

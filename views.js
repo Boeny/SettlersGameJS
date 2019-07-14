@@ -1,18 +1,6 @@
 window.Views = {
 	opened_menu: null,
 
-	Bind: function(_e, elem, handler){
-		if (is_callable(elem)){
-			$(document).on(_e, function(e){
-				return elem(e, $(this));
-			});
-			return;
-		}
-
-		$(document).on(_e, elem, function(e){
-			return handler(e, $(this));
-		});
-	},
 	Trigger: function(event_name, elem){
 		$(elem || document).trigger(event_name);
 	},
@@ -141,6 +129,7 @@ window.Views = {
 	},
 
 	// Game
+
 	main: function(o){
 		this.main_elem.append(
 			this.html.div({
@@ -212,6 +201,7 @@ window.Views = {
 	},
 
 	// Map
+
 	setMapData: function(params){
 		var o = $.extend({},params);
 		o.parent = this;
@@ -224,27 +214,39 @@ window.Views = {
 		_Error.ThrowTypeIf(!type, 'cell has no type');
 		this.map.setType(type);
 
-		var result = true;
-
 		if (this.needFilter(elem)){
-			result = this.map.CreateNearest(type);
+			this.map.CreateNearest(type);
 		}
 		else
 			this.map.CreateHovers(type);
-
-		return result;
 	},
 	toggleHoverTable: function(elem, old_type){
 		var type = this.getType(elem);
 		var show = old_type !== type;
 
-		var result = type;
 		if (show){
-			result = this.CheckFilter(elem) && type;
+			this.CheckFilter(elem);
 		}
 
 		this.map.ToggleHover(type, show);
-		return show ? result : false;
+		return show ? type : null;
+	},
+	check_enabled_objects: function(o){
+		this.description.Filter(o.filtered);
+
+		var objects = this.description.getElem();
+		var result = [];
+		var type;
+
+		for (var i in o.enabled){
+			type = o.enabled[i];
+
+			if (!this.needFilter(objects[type]) || this.map.getNearest(type).length){
+				result.push(type);
+			}
+		}
+
+		return result;
 	},
 
 	// Description

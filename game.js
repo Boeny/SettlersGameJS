@@ -33,7 +33,23 @@ Game.prototype = {
 		this.players = this.Player.prototype.Create(this, count);
 	},
 
+	getCurrentPlayer: function(){
+		return this.Validate(this.current_player, 'current_player');
+	},
+	setCurrentPlayer: function(){
+		this.current_player = this.players[this.current_player_index];
+	},
+
+	getPlayersCount: function(){
+		return this.players.length;
+	},
+	ValidatePlayersCount: function(count){
+		count = +count;
+		return count && count > 1;
+	},
+
 	// Game Process
+
 	EnterPlayersCount: function(action, cancel){
 		this.Render('enter_string', {
 			title: 'Введите кол-во игроков:',
@@ -78,8 +94,6 @@ Game.prototype = {
 	// Step
 
 	setNextPlayer: function(order){
-		if (order === undefined) order = 1;
-
 		if (order > 0)
 			this.current_player_index++;
 		else
@@ -95,13 +109,15 @@ Game.prototype = {
 			// initial index depends on order
 			this.current_player_index = rule.order < 0 ? count - 1 : 0;
 		}
+
+		return rule;
 	},
 
 	Step: function(){
 		var rule = this.Validate(this.rules.getCurrentRule(), 'rule');
 
 		this.setNextPlayer(rule.order);
-		this.ValidatePlayerIndex();
+		rule = this.ValidatePlayerIndex(rule);
 		this.setCurrentPlayer();
 
 		var dice;
@@ -109,6 +125,8 @@ Game.prototype = {
 			dice = this.rules.getNextDice();
 			this.UpdateRes(dice);
 		}
+
+		this.CheckEnabledObjects(rule);
 
 		this.SubStep({
 			rule: rule,
@@ -120,7 +138,6 @@ Game.prototype = {
 		o = o || {};
 		var p = this.getCurrentPlayer();
 		var step_params = p.Step(o.rule);
-		step_params.enabled = this.Render('check_enabled_objects', step_params.enabled);
 
 		if (o.is_human === undefined) o.is_human = !p.ai;
 
@@ -145,13 +162,14 @@ Game.prototype = {
 		}));
 	},
 
-	// Getters & Setters
+	// Interaction
 
 	setObject: function(coo){
 		var p = this.getCurrentPlayer();
 		var type = this.getCurrentObjectType();
 
 		p.AddObject(type);
+		this.CheckEnabledObjects();
 		this.AddObject(coo, type, p);
 
 		// close hovers at the next substep
@@ -159,7 +177,7 @@ Game.prototype = {
 
 		// if preparing step and all objects are set -> next nonhuman substep, redirecting to the next game step
 		var params = {};
-		if (this.rules.getPrepareStep() && !p.getEnabled()){
+		if (this.rules.getPrepareStep() && !p.hasRuleObjects()){
 			params.is_human = false;
 			params.message = {text: ''};
 		}
@@ -207,22 +225,8 @@ Game.prototype = {
 	},
 	Exchange: function(type1, type2){
 		this.getCurrentPlayer().Exchange(type1, type2);
+		this.CheckEnabledObjects();
 		this.SubStep();
-	},
-
-	getCurrentPlayer: function(){
-		return this.Validate(this.current_player, 'current_player');
-	},
-	setCurrentPlayer: function(){
-		this.current_player = this.players[this.current_player_index];
-	},
-
-	getPlayersCount: function(){
-		return this.players.length;
-	},
-	ValidatePlayersCount: function(count){
-		count = +count;
-		return count && count > 1;
 	},
 
 	getCurrentObjectType: function(){
@@ -231,13 +235,11 @@ Game.prototype = {
 	setCurrentObjectType: function(type){
 		this.current_object_type = type;
 	},
-	CheckObjectType: function(type){
-		var p = this.getCurrentPlayer();
 
-		// if player doesn't know he can't place an object
-		if (p.getEnabled()){
-			p.Disable(current);
-			this.SubStep();
-		}
+	CheckEnabledObjects: function(rule){
+		var p = this.getCurrentPlayer();
+		p.setRule(rule);
+		p.CheckObjects();
+		p.setEnabled( this.Render('check_enabled_objects', {enabled: p.getEnabled(), filtered: p.getFiltered()}) );
 	}
 };

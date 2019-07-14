@@ -1,6 +1,5 @@
 Game.prototype.Map = function(o){
 	this.Init(o);
-	//this.Generate();
 };
 Game.prototype.Map.prototype = {
 	Init: function(o){

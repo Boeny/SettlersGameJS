@@ -80,13 +80,13 @@ $(function(){
 	// Interaction
 
 	$(document).on('click', '.description .receipt', function(){
-		if (Views.isDisabled(this)){
-			game.setCurrentObjectType(null);
+		var type = null;
+
+		if (!Views.isDisabled(this)){
+			type = Views.toggleHoverTable(this, game.getCurrentObjectType());
 		}
-		else{
-			var type = Views.toggleHoverTable(this, game.getCurrentObjectType());
-			game.setCurrentObjectType(type);
-		}
+
+		game.setCurrentObjectType(type);
 	});
 	$(document).on('click', '.map .corner, .map .line', function(){
 		if (game.getCurrentObjectType() && !Views.map.ObjectIsSet(this))
