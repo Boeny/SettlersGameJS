@@ -62,7 +62,7 @@ function random(min, max){
 	if (min === 0 && max === 1){
 		return 100*Math.random() < 50 ? 0 : 1;
 	}
-	return parseInt((max - min)*Math.random() + min);
+	return parseInt((1 + max - min)*Math.random() + min);// +1 because max is never achieved
 }
 
 function random_key(o){

@@ -63,6 +63,7 @@ Game.prototype = {
 			object_types: this.map.getTypes(),
 			data: this.map.getData(),
 			resources: this.map.getRes(),
+			dices: this.map.getDices(),
 			width: this.map.getWidth(),
 			height: this.map.getHeight()
 		}, 'map');

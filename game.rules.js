@@ -2,8 +2,8 @@ Game.prototype.Rules = function(){
 	this.Init();
 };
 Game.prototype.Rules.prototype = {
-	width: 15,
-	height: 15,
+	width: 5,
+	height: 5,
 
 	game: {
 		prepare: [
@@ -13,11 +13,11 @@ Game.prototype.Rules.prototype = {
 		main: {objects: {village: {place: true}, road: {place: true}}}
 	},
 	resources: {
-		stone: 25,
-		wood: 25,
-		sheep: 25,
-		wheat: 24,
-		clay: 23
+		stone: 3,
+		wood: 2,
+		sheep: 2,
+		wheat: 1,
+		clay: 1
 	},
 	cells: {
 		//market: {freq: 'resources'},
@@ -145,7 +145,7 @@ Game.prototype.Rules.prototype = {
 		for (var i in this.resources){
 			this.tmp.resources[i] = this.resources[i].count || this.resources[i];
 
-			for (var j=0; j<this.tmp.resources[i]; j++){
+			for (var j=0; j<this.tmp.resources[i] && j<this.width*this.height; j++){
 				this.tmp.res_by_count.push(i);
 			}
 		}
@@ -155,6 +155,7 @@ Game.prototype.Rules.prototype = {
 		}
 
 		this.round = 0;
+		this.setDices(this.tmp.res_by_count.length);
 	},
 	getCellType: function(i,j){
 		var c = {};// conditions[cell]
@@ -221,5 +222,91 @@ Game.prototype.Rules.prototype = {
 		}
 
 		return {type: res};
-	}
+	},
+
+	getRandomDice: function(){
+		var i = random(0, this.dices.length-1);
+		var result = this.dices[i];
+		this.dices.splice(i,1);
+		return result;
+	},
+	setDices: function(res_count){
+		var result = {};
+		var num;
+
+		for (var i=0; i<1000; i++){
+			num = random(1,6)+random(1,6);
+			if (num != 7) result[num] = (result[num] || 0) + 1;
+		}
+
+		var tmp = [];
+		for (var i in result){
+			tmp.push({
+				digit: i,
+				count: result[i]
+			});
+		}
+		tmp = sort_obj_arr(tmp, 'count');
+
+		var first = tmp[0].count;
+		var last = arr_last(tmp).count;
+		var third = (last - first)/3;
+
+		result = [[],[],[]];
+		for (var i in tmp){
+			if (tmp[i].count - first < third){
+				num = 0;
+			}
+			else{
+				if (last - tmp[i].count < third){
+					num = 2;
+				}
+				else{
+					num = 1;
+				}
+			}
+
+			result[num].push(tmp[i].digit);
+		}
+
+		num = parseInt(res_count/2);
+		var count = parseInt(num/result[1].length);
+		if (count < 1) count = 1;
+		tmp = [];
+		var i = 0;
+
+		for (var k=0; i<num; k++){
+			for (var j=0; j<count; j++){
+				tmp.push(result[1][k]);
+				i++;
+			}
+		}
+
+		res_count -= num;
+		num = parseInt(res_count/2);
+		count = parseInt(num/result[0].length);
+		if (count < 1) count = 1;
+		i = 0;
+
+		for (var k=0; i<num; k++){
+			for (var j=0; j<count; j++){
+				tmp.push(result[0][k]);
+				i++;
+			}
+		}
+
+		num = res_count - num;
+		count = parseInt(num/result[2].length);
+		if (count < 1) count = 1;
+		i = 0;
+
+		for (var k=0; i<num; k++){
+			for (var j=0; j<count; j++){
+				tmp.push(result[2][k]);
+				i++;
+			}
+		}
+
+		this.dices = tmp;
+	},
 };

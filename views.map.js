@@ -22,6 +22,9 @@ Views.Map.prototype = {
 
 		if (show_hover) this.CreateHovers(show_hover);
 	},
+	getDice: function(i,j){
+		return this.dices[this.getCooStr(i,j)];
+	},
 	Create: function(){
 		var content = '';
 		var coo, num;
@@ -32,7 +35,7 @@ Views.Map.prototype = {
 			for (var j=0; j<this.width; j++)
 			{
 				coo = this.getCooStr(i,j);
-				num = this.getRes(i,j) ? this.html.div({'class': 'num'}) : '';
+				num = this.getRes(i,j) ? this.html.div(this.getDice(i,j), {'class': 'num'}) : '';
 				row += this.html.td(num, {'class': 'cell', 'data-type': this.data[coo].type, 'data-coo': coo});
 			}
 			content += this.html.tr(row);

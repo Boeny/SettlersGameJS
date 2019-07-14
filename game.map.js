@@ -9,6 +9,7 @@ Game.prototype.Map.prototype = {
 		this.width = this.rules.width;
 		this.height = this.rules.height;
 		this.types =  this.rules.getTypes();
+		this.dices = {};
 	},
 	getWidth: function(){
 		return this.width;
@@ -21,6 +22,9 @@ Game.prototype.Map.prototype = {
 	},
 	getData: function(i,j){
 		return i === undefined ? this.data : this.data[i+'-'+j];
+	},
+	getDices: function(){
+		return this.dices;
 	},
 	getRes: function(i,j){
 		return i === undefined ? this.res_data : this.res_data[i+'-'+j];
@@ -39,7 +43,10 @@ Game.prototype.Map.prototype = {
 			for (var j=0; j<this.getWidth(); j++){
 				var res = this.parent.Validate(this.rules.getRandomRes(i,j), 'random_res');
 				this.data[i+'-'+j] = res;
-				if (this.isRes(res)) this.res_data[i+'-'+j] = res;
+				if (this.isRes(res)){
+					this.res_data[i+'-'+j] = res;
+					this.dices[i+'-'+j] = this.rules.getRandomDice();
+				}
 			}
 		}
 
