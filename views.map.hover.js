@@ -9,7 +9,18 @@ Views.Map.prototype.Hover.prototype = {
 		this.added = {};
 		this.filled = false;
 	},
-	Create: function(cells_info){
+	CreateByType: function(type, direction, pos, enabled){
+		switch (type){
+			case 'road':
+				this.setLine(type, direction, pos, enabled);
+				break;
+			case 'village':
+			case 'town':
+				this.setCorner(type, direction, pos, enabled);
+				break;
+		}
+	}
+	CreateAll: function(cells_info){
 		_Error.ThrowTypeIf(!cells_info || !obj_length(cells_info), 'need resources');
 		if (this.filled) return;
 
