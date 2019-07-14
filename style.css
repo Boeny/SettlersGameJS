@@ -162,6 +162,7 @@ body {
 	background: #c5c5c5;
 }
 [data-type="wood"] {
+	color: #e2e2e2;
 	background: #bd5d08;
 }
 [data-type="sheep"] {

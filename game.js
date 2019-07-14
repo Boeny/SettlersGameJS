@@ -99,9 +99,9 @@ Game.prototype = {
 
 	Step: function(){
 		var rule = this.Validate(this.rules.getCurrentRule(), 'rule');
+
 		this.setNextPlayer(rule.order);
 		this.ValidatePlayerIndex();
-
 		this.setCurrentPlayer();
 
 		var dice;
@@ -120,6 +120,7 @@ Game.prototype = {
 		o = o || {};
 		var p = this.getCurrentPlayer();
 		var step_params = p.Step(o.rule);
+		step_params.enabled = this.Render('check_enabled_objects', step_params.enabled);
 
 		if (o.is_human === undefined) o.is_human = !p.ai;
 
@@ -150,12 +151,11 @@ Game.prototype = {
 		var p = this.getCurrentPlayer();
 		var type = this.getCurrentObjectType();
 
-		if (type){
-			p.AddObject(type);
-			this.AddObject(coo, type, p);
-			// close hovers at the next substep
-			this.current_object_type = null;
-		}
+		p.AddObject(type);
+		this.AddObject(coo, type, p);
+
+		// close hovers at the next substep
+		this.setCurrentObjectType(null);
 
 		// if preparing step and all objects are set -> next nonhuman substep, redirecting to the next game step
 		var params = {};
@@ -229,15 +229,15 @@ Game.prototype = {
 		return this.current_object_type;
 	},
 	setCurrentObjectType: function(type){
+		this.current_object_type = type;
+	},
+	CheckObjectType: function(type){
 		var p = this.getCurrentPlayer();
 
 		// if player doesn't know he can't place an object
-		if (this.current_object_type && !type && p.getEnabled()){
-			p.Disable(this.current_object_type);
-			this.current_object_type = null;
+		if (p.getEnabled()){
+			p.Disable(current);
 			this.SubStep();
 		}
-		else
-			this.current_object_type = type;
 	}
 };

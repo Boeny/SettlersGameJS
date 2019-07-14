@@ -1,5 +1,6 @@
 Game.prototype.Rules = function(w,h){
 	this.setSize(w,h);
+	//this.Init();
 };
 Game.prototype.Rules.prototype = {
 	width: 10,

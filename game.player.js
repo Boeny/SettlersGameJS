@@ -75,6 +75,8 @@ Game.prototype.Player.prototype = {
 	},
 
 	CheckExchange: function(){
+		//for (var type in)
+		//this.rule.exchange;
 	},
 	getExchange: function(){
 		return this.rule.exchange;
@@ -111,39 +113,27 @@ Game.prototype.Player.prototype = {
 		var enabled = [];
 		var filtered = [];
 
-		if (this.ai){
-			for (var type in this.rule.objects){
-				var obj = this.rule.objects[type];
+		for (var type in this.rule.objects){
+			var obj = this.rule.objects[type];
 
-				if (obj.need || obj.receipt){
-					if (this.hasObject(obj.need)){
-						if (!obj.receipt || this.hasRes(obj.receipt)){
-							enabled.push(type);
-						}
+			if (obj.need || obj.receipt){
+				if (this.hasObject(obj.need)){
+					if (!obj.receipt || this.hasRes(obj.receipt)){
+						enabled.push(type);
 					}
-					filtered.push(type);
 				}
-				else{
-					enabled.push(type);
-				}
+				filtered.push(type);
+			}
+			else{
+				enabled.push(type);
 			}
 		}
-		else{
-			for (var type in this.rule.objects){
-				var obj = this.rule.objects[type];
 
-				if (obj.need || obj.receipt){
-					if (this.hasObject(obj.need)){
-						if (!obj.receipt || this.hasRes(obj.receipt)){
-							enabled.push(type);
-						}
-					}
-					filtered.push(type);
-				}
-				else{
-					enabled.push(type);
-				}
-			}
+		if (this.ai){
+
+		}
+		else{
+
 		}
 
 		return {
