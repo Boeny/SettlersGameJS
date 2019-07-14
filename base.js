@@ -220,7 +220,9 @@ function arr_last(a){
 	return a[a.length - 1];
 }
 function arr_remove(a,v){
-	a.splice(a.indexOf(v),1);
+	_Error.CheckType(a, 'array');
+	var i = a.indexOf(v);
+	if (i !== -1) a.splice(i,1);
 }
 /**
  * говорит, есть ли хотя бы одна подстрока(-и) s в строке str

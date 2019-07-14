@@ -55,14 +55,16 @@ window.Views = {
 	message: function(o){
 		var elem = this.message_elem;
 
-		if (elem){
-			elem.html(o.text);
-			this.showModalMessage(elem);
-		}
-		else{
-			elem = $(this.html.span(o.text, {'class': 'modal-message msg'}));
-			this.main_elem.append(elem);
-			this.message_elem = elem;
+		if (o.text){
+			if (elem){
+				elem.html(o.text);
+				this.showModalMessage(elem);
+			}
+			else{
+				elem = $(this.html.span(o.text, {'class': 'modal-message msg'}));
+				this.main_elem.append(elem);
+				this.message_elem = elem;
+			}
 		}
 
 		var $this = this;

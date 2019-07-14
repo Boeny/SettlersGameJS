@@ -146,12 +146,12 @@ Game.prototype = {
 		var p = this.getCurrentPlayer();
 		var step_params = p.Step(o.rule);
 
-		o.is_human = !p.ai;
+		if (o.is_human === undefined) o.is_human = !p.ai;
 
 		if (o.message){
 			o.message = {
-				text: p.getRoundMessage(),
-				ms: p.getMessageTimeout()
+				text: o.message.text === undefined ? p.getRoundMessage() : o.message.text,
+				ms: o.message.ms === undefined ? p.getMessageTimeout() : o.message.ms
 			};
 		}
 
@@ -166,9 +166,17 @@ Game.prototype = {
 	},
 
 	setObject: function(){
-		this.getCurrentPlayer().AddObject(this.getCurrentObjectType());
+		var p = this.getCurrentPlayer();
+		p.AddObject(this.getCurrentObjectType());
 		this.setCurrentObjectType(null);
-		this.SubStep();
+
+		var params = {};
+		if (this.rules.getPrepareStep() && !p.getEnabled()){
+			params.is_human = false;
+			params.message = {text: ''};
+		}
+
+		this.SubStep(params);
 	},
 
 	// Getters & Setters

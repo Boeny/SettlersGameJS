@@ -24,29 +24,8 @@ $(function(){
 		validation: true
 	});
 
-	$(document).on('next_step', function(){
-		game.Step();
-	});
-	$(document).on('click', '.start_btn', function(){
-		if (!Views.isDisabled(this)){
-			game.EnterPlayersCount('NewGame', true);
-		}
-	});
-	$(document).on('click', '.step_btn', function(){
-		if (!Views.isDisabled(this)){
-			Views.Trigger('next_step');
-		}
-	});
-	$(document).on('click', '.description .receipt', function(){
-		game.setCurrentObjectType( Views.isDisabled(this) ? null : Views.toggleHoverTable(this, game.getCurrentObjectType()) );
-	});
-	$(document).on('click', '.map .corner, .map .line', function(){
-		if (game.getCurrentObjectType() && !Views.map.ObjectIsSet(this))
-		{
-			Views.map.setObject(this);
-			game.setObject();
-		}
-	});
+	// Prompt
+
 	$(document).on('click', '.prompt [type="submit"]', function(e){
 		var elem = $(this).closest('form');
 
@@ -73,6 +52,35 @@ $(function(){
 
 		Views.hideModalMessage(this);
 		game[elem.data('action')](v);
+	});
+
+	// Game Process
+
+	$(document).on('click', '.start_btn', function(){
+		if (!Views.isDisabled(this)){
+			game.EnterPlayersCount('NewGame', true);
+		}
+	});
+	$(document).on('click', '.step_btn', function(){
+		if (!Views.isDisabled(this)){
+			Views.Trigger('next_step');
+		}
+	});
+	$(document).on('next_step', function(){
+		game.Step();
+	});
+
+	// Interaction
+
+	$(document).on('click', '.description .receipt', function(){
+		game.setCurrentObjectType( Views.isDisabled(this) ? null : Views.toggleHoverTable(this, game.getCurrentObjectType()) );
+	});
+	$(document).on('click', '.map .corner, .map .line', function(){
+		if (game.getCurrentObjectType() && !Views.map.ObjectIsSet(this))
+		{
+			Views.map.setObject(this);
+			game.setObject();
+		}
 	});
 });
 </script>

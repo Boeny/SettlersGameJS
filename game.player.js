@@ -44,6 +44,9 @@ Game.prototype.Player.prototype = {
 			}
 		}
 	},
+	getEnabled: function(){
+		return obj_length(this.rule.objects) > 0;
+	},
 	hasObject: function(type){
 		if (!type) return false;
 
@@ -61,6 +64,7 @@ Game.prototype.Player.prototype = {
 
 	Step: function(r){
 		this.rule = r || this.rule;
+
 		var enabled = [];
 		var filtered = [];
 

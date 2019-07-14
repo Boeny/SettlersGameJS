@@ -229,34 +229,32 @@ Views.Map.prototype = {
 			coo = [pos, [pos[0]-1,pos[1]], [pos[0],pos[1]-1]];
 
 			for (var i in coo){
+				cell_pos = [pos[0],pos[1]];
+
 				switch (+i){
 					case 0:
 						line_dir = ['top','left'];
-						if (in_str('bottom', direction)) arr_remove(line_dir, 'left');
-						if (direction == 'bottom-right') arr_remove(line_dir, 'top');
 						break;
 					case 1:
+						cell_pos[0]--;
 						line_dir = ['left'];
 						break;
 					case 2:
+						cell_pos[1]--
 						line_dir = ['top'];
 						break;
 				}
 
+				if (!this.getRes(cell_pos)){
+					if (!this.getRes(cell_pos[0],cell_pos[1]-1)) arr_remove(line_dir, 'left');
+					if (!this.getRes(cell_pos[0]-1,cell_pos[1])) arr_remove(line_dir, 'top');
+				}
+
+				if (!line_dir.length) continue;
+
 				elem = this.getHover(type, coo[i], line_dir, true);// returns array
 
 				if (!elem.length){
-					cell_pos = [pos[0],pos[1]];
-
-					switch (+i){
-						case 1:
-							cell_pos[0]--
-							break;
-						case 2:
-							cell_pos[1]--
-							break;
-					}
-
 					this.setElemByType(type, line_dir, cell_pos);
 					elem = this.getHover(type, coo[i], line_dir, true);// returns array
 					if (!elem || !elem.length) _Error.ThrowType('line elements coo='+this.getCooStr(coo[i])+' in cell coo='+this.getCooStr(cell_pos)+' not found');

@@ -6,7 +6,7 @@ Game.prototype.Rules.prototype = {
 	height: 5,
 
 	game: {
-		prepare: [{objects: {village: 1, road: {count: 1, place: true}}}, {order: -1, objects: {village: {count: 1, place: true}, road: {count: 1, place: true}}}],
+		prepare: [{objects: {village: 1, road: {count: 1, place: true}}}, {order: -1, objects: {village: {count: 1}, road: {count: 1, place: true}}}],
 		main: {objects: {village: {place: true}, road: {place: true}}}
 	},
 	resources: {
@@ -82,9 +82,12 @@ Game.prototype.Rules.prototype = {
 	setNextRound: function(){
 		this.round++;
 	},
+	getPrepareStep: function(){
+		return this.game.prepare[this.round];
+	},
 	getCurrentRule: function(){
 		var result = {objects: {}};
-		var rule = this.game.prepare[this.round];
+		var rule = this.getPrepareStep();
 		if (!rule) rule = this.game.main;
 
 		for (var type in rule.objects){
