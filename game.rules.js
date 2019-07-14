@@ -2,19 +2,22 @@ Game.prototype.Rules = function(){
 	this.Init();
 };
 Game.prototype.Rules.prototype = {
-	width: 5,
-	height: 5,
+	width: 15,
+	height: 15,
 
 	game: {
-		prepare: [{objects: {village: 1, road: {count: 1, place: true}}}, {order: -1, objects: {village: {count: 1}, road: {count: 1, place: true}}}],
+		prepare: [
+			{objects: {village: 1, road: {count: 1, place: true}}},
+			{order: -1, objects: {village: 1, road: {count: 1, place: true}}}
+		],
 		main: {objects: {village: {place: true}, road: {place: true}}}
 	},
 	resources: {
-		stone: 2,
-		wood: 2,
-		sheep: 2,
-		wheat: 1,
-		clay: 0
+		stone: 25,
+		wood: 25,
+		sheep: 25,
+		wheat: 24,
+		clay: 23
 	},
 	cells: {
 		//market: {freq: 'resources'},

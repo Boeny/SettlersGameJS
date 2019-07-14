@@ -15,7 +15,8 @@ Views.Map.prototype = {
 
 			this.hover[type] = new this.Hover({
 				parent: this,
-				type: type
+				type: type,
+				html: this.html
 			});
 		}
 
@@ -23,7 +24,7 @@ Views.Map.prototype = {
 	},
 	Create: function(){
 		var content = '';
-		var coo;
+		var coo, num;
 
 		for (var i=0; i<this.height; i++){
 			var row = '';
@@ -31,7 +32,8 @@ Views.Map.prototype = {
 			for (var j=0; j<this.width; j++)
 			{
 				coo = this.getCooStr(i,j);
-				row += this.html.td({'class': 'cell', 'data-type': this.data[coo].type, 'data-coo': coo});
+				num = this.getRes(i,j) ? this.html.div({'class': 'num'}) : '';
+				row += this.html.td(num, {'class': 'cell', 'data-type': this.data[coo].type, 'data-coo': coo});
 			}
 			content += this.html.tr(row);
 		}
@@ -39,7 +41,7 @@ Views.Map.prototype = {
 		this.DOM.html(this.html.table(content));
 	},
 	CreateHovers: function(type){
-		this.hover[type].Create(this.getRes());
+		this.hover[type].CreateAll(this.getRes());
 	},
 	ToggleHover: function(type, show){
 		type = type || false;
@@ -55,7 +57,6 @@ Views.Map.prototype = {
 	},
 	setObject: function(elem){
 		elem = $(elem);
-		elem.addClass('added');
 
 		this.setHover({
 			added: true,
@@ -98,9 +99,6 @@ Views.Map.prototype = {
 	getDir: function(elem){
 		return elem.data('dir');
 	},
-	/**
-	 * returns DOM
-	 */
 	getCell: function(i,j){
 		if (i === undefined && j === undefined) return this.DOM.find('.cell');
 		var cell = is_array(i) ? this.getCell(i[0],i[1]) : this.DOM.find('.cell[data-coo="'+this.getCooStr(i,j)+'"]');
@@ -111,66 +109,40 @@ Views.Map.prototype = {
 		if (i === undefined && j === undefined) return this.resources;
 		return is_array(i) ? this.getRes(i[0],i[1]) : this.resources[this.getCooStr(i,j)];
 	},
-	getHover: function(o, coo, dir, as_array){
-		if (as_array)
-		{
-			dir = to_arr(dir);
-
-			var result = [];
-			var elem;
-
-			for (var i in dir){
-				elem = this.getHover(o, coo, dir[i]);
-				if (elem) result.push(elem);
-			}
-
-			return result;
-		}
+	getHover: function(o, coo, dir){
+		var type = is_object(o) ? o.type : o;
 
 		if (!is_object(o)){
 			o = {
-				type: o,
 				coo: coo,
 				direction: dir
 			};
 		}
-		_Error.ThrowTypeIf(!o.type, 'type are empty', 'views.map.getHover');
-		return this.hover[o.type].get(o);
+		else
+			delete o.type;
+
+		_Error.ThrowTypeIf(!type, 'type are empty', 'views.map.getHover');
+		return this.hover[type].get(o);
 	},
-	setHover: function(o, elem, coo, dir){
-		if (!is_object(o)){
-			o = {
-				type: o,
-				element: elem,
-				coo: coo,
-				direction: dir
-			};
-		}
-		_Error.ThrowTypeIf(!o.type || !o.element || !o.coo || !o.direction, 'some params are empty', 'views.map.setHover');
+	setHover: function(o){
 		this.hover[o.type].set(o);
 	},
 
 	CreateNearest(type){
-		this.parent.disable(this.getHover(type));
-		var nearest = this.getNearest(type);
+		var nearest = this.getHover(type);
+
+		for (var i in nearest){
+			this.parent.disable(nearest[i]);
+		}
+
+		nearest = this.getNearest(type);
 
 		for (var i in nearest){
 			this.parent.enable(nearest[i]);
 		}
 	},
 
-	getAddedObjects: function(type){
-		return this.getHover({type: type, added: true});
-	},
 	getNearest: function(type){
-		switch (type){
-			case 'road':
-				return this.getNearestLines(type);
-			case 'village':
-			case 'town':
-				return this.getNearestCorners(type);
-			default:
-				return [];
-		}
+		return this.hover[type].getNearest();
 	}
 };

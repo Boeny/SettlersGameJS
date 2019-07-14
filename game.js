@@ -23,42 +23,6 @@ Game.prototype = {
 		this.Render = function(name, o){
 			return _views[name](o);
 		};
-
-		this.Bind = function(_e, params){
-			if (is_object(_e)){
-				for (var e in _e){
-					this.Bind(e, _e[e]);
-				}
-				return;
-			}
-
-			var $this = this;
-
-			if (!is_object(params)){
-				_views.Bind(_e, function(e, elem){
-					if (is_callable(params)){
-						params(e, elem);
-					}
-					else{
-						$this[params]();
-					}
-				});
-				return;
-			}
-
-			for (var name in params){
-				_views.Bind(_e, name, function(e, elem){
-					var method = params[name];
-
-					if (is_callable(method)){
-						method(e, elem);
-					}
-					else{
-						$this[method]();
-					}
-				});
-			}
-		};
 	},
 
 	// Players
@@ -168,8 +132,11 @@ Game.prototype = {
 	setObject: function(){
 		var p = this.getCurrentPlayer();
 		p.AddObject(this.getCurrentObjectType());
+
+		// close hovers at the next substep
 		this.setCurrentObjectType(null);
 
+		// if preparing step and all objects are set -> next nonhuman substep, redirecting to the next game step
 		var params = {};
 		if (this.rules.getPrepareStep() && !p.getEnabled()){
 			params.is_human = false;

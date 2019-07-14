@@ -4,25 +4,28 @@ Views.Map.prototype.Hover = function(o){
 Views.Map.prototype.Hover.prototype = {
 	Init: function(o){
 		$.extend(this,o);
-
-		this.cached = {};
-		this.added = {};
-		this.filled = false;
+		this.CreateByType(this.type);
 	},
-	CreateByType: function(type, direction, pos, enabled){
+	CreateByType: function(type){
+		var params = {
+			parent: this,
+			type: type,
+			html: this.html
+		};
+
 		switch (type){
 			case 'road':
-				this.setLine(type, direction, pos, enabled);
+				this.elements = new this.LineHover(params);
 				break;
 			case 'village':
 			case 'town':
-				this.setCorner(type, direction, pos, enabled);
+				this.elements = new this.CornerHover(params);
 				break;
 		}
-	}
+	},
 	CreateAll: function(cells_info){
 		_Error.ThrowTypeIf(!cells_info || !obj_length(cells_info), 'need resources');
-		if (this.filled) return;
+		if (this.elements.filled) return;
 
 		for (var coo in cells_info){
 			coo = this.parent.getCooArray(coo);
@@ -33,37 +36,41 @@ Views.Map.prototype.Hover.prototype = {
 			if (coo[0] == this.parent.height-1 || this.parent.getRes(coo[0]+1, coo[1])) delete dir.bottom;
 			if (coo[1] == this.parent.width-1 || this.parent.getRes(coo[0], coo[1]+1)) delete dir.right;
 
-			this.parent.setElemByType(this.type, obj_keys(dir), coo, true);// enabled
+			this.elements.Create(obj_keys(dir), coo, true);// enabled
 		}
 
-		this.filled = true;
+		this.elements.filled = true;
+	},
+
+	getCooArray: function(str){
+		return this.parent.getCooArray(str);
+	},
+	getRes: function(i,j){
+		return this.parent.getRes(i,j);
+	},
+	getCell: function(pos){
+		return this.parent.getCell(pos);
+	},
+	getCooStr: function(i,j){
+		return this.parent.getCooStr(i,j);
 	},
 
 	get: function(o){
-		if (!o) return this.cached;
-
-		var elements = this.getElem(o.added);
-		return o.i === undefined && !o.coo ? elements : elements[this.getCooStr(o)];
+		return o.coo ? this.elements.get(o) : this.elements.getElem(o.added);
 	},
 	set: function(o){
-		_Error.CheckType(o, 'object', true);// strict
-		this.getElem(o.added, true)[this.getCooStr(o)] = o.element;
+		o.element.addClass('added');
+		this.elements.set(o);
 	},
-	getElem: function(added, check){
-		var type = added ? 'added' : 'cached';
-		var elements = this[type];
-		if (check) _Error.ThrowTypeIf(!elements, type+' elements are empty', 'views.hover.getElem');
-
-		return elements;
+	ObjectIsSet: function(elem){
+		return $(elem).is('.added');
 	},
 
-	getCooStr: function(o){
-		_Error.CheckType(o, 'object', true);
-		o.i = o.coo ? o.coo : o.i;
-
-		o.coo = this.parent.getCooStr(o.i, o.j);
-		o.direction = this.parent.getCooStr(o.direction);
-		return this.parent.getCooStr(o.coo, o.direction);
+	getNearest: function(){
+		return this.elements.getNearest();
+	},
+	getAddedObjects: function(type){
+		return this.parent.getHover({type: type, added: true});
 	},
 
 	Hide: function(){

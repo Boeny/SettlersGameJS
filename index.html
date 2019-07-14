@@ -32,7 +32,7 @@ $(function(){
 		var elem = $(this).closest('form');
 
 		if (elem.find('[type="text"]').val()){
-			e.preventDefault();
+			e.preventDefault();// prevent form sending
 			Views.Trigger('enter_string', elem.parent().parent());
 		}
 	});
@@ -47,6 +47,7 @@ $(function(){
 		var input = elem.find('input');
 		var v = input.val();
 
+		// if validator named and exists
 		if (validator && !game[validator](v)){
 			input.val('');
 			return;
@@ -60,7 +61,7 @@ $(function(){
 
 	$(document).on('click', '.start_btn', function(){
 		if (!Views.isDisabled(this)){
-			game.EnterPlayersCount('NewGame', true);
+			game.EnterPlayersCount('NewGame', true);// with Cancel button
 		}
 	});
 	$(document).on('click', '.step_btn', function(){
