@@ -151,10 +151,12 @@ Views.Map.prototype = {
 		}
 
 		nearest = this.getNearest(type);
+		if (!nearest.length) return false;
 
 		for (var i in nearest){
 			this.parent.enable(nearest[i]);
 		}
+		return true;
 	},
 
 	getNearest: function(type){

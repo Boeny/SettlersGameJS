@@ -5,16 +5,14 @@ Game.prototype.Map.prototype = {
 	Init: function(o){
 		this.parent = o.parent;
 		this.rules = o.rules;
-		this.width = this.rules.width;
-		this.height = this.rules.height;
 		this.types =  this.rules.getTypes();
 		this.dices = {};
 	},
 	getWidth: function(){
-		return this.width;
+		return this.rules.width;
 	},
 	getHeight: function(){
-		return this.height;
+		return this.rules.height;
 	},
 	getTypes: function(){
 		return this.types;

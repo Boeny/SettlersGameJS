@@ -10,10 +10,19 @@ body {
 }
 
 .game {
-	margin: 0 auto;
-	width: 50%;
+	width: auto;
 	min-height: 100%;
-	position: relative;
+	position: fixed;
+	left: 50%;
+	margin-left: -201px;
+	display: inline-block;
+}
+.game_field {
+	margin-top: 4px;
+}
+
+.clearfix {
+	clear: both;
 }
 
 .modal-message {
@@ -52,7 +61,6 @@ body {
 }
 .modal-message.prompt .container {
 	width: 100%;
-	height: 100%;
 	padding: 8px;
 }
 .modal-message.prompt .container,
@@ -62,6 +70,18 @@ body {
 .modal-message.prompt .container,
 .modal-message.prompt .container *:not(.btn) {
 	background: #fff;
+}
+
+.modal-message input,
+.modal-message select,
+.modal-message button {
+	width: 35px;
+	margin-top: 7px;
+	padding: 3px 5px;
+}
+.modal-message select {
+	width: 44px;
+	margin-right: 5px;
 }
 
 .overlay {
@@ -81,6 +101,21 @@ body {
 	float: right;
 }
 
+.iblock {
+	display: inline-block;
+}
+.abs {
+	position: absolute;
+	z-index: 1;
+	top: 0;
+}
+.abs.right {
+	right: 0;
+}
+.rel {
+	position: relative;
+}
+
 .btn {
 	display: inline-block;
 	border: 1px solid #ccc;
@@ -89,6 +124,9 @@ body {
 	box-shadow: 1px 1px 1px #777;
 	cursor: pointer;
 	background: #fff;
+}
+.btn.hidden {
+	display: none;
 }
 .btn:active {
     box-shadow: inset 2px 2px 3px 0px #777;
@@ -103,6 +141,11 @@ body {
 	border-radius: 3px;
 	box-shadow: none;
 	border: 1px solid #909090;
+}
+
+.map_container {
+	display: inline-block;
+	border: 1px solid #ccc;
 }
 
 .map td {
@@ -298,10 +341,31 @@ body {
 }
 
 .actual {
-	width: 120px;
+	width: 169px;
+	float: right;
+	margin-left: 4px;
 }
-.actual [data-type] {
-	width: 100%;
+.actual .res_info[data-type] {
+	float: left;
+	padding: 5px;
+	margin-right: 5px;
+	width: 51px;
+}
+.actual .menu {
+	top: 25px;
+	width: 102px;
+	padding: 3px;
+	box-sizing: border-box;
+	background: #fff;
+	border: 1px solid #ccc;
+}
+.actual .menu .item {
+	line-height: 22px;
+	padding-left: 7px;
+}
+.actual .menu .item:hover {
+	cursor: pointer;
+	opacity: .5;
 }
 
 .description {
@@ -309,6 +373,8 @@ body {
 	width: 400px;
 	border: 1px solid #ccc;
 	border-bottom: none;
+	width: 100%;
+	box-sizing: border-box;
 }
 .description .receipt {
 	height: 21px;

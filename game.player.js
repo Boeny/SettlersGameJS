@@ -9,6 +9,7 @@ Game.prototype.Player.prototype = {
 
 		this.resources = {};
 		this.objects = {};
+		this.exchange = {};
 	},
 	Create: function(parent, count){
 		var pc_index = random(0, count-1);
@@ -46,14 +47,18 @@ Game.prototype.Player.prototype = {
 		else{
 			if (this.rule.objects[type].receipt){
 				for (var i in this.rule.objects[type].receipt){
-					this.DelRes(i);
+					this.DelRes(i, this.rule.objects[type].receipt[i]);
 				}
 			}
+
+			this.CheckExchange();
 		}
 	},
-	DelRes: function(type){
-		if (this.resources[type]) this.resources[type]--;
-		if (this.resources[type] <= 0) delete this.resources[type];
+	DelRes: function(type, count){
+		if (this.resources[type]){
+			this.resources[type] -= count || 1;
+			if (this.resources[type] <= 0) delete this.resources[type];
+		}
 	},
 	AddRes: function(type, count){
 		this.resources[type] = (this.resources[type] || 0) + (count || 1);
@@ -66,12 +71,24 @@ Game.prototype.Player.prototype = {
 			if (!this.resources[type] || this.resources[type] < receipt[type])
 				return false;
 		}
-
 		return true;
+	},
+
+	CheckExchange: function(){
+	},
+	getExchange: function(){
+		return this.rule.exchange;
+	},
+	Exchange: function(type1, type2){
+		this.DelRes(type1, this.rule.exchange[type1].count);
+		this.AddRes(type2);
 	},
 
 	getEnabled: function(){
 		return obj_length(this.rule.objects) > 0;
+	},
+	Disable: function(type){
+		if (type) delete this.rule.objects[type];
 	},
 	hasObject: function(type){
 		if (!type) return false;

@@ -1,8 +1,9 @@
-Game.prototype.Rules = function(){
+Game.prototype.Rules = function(w,h){
+	this.setSize(w,h);
 };
 Game.prototype.Rules.prototype = {
-	width: 5,
-	height: 5,
+	width: 10,
+	height: 10,
 
 	game: {
 		prepare: [
@@ -19,9 +20,10 @@ Game.prototype.Rules.prototype = {
 		clay: 1
 	},
 	cells: {
-		//market: {freq: 'resources'},
+		//market2: {freq: 'resources'},
+		//market3: {freq: 'resources'},
 		//resources: {freq: 'count'},
-		sea: {freq:{0: '*', height: '*', '*': [0,-1]}}
+		sea: {freq:{0: '*', '*': [0,-1], height: '*'}}
 	},
 	receipts: {
 		road: {stone:1,clay:1},
@@ -36,10 +38,11 @@ Game.prototype.Rules.prototype = {
 	bonuses: {
 		village: {resources: 1},
 		//town: {resources: 2},
-		//market: {exchange: [2,3]},
+		//market2: {exchange: 2},
+		//market3: {exchange: 3}
 	},
-	market: {
-		resources: 1
+	exchange: {
+		resources: 4
 	},
 
 	Validate: function(v, type){
@@ -86,6 +89,25 @@ Game.prototype.Rules.prototype = {
 	getReceipt: function(type){
 		return this.receipts[type];
 	},
+	getExchange: function(){
+		var result = {};
+		var res, type;
+
+		for (var extype in this.exchange){
+			res = obj_keys(this[extype]);
+
+			for (var i in res){
+				type = res[i];
+
+				result[type] = {
+					count: this.exchange[extype],
+					res: arr_exclude(res, type)
+				};
+			}
+		}
+
+		return result;
+	},
 
 	setNextRound: function(){
 		this.round++;
@@ -109,6 +131,7 @@ Game.prototype.Rules.prototype = {
 				receipt: is_main ? this.getReceipt(type) : null,
 				type: type
 			};
+			result.exchange = this.getExchange();
 		}
 
 		return result;
@@ -142,6 +165,10 @@ Game.prototype.Rules.prototype = {
 		return result;
 	},
 
+	setSize: function(w,h){
+		this.width = +w || this.width;
+		this.height = +h || this.height;
+	},
 	Init: function(){
 		this.tmp = {
 			resources: {},
@@ -149,8 +176,18 @@ Game.prototype.Rules.prototype = {
 			cells: {}
 		};
 
+		var count = (this.width - 2) * (this.height - 2);
+		var actual_count = 0;
+
 		for (var i in this.resources){
 			this.tmp.resources[i] = this.resources[i].count || this.resources[i];
+			actual_count += this.tmp.resources[i];
+		}
+
+		var koef = count / actual_count;
+
+		for (var i in this.resources){
+			this.tmp.resources[i] = parseInt(this.tmp.resources[i] * koef);
 
 			for (var j=0; j<this.tmp.resources[i]; j++){
 				this.tmp.res_by_count.push(i);
@@ -166,51 +203,8 @@ Game.prototype.Rules.prototype = {
 		this.tmp.dices = this.setDices(this.tmp.res_by_count.length);
 	},
 	getCellType: function(i,j){
-		var c = {};// conditions[cell]
-
-		for (var key in this.cells){
-			c[key] = [];
-			var freq = this.cells[key].freq;
-
-			for (var h in freq){
-				var delta = freq[h];
-
-				if (is_array(delta)){
-					for (var d in delta){
-						if (in_str('*',delta[d])){
-							delta[d] = delta[d].split('*')[1];
-						}
-
-						if (delta[d] < 0){
-							delta[d] += this.width;
-						}
-					}
-				}
-				switch (h){
-					case 'height':
-						if (i == this.height && delta == '*') c[key].push(true);
-						break;
-					case '*':
-						if (is_array(delta) && in_array(j, delta)) c[key].push(true);
-						break;
-					default:
-						if (i == +h && delta == '*') c[key].push(true);
-				}
-			}
-		}
-
-		var max_key = {max: 0, key: ''};
-
-		for (var key in c){
-			if (c[key].length > max_key.max){
-				max_key = {
-					key: key,
-					max: c[key].length
-				}
-			}
-		}
-
-		return max_key.max ? max_key.key : 'resources';
+		if (i == 0 || i == this.height-1 || j == 0 || j == this.width-1) return obj_first(this.cells);
+		return 'resources';
 	},
 	getRandomRes: function(i,j){
 		var type = this.getCellType(i,j);

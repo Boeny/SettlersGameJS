@@ -1,4 +1,6 @@
 window.Views = {
+	opened_menu: null,
+
 	Bind: function(_e, elem, handler){
 		if (is_callable(elem)){
 			$(document).on(_e, function(e){
@@ -91,7 +93,8 @@ window.Views = {
 					this.html.div(
 						this.html.div(o.title, {'class': 'title'})+
 						this.html.form(
-							this.html.div(this.html.input({required: 'required'}))+
+							this.html.div(this.html.input({value: 2, required: 'required'}))+
+							this.html.div(this.html.select({5:5,6:6,7:7,8:8,9:9,10:10})+this.html.select({5:5,6:6,7:7,8:8,9:9,10:10}))+
 							this.html.div(this.html.button('OK', {type: 'submit', 'class': 'btn'})+this.html.span('Отмена', {'class': 'btn cancel'}))
 						),
 						{'class': 'container'}
@@ -117,6 +120,24 @@ window.Views = {
 		}
 
 		if (o.focus) elem.find('[type="text"]').focus();
+	},
+
+	toggleMenu: function(elem){
+		if (this.opened_menu){
+			this.dropup();
+		}
+		else{
+			this.dropdown(elem);
+		}
+	},
+	dropdown: function(elem){
+		this.opened_menu = $(elem).next();
+		this.opened_menu.slideDown();
+	},
+	dropup: function(){
+		if (!this.opened_menu) return;
+		this.opened_menu.slideUp();
+		this.opened_menu = null;
 	},
 
 	// Game
@@ -160,6 +181,7 @@ window.Views = {
 		this.Trigger('next_step');
 	},
 	next_step: function(o){
+		this.dropup();// close any menu if opened
 		this.map.ToggleHover(o.map.hover);
 
 		o.header = o.header || {};
@@ -172,7 +194,7 @@ window.Views = {
 		this.description.Toggle(o.description.enabled);
 		this.description.Filter(o.description.filtered);
 
-		if (o.is_human) this.actual.setObjects(o.actual.objects);
+		if (o.is_human) this.actual.setObjects(o.actual);
 
 		if (o.message){
 			var $this = this;
@@ -202,21 +224,27 @@ window.Views = {
 		_Error.ThrowTypeIf(!type, 'cell has no type');
 		this.map.setType(type);
 
-		if (this.needFilter(elem))
-			this.map.CreateNearest(type);
+		var result = true;
+
+		if (this.needFilter(elem)){
+			result = this.map.CreateNearest(type);
+		}
 		else
 			this.map.CreateHovers(type);
+
+		return result;
 	},
 	toggleHoverTable: function(elem, old_type){
 		var type = this.getType(elem);
 		var show = old_type !== type;
 
+		var result = type;
 		if (show){
-			this.CheckFilter(elem);
+			result = this.CheckFilter(elem) && type;
 		}
 
 		this.map.ToggleHover(type, show);
-		return show ? type : null;
+		return show ? result : false;
 	},
 
 	// Description

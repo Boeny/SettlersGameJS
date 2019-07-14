@@ -224,6 +224,14 @@ function arr_remove(a,v){
 	_Error.CheckType(a, 'array');
 	var i = a.indexOf(v);
 	if (i !== -1) a.splice(i,1);
+	return a;
+}
+function arr_exclude(a,v){
+	_Error.CheckType(a, 'array');
+	var result = copy_elements([], a);
+	var i = result.indexOf(v);
+	if (i !== -1) result.splice(i,1);
+	return result;
 }
 /**
  * говорит, есть ли хотя бы одна подстрока(-и) s в строке str

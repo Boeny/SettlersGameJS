@@ -2,6 +2,8 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <link rel="stylesheet" href="style.css">
 <script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
 <script src="base.js"></script>
@@ -55,7 +57,8 @@ $(function(){
 		}
 
 		Views.hideModalMessage(this);
-		game[elem.data('action')](v);
+		var selects = elem.find('select');
+		game[elem.data('action')](v, $(selects[0]).val(), $(selects[1]).val());
 	});
 
 	// Game Process
@@ -84,6 +87,14 @@ $(function(){
 		{
 			game.setObject( Views.map.setObject(this) );
 		}
+	});
+	$(document).on('click', '.exchange_btn', function(){
+		Views.toggleMenu(this);
+	});
+	$(document).on('click', '.exchange_btn + .menu > .item', function(){
+		Views.dropup();
+		var elem = $(this);
+		game.Exchange(elem.parent().prev().data('source'), $(this).data('type'));
 	});
 });
 </script>

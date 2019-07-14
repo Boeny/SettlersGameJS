@@ -43,8 +43,8 @@ Game.prototype = {
 			focus: true
 		});
 	},
-	Create: function(players_count){
-		this.rules = new this.Rules();
+	Create: function(players_count, width, height){
+		this.rules = new this.Rules(width, height);
 		this.map = new this.Map({
 			parent: this,
 			rules: this.rules
@@ -58,7 +58,7 @@ Game.prototype = {
 		});
 	},
 	CreateMap: function(){
-		this.map.Generate(this.rules);
+		this.map.Generate();
 
 		return this.Validate({
 			object_types: this.map.getTypes(),
@@ -69,7 +69,8 @@ Game.prototype = {
 			height: this.map.getHeight()
 		}, 'map');
 	},
-	NewGame: function(players_count){
+	NewGame: function(players_count, width, height){
+		this.rules.setSize(width, height);
 		this.CreatePlayers(players_count);
 		this.Render('new_game', {map:  this.CreateMap()});
 	},
@@ -106,21 +107,7 @@ Game.prototype = {
 		var dice;
 		if (!this.rules.getPrepareStep()){
 			dice = this.rules.getNextDice();
-
-			var cells = this.map.getCellsByDice(dice);
-			var objects, res, bonus;
-
-			for (var coo in cells){
-				objects = this.getObjects(coo);
-				res = cells[coo].type;
-
-				for (var i in objects){
-					bonus = this.rules.getBonuses(objects[i].type);
-
-					if (bonus)
-						objects[i].owner.AddRes(res, bonus.resources);
-				}
-			}
+			this.UpdateRes(dice);
 		}
 
 		this.SubStep({
@@ -150,7 +137,10 @@ Game.prototype = {
 			},
 			map: {hover: false},
 			description: step_params,
-			actual: {objects: p.getRes()}
+			actual: {
+				objects: p.getRes(),
+				exchange: p.getExchange()
+			}
 		}));
 	},
 
@@ -159,12 +149,13 @@ Game.prototype = {
 	setObject: function(coo){
 		var p = this.getCurrentPlayer();
 		var type = this.getCurrentObjectType();
-		p.AddObject(type);
 
-		this.AddObject(coo, type, p);
-
-		// close hovers at the next substep
-		this.setCurrentObjectType(null);
+		if (type){
+			p.AddObject(type);
+			this.AddObject(coo, type, p);
+			// close hovers at the next substep
+			this.current_object_type = null;
+		}
 
 		// if preparing step and all objects are set -> next nonhuman substep, redirecting to the next game step
 		var params = {};
@@ -198,6 +189,27 @@ Game.prototype = {
 		return this.objects[coo];
 	},
 
+	UpdateRes: function(digit){
+		var cells = this.map.getCellsByDice(digit);
+		var objects, res, bonus;
+
+		for (var coo in cells){
+			objects = this.getObjects(coo);
+			res = cells[coo].type;
+
+			for (var i in objects){
+				bonus = this.rules.getBonuses(objects[i].type);
+
+				if (bonus)
+					objects[i].owner.AddRes(res, bonus.resources);
+			}
+		}
+	},
+	Exchange: function(type1, type2){
+		this.getCurrentPlayer().Exchange(type1, type2);
+		this.SubStep();
+	},
+
 	getCurrentPlayer: function(){
 		return this.Validate(this.current_player, 'current_player');
 	},
@@ -217,6 +229,15 @@ Game.prototype = {
 		return this.current_object_type;
 	},
 	setCurrentObjectType: function(type){
-		this.current_object_type = type;
+		var p = this.getCurrentPlayer();
+
+		// if player doesn't know he can't place an object
+		if (this.current_object_type && !type && p.getEnabled()){
+			p.Disable(this.current_object_type);
+			this.current_object_type = null;
+			this.SubStep();
+		}
+		else
+			this.current_object_type = type;
 	}
 };
