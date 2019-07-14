@@ -6,21 +6,7 @@
 
 <link rel="stylesheet" href="style.css">
 <script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
-<script src="base.js"></script>
-<script src="game.js"></script>
-<script src="game.rules.js"></script>
-<script src="game.map.js"></script>
-<script src="game.player.js"></script>
-<script src="views.js"></script>
-<script src="views.html.js"></script>
-<script src="views.map.js"></script>
-<script src="views.map.hover.js"></script>
-<script src="views.map.linehover.js"></script>
-<script src="views.map.cornerhover.js"></script>
-<script src="views.actual.js"></script>
-<script src="views.description.js"></script>
 <script>
-
 $(function(){
 	Views.setElements({main_elem: '.game'});
 
@@ -108,5 +94,21 @@ $(function(){
 
 <body>
 	<div class="game"></div>
+	<canvas id="canvas" width="55px" height="55px">Обновите Ваш браузер для отображения</canvas>
+	<div id="canvas_id" style="font-size: 9px"></div>
+
+	<script src="/base.js" defer></script>
+	<script src="/game.js" defer></script>
+	<script src="/game.rules.js" defer></script>
+	<script src="/game.map.js" defer></script>
+	<script src="/game.player.js" defer></script>
+	<script src="/views.js" defer></script>
+	<script src="/views.html.js" defer></script>
+	<script src="/views.map.js" defer></script>
+	<script src="/views.map.hover.js" defer></script>
+	<script src="/views.map.linehover.js" defer></script>
+	<script src="/views.map.cornerhover.js" defer></script>
+	<script src="/views.actual.js" defer></script>
+	<script src="/views.description.js" defer></script>
 </body>
 </html>

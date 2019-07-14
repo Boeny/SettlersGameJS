@@ -449,6 +449,20 @@ window.is_func = window.is_callable = function(func){
 	return func && is_('function', func);
 };
 
+function arr_create(count, v){
+	var r = [];
+	iterate(count, function(i){
+		r.push(v === undefined ? i : v);
+	});
+	return r;
+}
+function str_create(count, v){
+	return arr_create(count, v).join();
+}
+function formatNumber(n, count){
+	return n.length < count ? str_create(count-1,'0')+n : n;
+}
+
 function str_replace(_from, _to, subject){
 	if (is_array(subject)){
 		for (var i in subject){
@@ -493,4 +507,11 @@ function ToggleElement(){
 
 	// передаем массив аргументов без первых двух
 	elem[v ? 'show' : 'hide'].apply(elem, arguments.slice(2));
+}
+
+function iterate(count, func){
+	for (var i=0; i<count; i++){
+		if (func(i) === false)
+			break;
+	}
 }
