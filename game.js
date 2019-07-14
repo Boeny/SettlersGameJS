@@ -153,12 +153,13 @@ Game.prototype = {
 				start: o.is_human,
 				step: o.is_human && (!this.rules.getPrepareStep() || !step_params.enabled.length)
 			},
-			map: {hover: false},
+			map: {hover: o.hover},
 			description: step_params,
 			actual: {
 				objects: p.getRes(),
 				exchange: p.getExchange()
-			}
+			},
+			player_index: p.index
 		}));
 	},
 
@@ -172,11 +173,17 @@ Game.prototype = {
 		this.CheckEnabledObjects();
 		this.AddObject(coo, type, p);
 
-		// close hovers at the next substep
-		this.setCurrentObjectType(null);
+		var params = {};
+
+		// close hovers at the next substep if this type is disabled
+		if (p.isEnabled(type)){
+			params.hover = [type];
+		}
+		else{
+			this.setCurrentObjectType(null);
+		}
 
 		// if preparing step and all objects are set -> next nonhuman substep, redirecting to the next game step
-		var params = {};
 		if (this.rules.getPrepareStep() && !p.hasRuleObjects()){
 			params.is_human = false;
 			params.message = {text: ''};

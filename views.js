@@ -191,9 +191,9 @@ window.Views = {
 			o.message.success = function(){
 				$this.showDice(o.dice);
 
-				if (!o.is_human){
+				/*if (!o.is_human){
 					$this.Trigger('next_step');
-				}
+				}*/
 			};
 
 			this.message(o.message);

@@ -65,6 +65,20 @@ Views.Map.prototype = {
 			return;
 		}
 
+		if (is_array(type)){
+			for (var i in type){
+				this.hover[type[i]].Toggle(true);
+			}
+			return;
+		}
+
+		if (is_object(type)){
+			for (var t in type){
+				this.hover[t].Toggle(type[t]);
+			}
+			return;
+		}
+
 		this.hover[type].Toggle(show);
 	},
 	setObject: function(elem){
@@ -160,5 +174,5 @@ Views.Map.prototype = {
 
 	getNearest: function(type){
 		return this.hover[type].getNearest();
-	}
+	},
 };

@@ -136,6 +136,9 @@ Game.prototype.Player.prototype = {
 	setEnabled: function(arr){
 		this.enabled = arr;
 	},
+	isEnabled: function(type){
+		return in_array(type, this.enabled);
+	},
 
 	setRule: function(r){
 		this.rule = r || this.rule;
