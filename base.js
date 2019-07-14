@@ -53,12 +53,13 @@ window._Error = {
 };
 
 function random(min, max){
-	if (min === max) return min;
-
 	if (!max){
 		max = min;
 		min = 0;
 	}
+
+	if (min === max) return min;
+
 	if (min === 0 && max === 1){
 		return 100*Math.random() < 50 ? 0 : 1;
 	}

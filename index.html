@@ -15,6 +15,7 @@
 <script src="views.map.hover.js"></script>
 <script src="views.map.linehover.js"></script>
 <script src="views.map.cornerhover.js"></script>
+<script src="views.actual.js"></script>
 <script src="views.description.js"></script>
 <script>
 
@@ -81,8 +82,7 @@ $(function(){
 	$(document).on('click', '.map .corner, .map .line', function(){
 		if (game.getCurrentObjectType() && !Views.map.ObjectIsSet(this))
 		{
-			Views.map.setObject(this);
-			game.setObject();
+			game.setObject( Views.map.setObject(this) );
 		}
 	});
 });

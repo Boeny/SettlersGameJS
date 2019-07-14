@@ -22,12 +22,20 @@ Views.Map.prototype = {
 
 		if (show_hover) this.CreateHovers(show_hover);
 	},
+
 	getDice: function(i,j){
 		return this.dices[this.getCooStr(i,j)];
 	},
+	showDice: function(digit){
+		var dice = this.DOM.find('.num[data-digit="'+digit+'"]');
+		_Error.ThrowTypeIf(!dice.length, 'dice='+digit+' has not found');
+		dice.addClass('big');
+		setTimeout(function(){dice.removeClass('big')}, 400);
+	},
+
 	Create: function(){
 		var content = '';
-		var coo, num;
+		var coo, num, dice;
 
 		for (var i=0; i<this.height; i++){
 			var row = '';
@@ -35,7 +43,8 @@ Views.Map.prototype = {
 			for (var j=0; j<this.width; j++)
 			{
 				coo = this.getCooStr(i,j);
-				num = this.getRes(i,j) ? this.html.div(this.getDice(i,j), {'class': 'num'}) : '';
+				dice = this.getDice(i,j);
+				num = this.getRes(i,j) ? this.html.div(dice.digit, {'class': 'num '+dice.prob, 'data-digit': dice.digit}) : '';
 				row += this.html.td(num, {'class': 'cell', 'data-type': this.data[coo].type, 'data-coo': coo});
 			}
 			content += this.html.tr(row);
@@ -60,14 +69,17 @@ Views.Map.prototype = {
 	},
 	setObject: function(elem){
 		elem = $(elem);
+		var coo = this.getCoo(elem, true);
 
 		this.setHover({
 			added: true,
 			element: elem,
 			type: this.parent.getType(elem),
-			coo: this.getCoo(elem, true),
+			coo: coo,
 			direction: this.getDir(elem)
 		});
+
+		return coo;
 	},
 	ObjectIsSet: function(elem){
 		return $(elem).is('.added');

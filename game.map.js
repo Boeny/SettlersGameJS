@@ -1,6 +1,5 @@
 Game.prototype.Map = function(o){
 	this.Init(o);
-	this.Generate();
 };
 Game.prototype.Map.prototype = {
 	Init: function(o){
@@ -21,12 +20,20 @@ Game.prototype.Map.prototype = {
 		return this.types;
 	},
 	getData: function(i,j){
+		if (is_array(i)){
+			j = i[1];
+			i = i[0];
+		}
 		return i === undefined ? this.data : this.data[i+'-'+j];
 	},
 	getDices: function(){
 		return this.dices;
 	},
 	getRes: function(i,j){
+		if (is_array(i)){
+			j = i[1];
+			i = i[0];
+		}
 		return i === undefined ? this.res_data : this.res_data[i+'-'+j];
 	},
 	isRes: function(i,j){
@@ -51,5 +58,16 @@ Game.prototype.Map.prototype = {
 		}
 
 		return this.data;
+	},
+
+	getCellsByDice: function(digit){
+		var result = {};
+
+		for (var coo in this.dices){
+			if (this.dices[coo].digit == digit)
+				result[coo] = this.data[coo];
+		}
+
+		return result;
 	}
 };

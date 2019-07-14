@@ -1,5 +1,4 @@
 Game.prototype.Rules = function(){
-	this.Init();
 };
 Game.prototype.Rules.prototype = {
 	width: 5,
@@ -81,6 +80,12 @@ Game.prototype.Rules.prototype = {
 	getPlace: function(type){
 		return copy_elements([], to_arr(this.objects[type].place));
 	},
+	getBonuses: function(type){
+		return this.bonuses[type];
+	},
+	getReceipt: function(type){
+		return this.receipts[type];
+	},
 
 	setNextRound: function(){
 		this.round++;
@@ -91,7 +96,8 @@ Game.prototype.Rules.prototype = {
 	getCurrentRule: function(){
 		var result = {objects: {}};
 		var rule = this.getPrepareStep();
-		if (!rule) rule = this.game.main;
+		var is_main = !rule;
+		if (is_main) rule = this.game.main;
 
 		for (var type in rule.objects){
 			var obj = rule.objects[type];
@@ -100,6 +106,7 @@ Game.prototype.Rules.prototype = {
 			result.objects[type] = {
 				count: is_obj ? obj.count : obj,
 				need: is_obj && obj.place ? this.getPlace(type) : null,
+				receipt: is_main ? this.getReceipt(type) : null,
 				type: type
 			};
 		}
@@ -145,7 +152,7 @@ Game.prototype.Rules.prototype = {
 		for (var i in this.resources){
 			this.tmp.resources[i] = this.resources[i].count || this.resources[i];
 
-			for (var j=0; j<this.tmp.resources[i] && j<this.width*this.height; j++){
+			for (var j=0; j<this.tmp.resources[i]; j++){
 				this.tmp.res_by_count.push(i);
 			}
 		}
@@ -155,7 +162,8 @@ Game.prototype.Rules.prototype = {
 		}
 
 		this.round = 0;
-		this.setDices(this.tmp.res_by_count.length);
+		this.dices = [];
+		this.tmp.dices = this.setDices(this.tmp.res_by_count.length);
 	},
 	getCellType: function(i,j){
 		var c = {};// conditions[cell]
@@ -225,10 +233,13 @@ Game.prototype.Rules.prototype = {
 	},
 
 	getRandomDice: function(){
-		var i = random(0, this.dices.length-1);
-		var result = this.dices[i];
-		this.dices.splice(i,1);
+		var i = random(this.tmp.dices.length-1);
+		var result = this.tmp.dices[i];
+		this.tmp.dices.splice(i,1);
 		return result;
+	},
+	getNextDice: function(){
+		return random_elem(this.dices);
 	},
 	setDices: function(res_count){
 		var result = {};
@@ -253,60 +264,60 @@ Game.prototype.Rules.prototype = {
 		var third = (last - first)/3;
 
 		result = [[],[],[]];
+
 		for (var i in tmp){
 			if (tmp[i].count - first < third){
-				num = 0;
+				num = 0;// min probability
 			}
 			else{
 				if (last - tmp[i].count < third){
-					num = 2;
+					num = 2;// max prob
 				}
 				else{
-					num = 1;
+					num = 1;// avg prob
 				}
 			}
 
 			result[num].push(tmp[i].digit);
 		}
 
-		num = parseInt(res_count/2);
-		var count = parseInt(num/result[1].length);
-		if (count < 1) count = 1;
 		tmp = [];
-		var i = 0;
 
-		for (var k=0; i<num; k++){
-			for (var j=0; j<count; j++){
-				tmp.push(result[1][k]);
-				i++;
-			}
-		}
+		// average prob array
+		num = parseInt(res_count/2);
+		this.setDicesByProb('avg', num, result[1], tmp);
 
+		// minimum prob array
 		res_count -= num;
 		num = parseInt(res_count/2);
-		count = parseInt(num/result[0].length);
-		if (count < 1) count = 1;
-		i = 0;
+		this.setDicesByProb('min', num, result[0], tmp);
 
-		for (var k=0; i<num; k++){
-			for (var j=0; j<count; j++){
-				tmp.push(result[0][k]);
-				i++;
-			}
-		}
+		// maximum prob array
+		res_count -= num;
+		num = res_count;
+		this.setDicesByProb('max', num, result[2], tmp);
 
-		num = res_count - num;
-		count = parseInt(num/result[2].length);
-		if (count < 1) count = 1;
-		i = 0;
-
-		for (var k=0; i<num; k++){
-			for (var j=0; j<count; j++){
-				tmp.push(result[2][k]);
-				i++;
-			}
-		}
-
-		this.dices = tmp;
+		return tmp;
 	},
+	setDicesByProb: function(prob_name, all_count, arr, result){
+		var count = parseInt(all_count/arr.length);// count of each digit
+		if (count < 1) count = 1;
+
+		var i = 0;
+		var digit;
+
+		for (var index=0; i<all_count; index++){
+			for (var j=0; i<all_count && j<count; j++){
+				digit = arr[index] || arr_last(arr);
+
+				if (j == 0) this.dices.push(digit);
+
+				result.push({
+					digit: digit,
+					prob: prob_name
+				});
+				i++;
+			}
+		}
+	}
 };

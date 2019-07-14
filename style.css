@@ -6,6 +6,7 @@ body {
 	width: 100%;
 	font-size: 13px;
 	font-family: Arial;
+	color: #444;
 }
 
 .game {
@@ -174,6 +175,24 @@ body {
 	font-size: 10px;
 	text-align: center;
 	font-weight: bold;
+	transition: transform .3s ease-in;
+}
+.map td .num.min {
+	color: #fff;
+	background: rgba(39, 0, 255, 1);
+}
+.map td .num.avg {
+	color: #2b00b1;
+	background: rgba(16, 255, 0, 1);
+}
+.map td .num.max {
+	color: #fff;
+	background: rgba(255, 0, 0, 1);
+}
+.map td .num.big {
+	z-index: 10;
+	transform: scale(1.7);
+	transition: transform .3s ease-out;
 }
 
 .map td .line.added {
@@ -278,6 +297,13 @@ body {
 	right: -7px;
 }
 
+.actual {
+	width: 120px;
+}
+.actual [data-type] {
+	width: 100%;
+}
+
 .description {
 	line-height: 18px;
 	width: 400px;
@@ -304,4 +330,5 @@ body {
 	width: 40px;
 	height: 20px;
 	margin-right: 5px;
+	text-align: center;
 }

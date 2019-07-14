@@ -33,8 +33,8 @@ Game.prototype.Player.prototype = {
 		return 300;
 	},
 
-	AddObject: function(type){
-		this.objects[type] = (this.objects[type] || 0) + 1;
+	AddObject: function(type, count){
+		this.objects[type] = (this.objects[type] || 0) + (count || 1);
 
 		if (this.rule.objects[type].count !== undefined){
 			this.rule.objects[type].count--;
@@ -43,7 +43,33 @@ Game.prototype.Player.prototype = {
 				delete this.rule.objects[type];
 			}
 		}
+		else{
+			if (this.rule.objects[type].receipt){
+				for (var i in this.rule.objects[type].receipt){
+					this.DelRes(i);
+				}
+			}
+		}
 	},
+	DelRes: function(type){
+		if (this.resources[type]) this.resources[type]--;
+		if (this.resources[type] <= 0) delete this.resources[type];
+	},
+	AddRes: function(type, count){
+		this.resources[type] = (this.resources[type] || 0) + (count || 1);
+	},
+	getRes: function(){
+		return this.resources;
+	},
+	hasRes: function(receipt){
+		for (var type in receipt){
+			if (!this.resources[type] || this.resources[type] < receipt[type])
+				return false;
+		}
+
+		return true;
+	},
+
 	getEnabled: function(){
 		return obj_length(this.rule.objects) > 0;
 	},
@@ -72,9 +98,11 @@ Game.prototype.Player.prototype = {
 			for (var type in this.rule.objects){
 				var obj = this.rule.objects[type];
 
-				if (obj.need){
+				if (obj.need || obj.receipt){
 					if (this.hasObject(obj.need)){
-						enabled.push(type);
+						if (!obj.receipt || this.hasRes(obj.receipt)){
+							enabled.push(type);
+						}
 					}
 					filtered.push(type);
 				}
@@ -87,9 +115,11 @@ Game.prototype.Player.prototype = {
 			for (var type in this.rule.objects){
 				var obj = this.rule.objects[type];
 
-				if (obj.need){
+				if (obj.need || obj.receipt){
 					if (this.hasObject(obj.need)){
-						enabled.push(type);
+						if (!obj.receipt || this.hasRes(obj.receipt)){
+							enabled.push(type);
+						}
 					}
 					filtered.push(type);
 				}

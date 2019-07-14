@@ -11,6 +11,7 @@ Game.prototype = {
 		this.current_object_type = '';
 		this.map = null;
 		this.rules = null;
+		this.objects = {};
 
 		var validation = o.validation;
 
@@ -56,8 +57,8 @@ Game.prototype = {
 			description: {types: this.Validate(this.rules.getReceipts(), 'receipts')}
 		});
 	},
-	CreateMap: function(generate){
-		if (generate) this.map.Generate(this.rules);
+	CreateMap: function(){
+		this.map.Generate(this.rules);
 
 		return this.Validate({
 			object_types: this.map.getTypes(),
@@ -70,7 +71,7 @@ Game.prototype = {
 	},
 	NewGame: function(players_count){
 		this.CreatePlayers(players_count);
-		this.Render('new_game', {map:  this.CreateMap(true)});
+		this.Render('new_game', {map:  this.CreateMap()});
 	},
 
 	// Step
@@ -101,9 +102,31 @@ Game.prototype = {
 		this.ValidatePlayerIndex();
 
 		this.setCurrentPlayer();
+
+		var dice;
+		if (!this.rules.getPrepareStep()){
+			dice = this.rules.getNextDice();
+
+			var cells = this.map.getCellsByDice(dice);
+			var objects, res, bonus;
+
+			for (var coo in cells){
+				objects = this.getObjects(coo);
+				res = cells[coo].type;
+
+				for (var i in objects){
+					bonus = this.rules.getBonuses(objects[i].type);
+
+					if (bonus)
+						objects[i].owner.AddRes(res, bonus.resources);
+				}
+			}
+		}
+
 		this.SubStep({
 			rule: rule,
-			message: true
+			message: true,
+			dice: dice
 		});
 	},
 	SubStep: function(o){
@@ -123,16 +146,22 @@ Game.prototype = {
 		this.Render('next_step', $.extend(o, {
 			header: {
 				start: o.is_human,
-				step: o.is_human && !step_params.enabled.length
+				step: o.is_human && (!this.rules.getPrepareStep() || !step_params.enabled.length)
 			},
 			map: {hover: false},
-			description: step_params
+			description: step_params,
+			actual: {objects: p.getRes()}
 		}));
 	},
 
-	setObject: function(){
+	// Getters & Setters
+
+	setObject: function(coo){
 		var p = this.getCurrentPlayer();
-		p.AddObject(this.getCurrentObjectType());
+		var type = this.getCurrentObjectType();
+		p.AddObject(type);
+
+		this.AddObject(coo, type, p);
 
 		// close hovers at the next substep
 		this.setCurrentObjectType(null);
@@ -146,8 +175,29 @@ Game.prototype = {
 
 		this.SubStep(params);
 	},
+	AddObject: function(coo, type, owner){
+		coo = coo.split('-');
+		var coo_arr = [[coo[0],coo[1]], [coo[0]-1,coo[1]], [coo[0],coo[1]-1], [coo[0]-1,coo[1]-1]];
 
-	// Getters & Setters
+		for (var i in coo_arr){
+			if (this.map.getRes(coo_arr[i]))
+			{
+				coo = coo_arr[i].join('-');
+
+				if (!this.objects[coo])
+					this.objects[coo] = [];
+
+				this.objects[coo].push({
+					type: type,
+					owner: owner
+				});
+			}
+		}
+	},
+	getObjects: function(coo){
+		return this.objects[coo];
+	},
+
 	getCurrentPlayer: function(){
 		return this.Validate(this.current_player, 'current_player');
 	},

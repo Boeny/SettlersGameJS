@@ -18,7 +18,7 @@ Views.Description.prototype = {
 				res = obj.resources[j];
 
 				for (var k=0; k<res.count; k++){
-					object += this.html.div({'class': 'resource pull-left', 'data-type': res.type});
+					object += this.html.div(res.type, {'class': 'resource pull-left', 'data-type': res.type});
 				}
 			}
 

@@ -131,11 +131,11 @@ window.Views = {
 			this.html.div({
 				'class': 'game_field',
 
-				content: this.html.span({
+				content: this.html.div({
 						'class': 'map_container',
-						content: this.html.span({'class': 'map'})
+						content: this.html.div({'class': 'map'})
 					})+
-					this.html.span({'class': 'actual'})
+					this.html.div({'class': 'actual'})
 			})+
 			this.html.div({
 				'class': 'bottom',
@@ -147,9 +147,11 @@ window.Views = {
 		this.setElements({
 			header_elem: '.header',
 			map_elem: '.map',
-			descr_elem: '.description'
+			descr_elem: '.description',
+			act_elem: '.actual'
 		});
 
+		this.setActualData(o.actual);
 		this.setDescrData(o.description);
 		this.new_game(o);
 	},
@@ -170,10 +172,14 @@ window.Views = {
 		this.description.Toggle(o.description.enabled);
 		this.description.Filter(o.description.filtered);
 
+		if (o.is_human) this.actual.setObjects(o.actual.objects);
+
 		if (o.message){
 			var $this = this;
 
 			o.message.success = function(){
+				$this.showDice(o.dice);
+
 				if (!o.is_human){
 					$this.Trigger('next_step');
 				}
@@ -223,6 +229,16 @@ window.Views = {
 		this.description = new this.Description(o);
 	},
 
+	// Actual
+
+	setActualData: function(params){
+		var o = $.extend({},params);
+		o.parent = this;
+		o.DOM = this.act_elem;
+		o.html = this.html;
+		this.actual = new this.Actual(o);
+	},
+
 	// Filter
 
 	needFilter: function(elem){
@@ -236,5 +252,9 @@ window.Views = {
 	},
 	removeFilter: function(elem){
 		$(elem).removeClass('filtered');
+	},
+
+	showDice: function(digit){
+		if (digit) this.map.showDice(digit);
 	}
 };
