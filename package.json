@@ -1,6 +1,6 @@
 {
   "name": "settlers",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "private": true,
   "devDependencies": {
     "@types/jest": "24.0.13",
@@ -12,7 +12,7 @@
     "tslint": "^5.18.0",
     "tslint-config-airbnb": "^5.11.1",
     "tslint-loader": "^3.6.0",
-    "typescript": "3.5.3"
+    "typescript": "^3.5.2"
   },
   "dependencies": {
     "bootstrap": "^4.3.1",

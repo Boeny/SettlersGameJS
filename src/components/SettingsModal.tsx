@@ -1,9 +1,13 @@
 import React from 'react';
 
 // tslint:disable-next-line: no-use-before-declare
-interface IComponentProps extends IState {
+interface IComponentProps {
     title: string;
     autoFocus: boolean;
+    playerCount: number;
+    mapWidth: number;
+    mapHeight: number;
+    className?: string;
     onChange: (data: Partial<IState>) => void;
     onSubmit: (e: Event) => void;
     onCancel?: () => void;
@@ -11,10 +15,10 @@ interface IComponentProps extends IState {
 
 function SettingsModalComponent(props: IComponentProps) {
 
-    const { title, autoFocus, playerCount, mapWidth, mapHeight, visible, onChange, onSubmit, onCancel } = props;
+    const { title, autoFocus, playerCount, mapWidth, mapHeight, className, onChange, onSubmit, onCancel } = props;
 
     return (
-        <div className={`modal-message prompt${visible ? '' : ' hidden'}`}>
+        <div className={`modal-message prompt${className ? ` ${className}` : ''}`}>
             <div className="overlay" onClick={onCancel} />
 
             <div className="container">
@@ -91,19 +95,23 @@ export class SettingsModal extends React.PureComponent<IProps> {
 
     render() {
 
-        const { playerCount, mapWidth, mapHeight } = this.state;
+        const { onSubmit, showCancelBtn } = this.props;
+        const { playerCount, mapWidth, mapHeight, visible } = this.state;
 
         return (
             <SettingsModalComponent
                 {...this.props}
-                {...this.state}
+                playerCount={playerCount}
+                mapWidth={mapWidth}
+                mapHeight={mapHeight}
+                className={visible ? '' : 'hidden'}
                 onChange={this.onChange}
                 onSubmit={e => {
                     e.preventDefault();
                     this.close();
-                    this.props.onSubmit(playerCount, mapWidth, mapHeight);
+                    onSubmit(playerCount, mapWidth, mapHeight);
                 }}
-                onCancel={this.props.showCancelBtn ? this.close : undefined}
+                onCancel={showCancelBtn ? this.close : undefined}
             />
         );
     }

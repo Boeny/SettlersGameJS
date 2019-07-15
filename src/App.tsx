@@ -1,5 +1,6 @@
 import React from 'react';
 import { SettingsModal } from 'components/SettingsModal';
+import { MainView } from 'views/MainView';
 
 export const App: React.FC = () => {
     return (
@@ -7,11 +8,9 @@ export const App: React.FC = () => {
             <SettingsModal
                 title="Введите кол-во игроков:"
                 autoFocus={true}
-                playerCount={2}
-                mapWidth={5}
-                mapHeight={5}
-                onSubmit={Create}
+                onSubmit={gameStore.Create}
             />
+            <MainView />
         </div>
     );
 };

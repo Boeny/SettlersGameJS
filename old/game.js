@@ -128,11 +128,7 @@ Game.prototype = {
 
 		this.CheckEnabledObjects(rule);
 
-		this.SubStep({
-			rule: rule,
-			message: true,
-			dice: dice
-		});
+		this.SubStep({ rule, message: true, dice });
 	},
 	SubStep: function(o){
 		o = o || {};
