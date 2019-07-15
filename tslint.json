@@ -1,0 +1,65 @@
+{
+    "extends": [
+        "tslint-config-airbnb"
+    ],
+    "defaultSeverity": "error",
+    "rules": {
+        "indent": [
+            true,
+            "spaces",
+            4
+        ],
+        "ter-indent": [
+            true,
+            4,
+            {
+                "SwitchCase": 1
+            }
+        ],
+        "ter-arrow-parens": [
+            true,
+            "as-needed"
+        ],
+        "function-name": [
+            true,
+            {
+                "function-regex": "^[A-Za-z$][\\w\\d]+$",
+                "method-regex": "^[a-z$][\\w\\d]+$",
+                "private-method-regex": "^[a-z$][\\w\\d]+$",
+                "protected-method-regex": "^[a-z$][\\w\\d]+$",
+                "static-method-regex": "^[a-z$][\\w\\d]+$"
+            }
+        ],
+        "variable-name": [
+            true,
+            "allow-pascal-case",
+            "allow-leading-underscore"
+        ],
+        "brace-style": [
+            true,
+            "allowSingleLine",
+            "ignore-same-line"
+        ],
+        "trailing-comma": [
+            true,
+            {
+                "multiline": "never",
+                "singleline": "never"
+            }
+        ],
+        "max-line-length": [
+            true,
+            156
+        ],
+        "prefer-array-literal": false,
+        "no-var-keyword": true,
+        "no-parameter-reassignment": false,
+        "no-unused-variable": true,
+        "no-default-import": false,
+        "import-name": false,
+        "object-shorthand-properties-first": false,
+        "eofline": true,
+        "align": true,
+        "no-use-before-declare": true
+    }
+}
