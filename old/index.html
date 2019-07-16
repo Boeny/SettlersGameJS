@@ -21,92 +21,92 @@
 <script src="views.description.js"></script>
 <script>
 
-$(function(){
-	Views.setElements({main_elem: '.game'});
+$(function() {
+    Views.setElements({main_elem: '.game'});
 
-	var game = new Game({
-		views: Views,
-		validation: true
-	});
+    var game = new Game({
+        views: Views,
+        validation: true
+    });
 
-	// Prompt
+    // Prompt
 
-	$(document).on('click', '.prompt [type="submit"]', function(e){
-		var elem = $(this).closest('form');
+    $(document).on('click', '.prompt [type="submit"]', function(e) {
+        var elem = $(this).closest('form');
 
-		if (elem.find('[type="text"]').val()){
-			e.preventDefault();// prevent form sending
-			Views.Trigger('enter_string', elem.parent().parent());
-		}
-	});
-	$(document).on('click', '.prompt .cancel, .prompt .overlay', function(){
-		if ($(this).data('cancel')){
-			Views.hideModalMessage('.prompt');
-		}
-	});
-	$(document).on('enter_string', '.prompt', function(){
-		var elem = $(this);
-		var validator = elem.data('validator');
-		var input = elem.find('input');
-		var v = input.val();
+        if (elem.find('[type="text"]').val()) {
+            e.preventDefault();// prevent form sending
+            Views.Trigger('enter_string', elem.parent().parent());
+        }
+    });
+    $(document).on('click', '.prompt .cancel, .prompt .overlay', function() {
+        if ($(this).data('cancel')) {
+            Views.hideModalMessage('.prompt');
+        }
+    });
+    $(document).on('enter_string', '.prompt', function() {
+        var elem = $(this);
+        var validator = elem.data('validator');
+        var input = elem.find('input');
+        var v = input.val();
 
-		// if validator named and exists
-		if (validator && !game[validator](v)){
-			input.val('');
-			return;
-		}
+        // if validator named and exists
+        if (validator && !game[validator](v)) {
+            input.val('');
+            return;
+        }
 
-		Views.hideModalMessage(this);
-		var selects = elem.find('select');
-		game[elem.data('action')](v, $(selects[0]).val(), $(selects[1]).val());
-	});
+        Views.hideModalMessage(this);
+        var selects = elem.find('select');
+        game[elem.data('action')](v, $(selects[0]).val(), $(selects[1]).val());
+    });
 
-	// Game Process
+    // Game Process
 
-	$(document).on('click', '.start_btn', function(){
-		if (!Views.isDisabled(this)){
-			game.EnterPlayersCount('NewGame', true);// with Cancel button
-		}
-	});
-	$(document).on('click', '.step_btn', function(){
-		if (!Views.isDisabled(this)){
-			Views.Trigger('next_step');
-		}
-	});
-	$(document).on('next_step', function(){
-		game.Step();
-	});
+    $(document).on('click', '.start_btn', function() {
+        if (!Views.isDisabled(this)) {
+            game.EnterPlayersCount('NewGame', true);// with Cancel button
+        }
+    });
+    $(document).on('click', '.step_btn', function() {
+        if (!Views.isDisabled(this)) {
+            Views.Trigger('next_step');
+        }
+    });
+    $(document).on('next_step', function() {
+        game.Step();
+    });
 
-	// Interaction
+    // Interaction
 
-	$(document).on('click', '.description .receipt', function(){
-		var type = null;
+    $(document).on('click', '.description .receipt', function() {
+        var type = null;
 
-		if (!Views.isDisabled(this)){
-			type = Views.toggleHoverTable(this, game.getCurrentObjectType());
-		}
+        if (!Views.isDisabled(this)) {
+            type = Views.toggleHoverTable(this, game.getCurrentObjectType());
+        }
 
-		game.setCurrentObjectType(type);
-	});
-	$(document).on('click', '.map .corner, .map .line', function(){
-		if (game.getCurrentObjectType() && !Views.map.ObjectIsSet(this))
-		{
-			game.setObject( Views.map.setObject(this) );
-		}
-	});
-	$(document).on('click', '.exchange_btn', function(){
-		Views.toggleMenu(this);
-	});
-	$(document).on('click', '.exchange_btn + .menu > .item', function(){
-		Views.dropup();
-		var elem = $(this);
-		game.Exchange(elem.parent().prev().data('source'), $(this).data('type'));
-	});
+        game.setCurrentObjectType(type);
+    });
+    $(document).on('click', '.map .corner, .map .line', function() {
+        if (game.getCurrentObjectType() && !Views.map.ObjectIsSet(this))
+        {
+            game.setObject( Views.map.setObject(this) );
+        }
+    });
+    $(document).on('click', '.exchange_btn', function() {
+        Views.toggleMenu(this);
+    });
+    $(document).on('click', '.exchange_btn + .menu > .item', function() {
+        Views.dropup();
+        var elem = $(this);
+        game.Exchange(elem.parent().prev().data('source'), $(this).data('type'));
+    });
 });
 </script>
 </head>
 
 <body>
-	<div class="game"></div>
+    <div class="game"></div>
 </body>
 </html>
