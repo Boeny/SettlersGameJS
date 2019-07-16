@@ -1,12 +1,14 @@
 
 export class ViewsMap {
 
+    hover = {};
+
     constructor(o) {
         $.extend(this, o);
 
         const show_hover = this.hover;
-        this.hover = {};
         const type;
+        this.hover = {};
 
         for (const i in this.object_types) {
             type = this.object_types[i];
@@ -102,8 +104,8 @@ export class ViewsMap {
         return [+str[0],+str[1]];
     }
 
-    getCooStr(i,j) {
-        return is_array(i) ? i.join('-') : i+(j === undefined ? '' : '-'+j);
+    getCooStr(i, j) {
+        return `${i}-${j}`;
     }
 
     getType() {
@@ -124,29 +126,26 @@ export class ViewsMap {
 
     getCell(i,j) {
         if (i === undefined && j === undefined) return this.DOM.find('.cell');
-        const cell = is_array(i) ? this.getCell(i[0],i[1]) : this.DOM.find('.cell[data-coo="'+this.getCooStr(i,j)+'"]');
+        const cell = this.DOM.find('.cell[data-coo="'+this.getCooStr(i,j)+'"]');
         if (!cell.length) _Error.ThrowType('cell not found, coo = '+this.getCooStr(i,j), 'views.map.getCell');
         return cell;
     }
 
     getRes(i,j) {
         if (i === undefined && j === undefined) return this.resources;
-        return is_array(i) ? this.getRes(i[0],i[1]) : this.resources[this.getCooStr(i,j)];
+        return this.resources[this.getCooStr(i,j)];
     }
 
     getHover(o, coo, dir) {
-        const type = is_object(o) ? o.type : o;
+        const type = o.type;
 
-        if (!is_object(o)) {
-            o = {
-                coo: coo,
-                direction: dir
-            };
-        }
-        else
-            delete o.type;
+        o = {
+            coo: coo,
+            direction: dir
+        };
 
-        _Error.ThrowTypeIf(!type, 'type are empty', 'views.map.getHover');
+        delete o.type;
+
         return this.hover[type].get(o);
     }
 

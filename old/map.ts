@@ -10,8 +10,8 @@ export class Map {
         this.data = {};
         this.res_data = {};
 
-        for (var i = 0; i < this.rules.height; i++) {
-            for (var j = 0; j < this.rules.width; j++) {
+        for (const i = 0; i < this.rules.height; i++) {
+            for (const j = 0; j < this.rules.width; j++) {
 
                 this.data[i+'-'+j] = this.rules.getRandomRes(i,j);
             }
@@ -20,9 +20,7 @@ export class Map {
     }
 
     isRes(i,j) {
-        if (!is_object(i)) {
-            i = this.getData(i,j);
-        }
+        i = this.getData(i,j);
         if (!i) return false;
         return Object.keys(this.rules.resources).includes(i.name);
     }

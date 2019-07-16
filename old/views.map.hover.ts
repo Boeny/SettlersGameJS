@@ -5,7 +5,7 @@ Views.Map.prototype.Hover = function(o) {
 Views.Map.prototype.Hover.prototype = {
 
     CreateByType: function(type) {
-        var params = {
+        const params = {
             parent: this,
             type: type,
             html: this.html
@@ -22,12 +22,11 @@ Views.Map.prototype.Hover.prototype = {
         }
     },
     CreateAll: function(cells_info) {
-        _Error.ThrowTypeIf(!cells_info || !obj_length(cells_info), 'need resources');
         if (this.elements.filled) return;
 
-        for (var coo in cells_info) {
+        for (const coo in cells_info) {
             coo = this.parent.getCooArray(coo);
-            var dir = {top:1,bottom:1,left:1,right:1};
+            const dir = {top:1,bottom:1,left:1,right:1};
 
             if (coo[0] === 0) delete dir.top;
             if (coo[1] === 0) delete dir.left;

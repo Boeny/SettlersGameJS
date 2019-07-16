@@ -5,7 +5,7 @@ window.Views = {
         $(elem || document).trigger(event_name);
     },
     setElements: function(names) {
-        for (var i in names) {
+        for (const i in names) {
             this[i] = $(names[i]);
         }
     },
@@ -43,7 +43,7 @@ window.Views = {
         $(elem).addClass('hidden');
     },
     message: function(o) {
-        var elem = this.message_elem;
+        const elem = this.message_elem;
 
         if (o.text) {
             if (elem) {
@@ -57,11 +57,11 @@ window.Views = {
             }
         }
 
-        var $this = this;
+        const $this = this;
         setTimeout(function() {$this.hideModalMessage(elem); (o.success && o.success())}, o.ms || 1000);
     },
     enter_string: function(o) {
-        var elem = this.prompt_elem;
+        const elem = this.prompt_elem;
 
         if (elem) {
             if (o.cls) elem.removeClass().addClass('modal-message prompt '+cls);
@@ -93,8 +93,8 @@ window.Views = {
             this.prompt_elem = elem;
         }
 
-        var cancel_btn = elem.find('.cancel');
-        var overlay = elem.find('.overlay');
+        const cancel_btn = elem.find('.cancel');
+        const overlay = elem.find('.overlay');
 
         if (o.cancel) {
             cancel_btn.show();
@@ -174,7 +174,7 @@ window.Views = {
         this.map.ToggleHover(o.map.hover);
 
         o.header = o.header || {};
-        for (var name in o.header) {
+        for (const name in o.header) {
             this.toggle($('.'+name+'_btn'), o.header[name]);
         }
 
@@ -186,7 +186,7 @@ window.Views = {
         if (o.is_human) this.actual.setObjects(o.actual);
 
         if (o.message) {
-            var $this = this;
+            const $this = this;
 
             o.message.success = function() {
                 $this.showDice(o.dice);
@@ -203,14 +203,14 @@ window.Views = {
     // Map
 
     setMapData: function(params) {
-        var o = $.extend({},params);
+        const o = $.extend({},params);
         o.parent = this;
         o.DOM = this.map_elem;
         o.html = this.html;
         this.map = new this.Map(o);
     },
     CheckFilter: function(elem) {
-        var type = this.getType(elem);
+        const type = this.getType(elem);
         _Error.ThrowTypeIf(!type, 'cell has no type');
         this.map.setType(type);
 
@@ -221,8 +221,8 @@ window.Views = {
             this.map.CreateHovers(type);
     },
     toggleHoverTable: function(elem, old_type) {
-        var type = this.getType(elem);
-        var show = old_type !== type;
+        const type = this.getType(elem);
+        const show = old_type !== type;
 
         if (show) {
             this.CheckFilter(elem);
@@ -234,11 +234,11 @@ window.Views = {
     check_enabled_objects: function(o) {
         this.description.Filter(o.filtered);
 
-        var objects = this.description.getElem();
-        var result = [];
-        var type;
+        const objects = this.description.getElem();
+        const result = [];
+        const type;
 
-        for (var i in o.enabled) {
+        for (const i in o.enabled) {
             type = o.enabled[i];
 
             if (!this.needFilter(objects[type]) || this.map.getNearest(type).length) {
@@ -252,7 +252,7 @@ window.Views = {
     // Description
 
     setDescrData: function(params) {
-        var o = $.extend({},params);
+        const o = $.extend({},params);
         o.parent = this;
         o.DOM = this.descr_elem;
         o.html = this.html;
@@ -262,7 +262,7 @@ window.Views = {
     // Actual
 
     setActualData: function(params) {
-        var o = $.extend({},params);
+        const o = $.extend({},params);
         o.parent = this;
         o.DOM = this.act_elem;
         o.html = this.html;

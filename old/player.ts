@@ -6,10 +6,10 @@ window.Player = function(o) {
 };
 Player.prototype = {
     Create: function(game, count) {
-        var pc_index = random(0, count-1);
-        var players = [];
+        const pc_index = random(0, count-1);
+        const players = [];
 
-        for (var i=0; i<count; i++)
+        for (const i=0; i<count; i++)
         {
             players.push(new Player({
                 index: i,
@@ -40,16 +40,6 @@ Player.prototype = {
     },
     hasObject: function(type) {
         if (!type) return false;
-
-        if (is_array(type)) {
-            var result = false;
-
-            for (var i in type) {
-                if (this.hasObject(type[i])) return true;
-            }
-            return false;
-        }
-
         return Object.keys(this.objects).includes(type);
     },
 
@@ -63,10 +53,10 @@ Player.prototype = {
         }
         else{
             if (this.rule.objects) {
-                var result = {};
+                const result = {};
 
-                for (var name in this.rule.objects) {
-                    var obj = this.rule.objects[name];
+                for (const name in this.rule.objects) {
+                    const obj = this.rule.objects[name];
 
                     if (obj.need) {
                         if (this.hasObject(obj.need)) {

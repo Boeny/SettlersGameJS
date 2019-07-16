@@ -76,12 +76,12 @@ export class Rules  {
     }
 
     getCurrentRule() {
-        const rule = merge({}, this.game.prepare[this.round] || {});
+        const rule = this.game.prepare[this.round];
         if (!rule.objects) return rule;
 
         for (const name in rule.objects) {
             const obj = rule.objects[name];
-            const is_obj = is_object(obj);
+            const is_obj = true;
 
             rule.objects[name] = {
                 count: is_obj ? obj.count : obj,
@@ -121,7 +121,7 @@ export class Rules  {
     }
 
     getCellType(i,j) {
-        const c = {};//  conditions[cell]
+        const c = {}; //  conditions[cell]
 
         for (const key in this.cells) {
             c[key] = [];
@@ -130,23 +130,12 @@ export class Rules  {
             for (const h in freq) {
                 const delta = freq[h];
 
-                if (is_array(delta)) {
-                    for (const d in delta) {
-                        if (in_str('*',delta[d])) {
-                            delta[d] = delta[d].split('*')[1];
-                        }
-
-                        if (delta[d] < 0) {
-                            delta[d] += this.width;
-                        }
-                    }
-                }
                 switch (h) {
                     case 'height':
                         if (i === this.height && delta === '*') c[key].push(true);
                         break;
                     case '*':
-                        if (delta instanceof Array && delta.includes(j)) {
+                        if (delta.includes(j)) {
                             c[key].push(true);
                         }
                         break;
@@ -196,6 +185,6 @@ export class Rules  {
             if (!all_res[res]) delete all_res[res];
         }
 
-        return $.extend({}, this[type][res], {name: res});
+        return $.extend({}, this[type][res], { name: res });
     }
 }

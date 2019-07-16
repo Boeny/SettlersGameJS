@@ -5,14 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet" href="style.css">
-<script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
 <script src="base.js"></script>
 <script src="game.js"></script>
 <script src="game.rules.js"></script>
 <script src="game.map.js"></script>
 <script src="game.player.js"></script>
 <script src="views.js"></script>
-<script src="views.html.js"></script>
 <script src="views.map.js"></script>
 <script src="views.map.hover.js"></script>
 <script src="views.map.linehover.js"></script>
@@ -23,16 +21,12 @@
 
 $(function() {
     Views.setElements({main_elem: '.game'});
-
-    var game = new Game({
-        views: Views,
-        validation: true
-    });
+    const game = new Game({ views: Views });
 
     // Prompt
 
     $(document).on('click', '.prompt [type="submit"]', function(e) {
-        var elem = $(this).closest('form');
+        const elem = $(this).closest('form');
 
         if (elem.find('[type="text"]').val()) {
             e.preventDefault();// prevent form sending
@@ -45,10 +39,10 @@ $(function() {
         }
     });
     $(document).on('enter_string', '.prompt', function() {
-        var elem = $(this);
-        var validator = elem.data('validator');
-        var input = elem.find('input');
-        var v = input.val();
+        const elem = $(this);
+        const validator = elem.data('validator');
+        const input = elem.find('input');
+        const v = input.val();
 
         // if validator named and exists
         if (validator && !game[validator](v)) {
@@ -57,7 +51,7 @@ $(function() {
         }
 
         Views.hideModalMessage(this);
-        var selects = elem.find('select');
+        const selects = elem.find('select');
         game[elem.data('action')](v, $(selects[0]).val(), $(selects[1]).val());
     });
 
@@ -80,7 +74,7 @@ $(function() {
     // Interaction
 
     $(document).on('click', '.description .receipt', function() {
-        var type = null;
+        const type = null;
 
         if (!Views.isDisabled(this)) {
             type = Views.toggleHoverTable(this, game.getCurrentObjectType());
@@ -99,7 +93,7 @@ $(function() {
     });
     $(document).on('click', '.exchange_btn + .menu > .item', function() {
         Views.dropup();
-        var elem = $(this);
+        const elem = $(this);
         game.Exchange(elem.parent().prev().data('source'), $(this).data('type'));
     });
 });

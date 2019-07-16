@@ -14,10 +14,10 @@ export class GamePlayer {
     }
 
     Create(parent, count) {
-        var pc_index = random(0, count-1);
-        var players = [];
+        const pc_index = random(0, count-1);
+        const players = [];
 
-        for (var i=0; i<count; i++)
+        for (const i=0; i<count; i++)
         {
             players.push(new parent.Player({
                 index: i,
@@ -49,7 +49,7 @@ export class GamePlayer {
         }
         else{
             if (this.rule.objects[type].receipt) {
-                for (var i in this.rule.objects[type].receipt) {
+                for (const i in this.rule.objects[type].receipt) {
                     this.DelRes(i, this.rule.objects[type].receipt[i]);
                 }
             }
@@ -60,29 +60,19 @@ export class GamePlayer {
 
     hasObject(type) {
         if (!type) return false;
-
-        if (is_array(type)) {
-            var result = false;
-
-            for (var i in type) {
-                if (this.hasObject(type[i])) return true;
-            }
-            return false;
-        }
-
         return Object.keys(this.objects).includes(type);
     }
 
     hasRuleObjects() {
-        return obj_length(this.rule.objects) > 0;
+        return Object.keys(this.rule.objects).length > 0;
     }
 
     CheckObjects() {
         this.enabled = [];
         this.filtered = [];
 
-        for (var type in this.rule.objects) {
-            var obj = this.rule.objects[type];
+        for (const type in this.rule.objects) {
+            const obj = this.rule.objects[type];
 
             if (obj.need || obj.receipt) {
                 if (this.hasObject(obj.need)) {
@@ -114,7 +104,7 @@ export class GamePlayer {
     }
 
     hasRes(receipt) {
-        for (var type in receipt) {
+        for (const type in receipt) {
             if (!this.resources[type] || this.resources[type] < receipt[type])
                 return false;
         }
@@ -122,7 +112,7 @@ export class GamePlayer {
     }
 
     CheckExchange() {
-        //for (var type in)
+        //for (const type in)
         //this.rule.exchange;
     }
 

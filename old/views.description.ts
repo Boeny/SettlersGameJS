@@ -1,21 +1,23 @@
-Views.Description = function(o) {
-    $.extend(this, o);
-    this.cached = {};
-    this.Create(o);
-};
-Views.Description.prototype = {
+
+export class ViewsDescription {
+
+    constructor(o) {
+        $.extend(this, o);
+        this.cached = {};
+        this.Create(o);
+    }
 
     Create(o) {
-        var obj, res;
+        const obj, res;
 
-        for (var i in o.types) {
-            var object = '';
+        for (const i in o.types) {
+            const object = '';
             obj = o.types[i];
 
-            for (var j in obj.resources) {
+            for (const j in obj.resources) {
                 res = obj.resources[j];
 
-                for (var k=0; k<res.count; k++) {
+                for (const k=0; k<res.count; k++) {
                     object += this.html.div(res.type, {'class': 'resource pull-left', 'data-type': res.type});
                 }
             }
@@ -28,39 +30,26 @@ Views.Description.prototype = {
 
             this.DOM.append(this.cached[obj.type]);
         }
-    },
+    }
 
     getElem(o) {
-        _Error.ThrowTypeIf(!obj_length(this.cached), 'description cache is empty', 'views.description.getElem');
         if (!o) return this.cached;
-
-        if (is_('object', o)) {
-            o = is_array(o) ? o : Object.keys(o);
-        }
-        else
-            return this.cached[o];
-
-        var result = [];
-
-        for (var i in o) {
-            result.push(this.cached[o[i]]);
-        }
-
-        return result;
-    },
+        return this.cached[o];
+    }
 
     Toggle(types) {
-        var objects = this.getElem();
+        const objects = this.getElem();
 
-        for (var type in objects) {
+        for (const type in objects) {
             this.parent.toggle(objects[type], types.includes(type));
         }
-    },
-    Filter(types) {
-        var objects = this.getElem();
+    }
 
-        for (var type in objects) {
+    Filter(types) {
+        const objects = this.getElem();
+
+        for (const type in objects) {
             this.parent.toggleFilter(objects[type], types.includes(type));
         }
     }
-};
+}

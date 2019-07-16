@@ -11,13 +11,13 @@ export class Game {
         this.rules = null;
         this.objects = {};
 
-        var validation = o.validation;
+        const validation = o.validation;
 
         this.Validate = function (v, type) {
             return validation ? this.rules.Validate(v, type) : v;
         };
 
-        var _views = o.views;
+        const _views = o.views;
 
         this.Render = function (name, o) {
             return _views[name](o);
@@ -106,7 +106,7 @@ export class Game {
     }
 
     ValidatePlayerIndex(rule) {
-        var count = this.getPlayersCount();
+        const count = this.getPlayersCount();
 
         if (this.current_player_index < 0 || this.current_player_index === count) {
             this.rules.setNextRound();
@@ -120,13 +120,13 @@ export class Game {
     }
 
     Step() {
-        var rule = this.Validate(this.rules.getCurrentRule(), 'rule');
+        const rule = this.Validate(this.rules.getCurrentRule(), 'rule');
 
         this.setNextPlayer(rule.order);
         rule = this.ValidatePlayerIndex(rule);
         this.setCurrentPlayer();
 
-        var dice;
+        const dice;
         if (!this.rules.getPrepareStep()) {
             dice = this.rules.getNextDice();
             this.UpdateRes(dice);
@@ -139,8 +139,8 @@ export class Game {
 
     SubStep(o) {
         o = o || {};
-        var p = this.getCurrentPlayer();
-        var step_params = p.Step(o.rule);
+        const p = this.getCurrentPlayer();
+        const step_params = p.Step(o.rule);
 
         if (o.is_human === undefined) o.is_human = !p.ai;
 
@@ -168,8 +168,8 @@ export class Game {
     // Interaction
 
     setObject(coo) {
-        var p = this.getCurrentPlayer();
-        var type = this.getCurrentObjectType();
+        const p = this.getCurrentPlayer();
+        const type = this.getCurrentObjectType();
 
         p.AddObject(type);
         this.CheckEnabledObjects();
@@ -179,7 +179,7 @@ export class Game {
         this.setCurrentObjectType(null);
 
         // if preparing step and all objects are set -> next nonhuman substep, redirecting to the next game step
-        var params = {};
+        const params = {};
         if (this.rules.getPrepareStep() && !p.hasRuleObjects()) {
             params.is_human = false;
             params.message = {text: ''};
@@ -190,9 +190,9 @@ export class Game {
 
     AddObject(coo, type, owner) {
         coo = coo.split('-');
-        var coo_arr = [[coo[0],coo[1]], [coo[0]-1,coo[1]], [coo[0],coo[1]-1], [coo[0]-1,coo[1]-1]];
+        const coo_arr = [[coo[0],coo[1]], [coo[0]-1,coo[1]], [coo[0],coo[1]-1], [coo[0]-1,coo[1]-1]];
 
-        for (var i in coo_arr) {
+        for (const i in coo_arr) {
             if (this.map.getRes(coo_arr[i]))
             {
                 coo = coo_arr[i].join('-');
@@ -213,14 +213,14 @@ export class Game {
     }
 
     UpdateRes(digit) {
-        var cells = this.map.getCellsByDice(digit);
-        var objects, res, bonus;
+        const cells = this.map.getCellsByDice(digit);
+        const objects, res, bonus;
 
-        for (var coo in cells) {
+        for (const coo in cells) {
             objects = this.getObjects(coo);
             res = cells[coo].type;
 
-            for (var i in objects) {
+            for (const i in objects) {
                 bonus = this.rules.getBonuses(objects[i].type);
 
                 if (bonus)
@@ -244,7 +244,7 @@ export class Game {
     }
 
     CheckEnabledObjects(rule) {
-        var p = this.getCurrentPlayer();
+        const p = this.getCurrentPlayer();
         p.setRule(rule);
         p.CheckObjects();
         p.setEnabled( this.Render('check_enabled_objects', {enabled: p.getEnabled(), filtered: p.getFiltered()}) );

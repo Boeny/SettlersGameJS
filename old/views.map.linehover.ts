@@ -1,18 +1,20 @@
-Views.Map.prototype.Hover.prototype.LineHover = function(o) {
-    $.extend(this, o);
 
-    this.cached = {};
-    this.added = {};
-};
-Views.Map.prototype.Hover.prototype.LineHover.prototype = {
+export class ViewsMapHoverLine {
+
+    cached = {};
+    added = {};
+
+    constructor(o) {
+        $.extend(this, o);
+    }
 
     Create: function(direction, pos, enabled) {
-        var cell_elem = this.parent.getCell(pos);
+        const cell_elem = this.parent.getCell(pos);
 
-        for (var i in direction)
+        for (const i in direction)
         {
-            var dir = direction[i];
-            var coo = [pos[0],pos[1]];
+            const dir = direction[i];
+            const coo = [pos[0],pos[1]];
 
             if (dir === 'bottom') coo[0]++;
             if (dir === 'right') coo[1]++;
@@ -20,7 +22,7 @@ Views.Map.prototype.Hover.prototype.LineHover.prototype = {
             if (this.get(coo, dir)) continue;
 
             coo = this.getCooStr(coo);
-            var hover_elem = $(this.html.div({
+            const hover_elem = $(this.html.div({
                 'class': (enabled?'':'disabled ')+'line line-'+dir,
                 'data-coo': coo,
                 'data-dir': dir,
@@ -29,19 +31,20 @@ Views.Map.prototype.Hover.prototype.LineHover.prototype = {
             this.set({element: hover_elem, coo: coo, direction: dir});
             cell_elem.append(hover_elem);
         }
-    },
+    }
+
     getNearest: function() {
-        var result = [];
+        const result = [];
 
-        var objects = this.parent.getAddedObjects('village');
-        var elem, coo, cell_pos, direction, line_dir;
+        const objects = this.parent.getAddedObjects('village');
+        const elem, coo, cell_pos, direction, line_dir;
 
-        for (var pos in objects) {
+        for (const pos in objects) {
             direction = objects[pos].data('dir');
             pos = this.parent.getCooArray(pos);
             coo = [pos, [pos[0]-1,pos[1]], [pos[0],pos[1]-1]];
 
-            for (var i in coo) {
+            for (const i in coo) {
                 cell_pos = [pos[0],pos[1]];
 
                 switch (+i) {
@@ -77,22 +80,22 @@ Views.Map.prototype.Hover.prototype.LineHover.prototype = {
                     if (!elem || !elem.length) _Error.ThrowType('line elements coo='+this.getCooStr(coo[i])+' in cell coo='+this.getCooStr(cell_pos)+' not found');
                 }
 
-                for (var j in elem) {
+                for (const j in elem) {
                     if (!this.parent.ObjectIsSet(elem[j])) result.push(elem[j]);
                 }
             }
         }
 
         return result;
-    },
+    }
 
     get: function(o, dir, as_array) {
         if (as_array)
         {
-            var result = [];
-            var elem;
+            const result = [];
+            const elem;
 
-            for (var i in dir) {
+            for (const i in dir) {
                 elem = this.get(o, dir[i]);
                 if (elem) result.push(elem);
             }
@@ -100,26 +103,20 @@ Views.Map.prototype.Hover.prototype.LineHover.prototype = {
             return result;
         }
 
-        if (is_array(o)) o = {
-            coo: o,
-            direction: dir
-        };
-
         return this.getElem(o.added)[this.getCooStr(o)];
-    },
+    }
+
     set: function(o) {
         this.getElem(o.added)[this.getCooStr(o)] = o.element;
-    },
+    }
+
     getElem: function(added) {
         return this[added ? 'added' : 'cached'];
-    },
+    }
 
-    getCooStr: function(o) {
-        _Error.CheckType(o, 'object');
-        if (is_array(o)) o = {coo: o};
-
+    getCooStr: function(o: object | number[]): string {
         o.coo = this.parent.getCooStr(o.coo);
         if (o.direction) o.coo = this.parent.getCooStr(o.coo, o.direction);
         return o.coo;
     }
-};
+}

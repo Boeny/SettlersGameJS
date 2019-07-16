@@ -1,5 +1,5 @@
 
-export class ViewsMapHoverCornerHover {
+export class ViewsMapHoverCorner {
 
     filled = false;
     cached = {};
@@ -17,10 +17,10 @@ export class ViewsMapHoverCornerHover {
             return;
         }
 
-        var cell_elem = this.parent.getCell(pos);
-        var vert = [], hor = [], dir;
+        const cell_elem = this.parent.getCell(pos);
+        const vert = [], hor = [], dir;
 
-        for (var i in direction) {
+        for (const i in direction) {
             dir = direction[i];
 
             if (dir === 'top' || dir === 'bottom')
@@ -29,9 +29,9 @@ export class ViewsMapHoverCornerHover {
                 hor.push(dir);
         }
 
-        for (var i in vert) {
-            for (var j in hor) {
-                var coo = [pos[0],pos[1]];
+        for (const i in vert) {
+            for (const j in hor) {
+                const coo = [pos[0],pos[1]];
 
                 if (vert[i] === 'bottom') coo[0]++;
                 if (hor[j] === 'right') coo[1]++;
@@ -40,7 +40,7 @@ export class ViewsMapHoverCornerHover {
                 if (this.get(coo)) continue;
 
                 dir = this.getCooStr(vert[i], hor[j]);
-                var hover_elem = $(this.html.div({
+                const hover_elem = $(this.html.div({
                     'class': (enabled?'':'disabled ')+'corner '+dir,
                     'data-coo': coo,
                     'data-dir': dir,
@@ -50,13 +50,14 @@ export class ViewsMapHoverCornerHover {
                 cell_elem.append(hover_elem);
             }
         }
-    },
-    getNearest() {
-        var result = [];
-        var objects = this.parent.getAddedObjects('road');
-        var elem, coo, cell_pos, direction, corner_dir;
+    }
 
-        for (var pos in objects) {
+    getNearest() {
+        const result = [];
+        const objects = this.parent.getAddedObjects('road');
+        const elem, coo, cell_pos, direction, corner_dir;
+
+        for (const pos in objects) {
             direction = objects[pos].data('dir');
             pos = this.parent.getCooArray(pos);
             coo = [pos];
@@ -79,7 +80,7 @@ export class ViewsMapHoverCornerHover {
                     break;
             }
 
-            for (var i in coo) {
+            for (const i in coo) {
                 elem = this.get(coo[i]);
 
                 if (!elem) {
@@ -96,17 +97,18 @@ export class ViewsMapHoverCornerHover {
     },
 
     get(o) {
-        if (is_array(o)) o = {coo: o};
         return this.getElem(o.added)[this.getCooStr(o.coo)];
-    },
+    }
+
     set(o) {
         this.getElem(o.added)[this.getCooStr(o.coo)] = o.element;
-    },
+    }
+
     getElem(added) {
         return this[added ? 'added' : 'cached'];
-    },
+    }
 
     getCooStr(i,j) {
         return this.parent.getCooStr(i,j);
     }
-};
+}
