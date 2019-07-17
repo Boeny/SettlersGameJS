@@ -8,7 +8,7 @@ export const App: React.FC = () => {
             <SettingsModal
                 title="Введите кол-во игроков:"
                 autoFocus={true}
-                onSubmit={gameStore.Create}
+                onSubmit={gameStore.create}
             />
             <MainView />
         </div>

@@ -4,10 +4,10 @@ export class ViewsDescription {
     constructor(o) {
         $.extend(this, o);
         this.cached = {};
-        this.Create(o);
+        this.create(o);
     }
 
-    Create(o) {
+    create(o) {
         const obj, res;
 
         for (const i in o.types) {

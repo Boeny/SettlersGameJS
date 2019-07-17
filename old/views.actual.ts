@@ -5,7 +5,7 @@ export class ViewsActual {
         $.extend(this, o);
     }
 
-    Create() {
+    create() {
         const content = '';
         const dropmenu;
 
@@ -35,6 +35,6 @@ export class ViewsActual {
 
     setObjects(o) {
         $.extend(this, o);
-        this.Create();
+        this.create();
     }
 }

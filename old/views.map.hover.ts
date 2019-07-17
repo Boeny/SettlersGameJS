@@ -1,27 +1,20 @@
-Views.Map.prototype.Hover = function(o) {
-    $.extend(this, o);
-    this.CreateByType(this.type);
-};
-Views.Map.prototype.Hover.prototype = {
 
-    CreateByType: function(type) {
-        const params = {
-            parent: this,
-            type: type,
-            html: this.html
-        };
+export class ViewsMapHover {
+
+    constructor(private type: string) {
 
         switch (type) {
             case 'road':
-                this.elements = new this.LineHover(params);
+                this.elements = new ViewsMapHoverLine(type);
                 break;
             case 'village':
             case 'town':
-                this.elements = new this.CornerHover(params);
+                this.elements = new ViewsMapHoverCorner(type);
                 break;
         }
-    },
-    CreateAll: function(cells_info) {
+    }
+
+    createAll(cells_info) {
         if (this.elements.filled) return;
 
         for (const coo in cells_info) {
@@ -33,50 +26,37 @@ Views.Map.prototype.Hover.prototype = {
             if (coo[0] === this.parent.height-1 || this.parent.getRes(coo[0]+1, coo[1])) delete dir.bottom;
             if (coo[1] === this.parent.width-1 || this.parent.getRes(coo[0], coo[1]+1)) delete dir.right;
 
-            this.elements.Create(Object.keys(dir), coo, true);// enabled
+            this.elements.create(Object.keys(dir), coo, true);// enabled
         }
 
         this.elements.filled = true;
     },
 
-    getCooArray: function(str) {
-        return this.parent.getCooArray(str);
-    },
-    getRes: function(i,j) {
-        return this.parent.getRes(i,j);
-    },
-    getCell: function(pos) {
-        return this.parent.getCell(pos);
-    },
-    getCooStr: function(i,j) {
-        return this.parent.getCooStr(i,j);
-    },
-
-    get: function(o) {
+    get(o) {
         return o.coo ? this.elements.get(o) : this.elements.getElem(o.added);
     },
-    set: function(o) {
+    set(o) {
         o.element.addClass('added');
         this.elements.set(o);
     },
-    ObjectIsSet: function(elem) {
+    ObjectIsSet(elem) {
         return $(elem).is('.added');
     },
 
-    getNearest: function() {
+    getNearest() {
         return this.elements.getNearest();
     },
-    getAddedObjects: function(type) {
+    getAddedObjects(type) {
         return this.parent.getHover({type: type, added: true});
     },
 
-    Hide: function() {
+    Hide() {
         this.parent.removeType();
     },
-    Show: function() {
+    Show() {
         this.parent.setType(this.type);
     },
-    Toggle: function(show) {
+    Toggle(show) {
         return this[(show ? 'Show' : 'Hide')]();
     }
 };

@@ -1,15 +1,15 @@
 
+type Direction = ('top' | 'bottom' | 'left' | 'right')[];
+
 export class ViewsMapHoverCorner {
 
     filled = false;
     cached = {};
     added = {};
 
-    constructor(o) {
-        $.extend(this, o);
-    }
+    constructor(private type: string) {}
 
-    Create(direction, pos, enabled) {
+    create(direction: Direction, pos, enabled) {
         if (
             !direction.includes('left') && !direction.includes('right') ||
             !direction.includes('top') && !direction.includes('bottom')
@@ -17,7 +17,7 @@ export class ViewsMapHoverCorner {
             return;
         }
 
-        const cell_elem = this.parent.getCell(pos);
+        const cell_elem = this.getCell(pos);
         const vert = [], hor = [], dir;
 
         for (const i in direction) {
@@ -84,7 +84,7 @@ export class ViewsMapHoverCorner {
                 elem = this.get(coo[i]);
 
                 if (!elem) {
-                    this.Create(i === 0 ? ['top','left'] : corner_dir, cell_pos);
+                    this.create(i === 0 ? ['top','left'] : corner_dir, cell_pos);
                     elem = this.get(coo[i]);
                     if (!elem) _Error.ThrowType('corner element coo='+this.getCooStr(coo[i])+' in cell coo='+this.getCooStr(cell_pos)+' not found');
                 }

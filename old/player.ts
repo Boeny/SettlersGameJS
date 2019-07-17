@@ -1,12 +1,18 @@
-window.Player = function(o) {
-    $.extend(this, o);
+import { random } from "./base";
 
-    this.resources = {};
-    this.objects = {};
-};
-Player.prototype = {
-    Create: function(game, count) {
-        const pc_index = random(0, count-1);
+export class Player {
+
+    resources = {};
+    objects = {};
+    rule = { objects: { need: {} } };
+
+    constructor(
+        private index: number,
+        private ai: boolean
+    ) { }
+
+    public static create(game, count) {
+        const pc_index = random(0, count - 1);
         const players = [];
 
         for (const i=0; i<count; i++)
@@ -14,21 +20,22 @@ Player.prototype = {
             players.push(new Player({
                 index: i,
                 ai: i !== pc_index,
-                game: game
+                game
             }));
         }
 
         return players;
-    },
+    }
 
-    getRoundMessage: function() {
-        return this.ai ? 'Ходит игрок №'+(this.index+1) : 'Ваш ход';
-    },
-    getMessageTimeout: function() {
+    getRoundMessage() {
+        return this.ai ? `Ходит игрок №${this.index + 1}` : 'Ваш ход';
+    }
+
+    getMessageTimeout() {
         return this.ai ? 1000 : 300;
-    },
+    }
 
-    AddObject: function(name) {
+    AddObject(name) {
         this.objects[name] = (this.objects[name] || 0) + 1;
         this.rule.objects[name].count--;
 
@@ -37,13 +44,14 @@ Player.prototype = {
             this.game.toggleObjectDescription(name, false);
             this.game.hideHoverTable(name);
         }
-    },
-    hasObject: function(type) {
+    }
+
+    hasObject(type) {
         if (!type) return false;
         return Object.keys(this.objects).includes(type);
-    },
+    }
 
-    Step: function(rule) {
+    Step(rule) {
         this.rule = rule || this.rule;
 
         if (this.ai) {
@@ -73,4 +81,4 @@ Player.prototype = {
             }
         }
     }
-};
+}

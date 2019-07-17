@@ -20,9 +20,9 @@ export class ViewsMap {
             });
         }
 
-        if (show_hover) this.CreateHovers(show_hover);
+        if (show_hover) this.createHovers(show_hover);
 
-        this.Create();
+        this.create();
     }
 
     getDice(i,j) {
@@ -36,7 +36,7 @@ export class ViewsMap {
         setTimeout(function() {dice.removeClass('big')}, 400);
     }
 
-    Create() {
+    create() {
         const content = '';
         const coo, num, dice;
 
@@ -56,8 +56,8 @@ export class ViewsMap {
         this.DOM.html(this.html.table(content));
     }
 
-    CreateHovers(type) {
-        this.hover[type].CreateAll(this.getRes());
+    createHovers(type) {
+        this.hover[type].createAll(this.getRes());
     }
 
     ToggleHover(type: boolean, show) {
@@ -108,32 +108,8 @@ export class ViewsMap {
         return `${i}-${j}`;
     }
 
-    getType() {
-        return this.parent.getType(this.DOM);
-    }
-
-    setType(type) {
-        this.parent.setType(this.DOM, type);
-    }
-
-    removeType() {
-        this.parent.removeType(this.DOM);
-    }
-
     getDir(elem) {
         return elem.data('dir');
-    }
-
-    getCell(i,j) {
-        if (i === undefined && j === undefined) return this.DOM.find('.cell');
-        const cell = this.DOM.find('.cell[data-coo="'+this.getCooStr(i,j)+'"]');
-        if (!cell.length) _Error.ThrowType('cell not found, coo = '+this.getCooStr(i,j), 'views.map.getCell');
-        return cell;
-    }
-
-    getRes(i,j) {
-        if (i === undefined && j === undefined) return this.resources;
-        return this.resources[this.getCooStr(i,j)];
     }
 
     getHover(o, coo, dir) {
@@ -153,7 +129,7 @@ export class ViewsMap {
         this.hover[o.type].set(o);
     }
 
-    CreateNearest(type) {
+    createNearest(type) {
         const nearest = this.getHover(type);
 
         for (const i in nearest) {

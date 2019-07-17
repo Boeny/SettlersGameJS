@@ -1,48 +1,48 @@
 window.Views = {
     opened_menu: null,
 
-    Trigger: function(event_name, elem) {
+    Trigger(event_name, elem) {
         $(elem || document).trigger(event_name);
     },
-    setElements: function(names) {
+    setElements(names) {
         for (const i in names) {
             this[i] = $(names[i]);
         }
     },
 
-    isDisabled: function(elem) {
+    isDisabled(elem) {
         return $(elem).is('.disabled');
     },
-    enable: function(elem) {
+    enable(elem) {
         $(elem).removeClass('disabled');
     },
-    disable: function(elem) {
+    disable(elem) {
         $(elem).addClass('disabled');
     },
-    toggle: function(elem, show) {
+    toggle(elem, show) {
         this[show ? 'enable' : 'disable'](elem);
     },
 
-    getType: function(elem) {
+    getType(elem) {
         return $(elem).attr('data-type');
     },
-    setType: function(elem, type) {
+    setType(elem, type) {
         $(elem).attr('data-type', type);
     },
-    removeType: function(elem) {
+    removeType(elem) {
         $(elem).removeAttr('data-type');
     },
 
-    toggleModalMessage: function(elem, show) {
+    toggleModalMessage(elem, show) {
         this[(show ? 'show' : 'hide')+'ModalMessage'](elem);
     },
-    showModalMessage: function(elem) {
+    showModalMessage(elem) {
         $(elem).removeClass('hidden');
     },
-    hideModalMessage: function(elem) {
+    hideModalMessage(elem) {
         $(elem).addClass('hidden');
     },
-    message: function(o) {
+    message(o) {
         const elem = this.message_elem;
 
         if (o.text) {
@@ -60,7 +60,7 @@ window.Views = {
         const $this = this;
         setTimeout(function() {$this.hideModalMessage(elem); (o.success && o.success())}, o.ms || 1000);
     },
-    enter_string: function(o) {
+    enter_string(o) {
         const elem = this.prompt_elem;
 
         if (elem) {
@@ -110,7 +110,7 @@ window.Views = {
         if (o.focus) elem.find('[type="text"]').focus();
     },
 
-    toggleMenu: function(elem) {
+    toggleMenu(elem) {
         if (this.opened_menu) {
             this.dropup();
         }
@@ -118,11 +118,11 @@ window.Views = {
             this.dropdown(elem);
         }
     },
-    dropdown: function(elem) {
+    dropdown(elem) {
         this.opened_menu = $(elem).next();
         this.opened_menu.slideDown();
     },
-    dropup: function() {
+    dropup() {
         if (!this.opened_menu) return;
         this.opened_menu.slideUp();
         this.opened_menu = null;
@@ -130,7 +130,7 @@ window.Views = {
 
     // Game
 
-    main: function(o) {
+    main(o) {
         this.main_elem.append(
             this.html.div({
                 'class': 'header',
@@ -165,11 +165,11 @@ window.Views = {
         this.setDescrData(o.description);
         this.new_game(o);
     },
-    new_game: function(o) {
+    new_game(o) {
         this.setMapData(o.map);
         this.Trigger('next_step');
     },
-    next_step: function(o) {
+    next_step(o) {
         this.dropup();// close any menu if opened
         this.map.ToggleHover(o.map.hover);
 
@@ -202,25 +202,25 @@ window.Views = {
 
     // Map
 
-    setMapData: function(params) {
+    setMapData(params) {
         const o = $.extend({},params);
         o.parent = this;
         o.DOM = this.map_elem;
         o.html = this.html;
         this.map = new this.Map(o);
     },
-    CheckFilter: function(elem) {
+    CheckFilter(elem) {
         const type = this.getType(elem);
         _Error.ThrowTypeIf(!type, 'cell has no type');
         this.map.setType(type);
 
         if (this.needFilter(elem)) {
-            this.map.CreateNearest(type);
+            this.map.createNearest(type);
         }
         else
-            this.map.CreateHovers(type);
+            this.map.createHovers(type);
     },
-    toggleHoverTable: function(elem, old_type) {
+    toggleHoverTable(elem, old_type) {
         const type = this.getType(elem);
         const show = old_type !== type;
 
@@ -231,7 +231,7 @@ window.Views = {
         this.map.ToggleHover(type, show);
         return show ? type : null;
     },
-    check_enabled_objects: function(o) {
+    check_enabled_objects(o) {
         this.description.Filter(o.filtered);
 
         const objects = this.description.getElem();
@@ -251,7 +251,7 @@ window.Views = {
 
     // Description
 
-    setDescrData: function(params) {
+    setDescrData(params) {
         const o = $.extend({},params);
         o.parent = this;
         o.DOM = this.descr_elem;
@@ -261,7 +261,7 @@ window.Views = {
 
     // Actual
 
-    setActualData: function(params) {
+    setActualData(params) {
         const o = $.extend({},params);
         o.parent = this;
         o.DOM = this.act_elem;
@@ -271,20 +271,20 @@ window.Views = {
 
     // Filter
 
-    needFilter: function(elem) {
+    needFilter(elem) {
         return $(elem).is('.filtered');
     },
-    setFilter: function(elem) {
+    setFilter(elem) {
         $(elem).addClass('filtered');
     },
-    toggleFilter: function(elem, filter) {
+    toggleFilter(elem, filter) {
         this[filter ? 'setFilter' : 'removeFilter'](elem);
     },
-    removeFilter: function(elem) {
+    removeFilter(elem) {
         $(elem).removeClass('filtered');
     },
 
-    showDice: function(digit) {
+    showDice(digit) {
         if (digit) this.map.showDice(digit);
     }
 };

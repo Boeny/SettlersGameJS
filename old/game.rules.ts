@@ -1,40 +1,90 @@
 import { randomElem } from "./base";
 
-export class GameRules {
+interface IResource {
+    readonly type: 'stone' | 'wood' | 'sheep' | 'wheat' | 'clay';
+    readonly count: number;
+}
+
+interface IRecipe {
+    readonly type: 'village' | 'town' | 'road';
+    readonly resources: IResource[];
+}
+
+type ObjectToPlaceType = 'village' | 'town' | 'road';
+
+/**
+ * @param type village, town, road
+ * @param canBePlacedAnywhere if true, the object can be placed at any position of the map
+ * @param count if defined, the object can be placed only <count> times
+ */
+interface IObjectToPlace {
+    readonly type: ObjectToPlaceType;
+    readonly canBePlacedAnywhere?: boolean;
+    readonly count?: number;
+    readonly requires?:
+}
+
+interface IStep {
+    readonly order: 1 | -1;
+    readonly objectsToPlace: IObjectToPlace[];
+}
+
+/**
+ * @param preparingSteps only this count of steps allowed
+ * @param mainSteps
+ */
+interface IGameSteps {
+    readonly preparingSteps: IStep[];
+    readonly mainSteps: IStep[];
+}
+
+interface IBuildingBonus {
+    readonly type: 'village' | 'town';
+    readonly gathering: number;
+}
+
+interface IMarketBonus {
+    readonly type: 'market';
+    readonly exchange: number;
+}
+
+type BonusType = IBuildingBonus | IMarketBonus;
+
+export class Rules {
 
     width = 10;
     height = 10;
+    step = 0;
 
-    game = {
-        prepare: [
+    readonly DEFAULT_EXCHANGE = 4;
+
+    private readonly gameSteps: IGameSteps = {
+        preparingSteps: [
             {
-                objects: {
-                    village: 1,
-                    road: { count: 1, place: true }
-                }
+                order: 1,
+                objectsToPlace: [
+                    { type: 'village', canBePlacedAnywhere: true, count: 1 },
+                    { type: 'road', count: 1, requires: 'village' }
+                ]
             },
             {
                 order: -1,
-                objects: {
-                    village: 1,
-                    road: { count: 1, place: true }
-                }
+                objectsToPlace: [
+                    { type: 'village', canBePlacedAnywhere: true, count: 1 },
+                    { type: 'road', count: 1 }
+                ]
             }
         ],
-        main: {
-            objects: {
-                village: { place: true },
-                road: { place: true }
+        mainSteps: [
+            {
+                order: 1,
+                objectsToPlace: [
+                    { type: 'village' },
+                    { type: 'town', requires: 'village' },
+                    { type: 'road' }
+                ]
             }
-        }
-    }
-
-    resources = {
-        stone: 3,
-        wood: 2,
-        sheep: 2,
-        wheat: 1,
-        clay: 1
+        ]
     };
 
     cellTypes = {
@@ -43,44 +93,45 @@ export class GameRules {
         cells: {}
     };
 
-    cells = {
-        // market2: { freq: 'resources' },
-        // market3: { freq: 'resources' },
-        // resources: { freq: 'count' },
-        sea: {
-            freq: { 0: '*', '*': [0, -1], height: '*' }
+    recipes: IRecipe[] = [
+        {
+            type: 'village',
+            resources: [
+                { type: 'wheat', count: 1 },
+                { type: 'wood', count: 1 },
+                { type: 'sheep', count: 1 },
+                { type: 'clay', count: 1 }
+            ]
+        },
+        {
+            type: 'town',
+            resources: [
+                { type: 'stone', count: 3 },
+                { type: 'wheat', count: 2 }
+            ]
+        },
+        {
+            type: 'road',
+            resources: [
+                { type: 'stone', count: 1 },
+                { type: 'clay', count: 1 }
+            ]
         }
-    };
+    ];
 
-    receipts = {
-        road: { stone: 1, clay: 1 },
-        village: { wheat: 1, wood: 1, sheep: 1, clay: 1 }
-        // town: { village: 1, stone: 3, wheat: 2 }
-    };
-
-    objects = {
-        road: { title: 'дорога', place: ['road', 'village'] },
-        village: { title:'поселение', place:'road' }
-        // town: { title: 'город (требуется поселение)', replace: 'village' }
-    };
-
-    bonuses = {
-        village: { resources: 1 }
-        // town: { resources: 2 },
-        // market2: { exchange: 2 },
-        // market3: { exchange: 3 }
-    };
-
-    exchange = {
-        resources: 4
-    };
+    bonuses: BonusType[] = [
+        { type: 'village', gathering: 1 },
+        { type: 'town', gathering: 2 },
+        { type: 'market', exchange: 2 },
+        { type: 'market', exchange: 3 }
+    ];
 
     constructor(width: number, height: number) {
         this.setSize(width, height);
     }
 
-    getTypes() {
-        return Object.keys(this.objects);
+    isRes(resources: { [key: string]: { type: string } }, i: number, j: number) {
+        return Object.keys(resources).includes(this.getData(resources, i, j).type);
     }
 
     getPlace(type) {
@@ -92,77 +143,32 @@ export class GameRules {
     }
 
     getReceipt(type) {
-        return this.receipts[type];
+        return this.recipes[type];
     }
 
-    getExchange() {
-        const result = {};
-        const res, type;
-
-        for (const extype in this.exchange) {
-            res = Object.keys(this[extype]);
-
-            for (const i in res) {
-                type = res[i];
-
-                result[type] = {
-                    count: this.exchange[extype],
-                    res: res.filter(x => x !== type)
-                };
-            }
-        }
-
-        return result;
-    }
-
-    setNextRound() {
-        this.round++;
-    }
-
-    getPrepareStep() {
-        return this.game.prepare[this.round] || false;
+    getPrepareStep(): IStep | null {
+        return this.gameSteps.preparingSteps[this.step] || null;
     }
 
     getCurrentRule() {
-        const objects = {};
-        const rule = this.getPrepareStep();
-        const is_main = !rule;
-        if (is_main) rule = this.game.main;
-
-        for (const type in rule.objects) {
-            const obj = rule.objects[type];
-            const is_obj = true;
-
-            objects[type] = {
-                count: is_obj ? obj.count : obj,
-                need: is_obj && obj.place ? this.getPlace(type) : null,
-                receipt: is_main ? this.getReceipt(type) : null,
-                type: type
-            };
-        }
-
-        return {
-            order: rule.order || 1,
-            exchange: this.getExchange(),
-            objects: objects
-        };
+        return this.getPrepareStep() || this.gameSteps.mainSteps[this.step];
     }
 
-    getReceipts() {
+    getRecipes() {
         const result = [];
-        const receipts_names = Object.keys(this.receipts);
+        const recipes_names = Object.keys(this.recipes);
 
-        for (const type in this.receipts) {
+        for (const type in this.recipes) {
             const receipt = {
                 type: type,
                 title: this.objects[type].title,
                 resources: []
             };
 
-            const obj = this.receipts[type];
+            const obj = this.recipes[type];
 
             for (const res in obj) {
-                if (receipts_names.includes(res)) continue;
+                if (recipes_names.includes(res)) continue;
 
                 receipt.resources.push({
                     type: res,
@@ -176,9 +182,9 @@ export class GameRules {
         return result;
     }
 
-    setSize(w,h) {
-        this.width = +w || this.width;
-        this.height = +h || this.height;
+    setSize(width: number, height: number) {
+        this.width = width;
+        this.height = height;
     }
 
     Init() {
@@ -211,29 +217,24 @@ export class GameRules {
             this.cellTypes.cells[i] = this.cells[i].count;
         }
 
-        this.round = 0;
+        this.step = 0;
         this.dices = [];
         this.cellTypes.dices = this.setDices(this.cellTypes.res_by_count.length);
     }
 
-    getCellType(i: number, j: number): string {
-        if (i === 0 || i === this.height-1 || j === 0 || j === this.width-1) return Object.keys(this.cells)[0];
-        return 'resources';
-    }
-
     getRandomRes(i: number, j: number): string {
-        const type = this.getCellType(i, j);
-        const all_res = this.cellTypes[type] || this.cellTypes.cells;
-        const names = type === 'resources' ? this.cellTypes.res_by_count : Object.keys(all_res);
+        const cellType = this.getCellType(i, j);
+        const all_res = this.cellTypes[cellType] || this.cellTypes.cells;
+        const names = cellType === 'resources' ? this.cellTypes.res_by_count : Object.keys(all_res);
 
         if (!names.length) {
-            type = 'cells';
+            cellType = 'cells';
             names = Object.keys(this.cells);
         }
 
         const res = randomElem(names);
 
-        if (type === 'resources') {
+        if (cellType === 'resources') {
             names.splice(names.indexOf(res), 1);
         }
 

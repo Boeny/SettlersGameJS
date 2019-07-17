@@ -8,8 +8,8 @@ export class ViewsMapHoverLine {
         $.extend(this, o);
     }
 
-    Create: function(direction, pos, enabled) {
-        const cell_elem = this.parent.getCell(pos);
+    create(direction, pos, enabled) {
+        const cell_elem = this.getCell(pos);
 
         for (const i in direction)
         {
@@ -33,7 +33,7 @@ export class ViewsMapHoverLine {
         }
     }
 
-    getNearest: function() {
+    getNearest() {
         const result = [];
 
         const objects = this.parent.getAddedObjects('village');
@@ -75,7 +75,7 @@ export class ViewsMapHoverLine {
                 elem = this.get(coo[i], line_dir, true);// returns array
 
                 if (!elem.length) {
-                    this.Create(line_dir, cell_pos);
+                    this.create(line_dir, cell_pos);
                     elem = this.get(coo[i], line_dir, true);// returns array
                     if (!elem || !elem.length) _Error.ThrowType('line elements coo='+this.getCooStr(coo[i])+' in cell coo='+this.getCooStr(cell_pos)+' not found');
                 }
@@ -89,7 +89,7 @@ export class ViewsMapHoverLine {
         return result;
     }
 
-    get: function(o, dir, as_array) {
+    get(o, dir, as_array) {
         if (as_array)
         {
             const result = [];
@@ -106,15 +106,15 @@ export class ViewsMapHoverLine {
         return this.getElem(o.added)[this.getCooStr(o)];
     }
 
-    set: function(o) {
+    set(o) {
         this.getElem(o.added)[this.getCooStr(o)] = o.element;
     }
 
-    getElem: function(added) {
+    getElem(added) {
         return this[added ? 'added' : 'cached'];
     }
 
-    getCooStr: function(o: object | number[]): string {
+    getCooStr(o: object | number[]): string {
         o.coo = this.parent.getCooStr(o.coo);
         if (o.direction) o.coo = this.parent.getCooStr(o.coo, o.direction);
         return o.coo;

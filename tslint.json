@@ -51,6 +51,7 @@
             true,
             156
         ],
+        "quotemark": false,
         "prefer-array-literal": false,
         "no-var-keyword": true,
         "no-parameter-reassignment": false,

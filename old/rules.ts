@@ -51,8 +51,8 @@ export class Rules  {
         }
     };
 
-    receipts = {
-        road: { stone:1, clay:1 },
+    recipes = {
+        road: { stone: 1, clay: 1 },
         village: { wheat: 1, wood: 1, sheep: 1, clay: 1 }
         // town: { village: 1, stone: 3, wheat: 2 }
     };
@@ -93,17 +93,17 @@ export class Rules  {
         return rule;
     }
 
-    getReceipts() {
+    getRecipes() {
         const result = [];
-        const receipts_names = Object.keys(this.receipts);
+        const recipes_names = Object.keys(this.recipes);
 
-        for (const name in this.receipts) {
-            const obj = this.receipts[name];
+        for (const name in this.recipes) {
+            const obj = this.recipes[name];
             const obj_info = this.objects[name];
             const receipt = [];
 
             for (const res in obj) {
-                if (receipts_names.includes(res)) continue;
+                if (recipes_names.includes(res)) continue;
 
                 receipt.push({
                     name: res,
@@ -118,45 +118,6 @@ export class Rules  {
         }
 
         return result;
-    }
-
-    getCellType(i,j) {
-        const c = {}; //  conditions[cell]
-
-        for (const key in this.cells) {
-            c[key] = [];
-            const freq = this.cells[key].freq;
-
-            for (const h in freq) {
-                const delta = freq[h];
-
-                switch (h) {
-                    case 'height':
-                        if (i === this.height && delta === '*') c[key].push(true);
-                        break;
-                    case '*':
-                        if (delta.includes(j)) {
-                            c[key].push(true);
-                        }
-                        break;
-                    default:
-                        if (i === +h && delta === '*') c[key].push(true);
-                }
-            }
-        }
-
-        const max_key = {max: 0, key: ''};
-
-        for (const key in c) {
-            if (c[key].length > max_key.max) {
-                max_key = {
-                    key: key,
-                    max: c[key].length
-                }
-            }
-        }
-
-        return max_key.max ? max_key.key : 'resources';
     }
 
     getRandomRes(i,j) {

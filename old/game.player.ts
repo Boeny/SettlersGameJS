@@ -1,19 +1,19 @@
+import { Game } from "./game";
 
 export class GamePlayer {
 
-    constructor(o) {
-        this.index = o.index;
-        this.ai = o.ai;
-        this.parent = o.parent
+    resources = {};
+    objects = {};
+    rule = { objects: { need: {} } };
+    enabled = [];
+    filtered = [];
 
-        this.rule = {};
-        this.resources = {};
-        this.objects = {};
-        this.enabled = [];
-        this.filtered = [];
-    }
+    constructor(
+        private index: number,
+        private ai: boolean
+    ) {}
 
-    Create(parent, count) {
+    create(parent, count) {
         const pc_index = random(0, count-1);
         const players = [];
 
@@ -22,7 +22,7 @@ export class GamePlayer {
             players.push(new parent.Player({
                 index: i,
                 ai: i !== pc_index,
-                parent: parent
+                parent
             }));
         }
 
@@ -99,10 +99,6 @@ export class GamePlayer {
         this.resources[type] = (this.resources[type] || 0) + (count || 1);
     }
 
-    getRes() {
-        return this.resources;
-    }
-
     hasRes(receipt) {
         for (const type in receipt) {
             if (!this.resources[type] || this.resources[type] < receipt[type])
@@ -114,10 +110,6 @@ export class GamePlayer {
     CheckExchange() {
         //for (const type in)
         //this.rule.exchange;
-    }
-
-    getExchange() {
-        return this.rule.exchange;
     }
 
     Exchange(type1, type2) {
