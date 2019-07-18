@@ -1,16 +1,14 @@
 import React from 'react';
-import { SettingsModal } from 'components/SettingsModal';
+import { Provider } from 'mobx-react';
 import { MainView } from 'views/MainView';
 
-export const App: React.FC = () => {
+export function App() {
+
     return (
         <div className="App">
-            <SettingsModal
-                title="Введите кол-во игроков:"
-                autoFocus={true}
-                onSubmit={gameStore.create}
-            />
-            <MainView />
+            <Provider context={new GameStore()}>
+                <MainView />
+            </Provider>
         </div>
     );
-};
+}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { inject, observer } from 'mobx-react';
 
 interface IComponentProps {
     data: ICell[][];
@@ -43,14 +44,12 @@ class Component extends React.PureComponent<IComponentProps> {
 
 @inject()
 @observer
-export class Map extends React.PureComponent<{ context?: IGameContext }> {
+export class Map extends React.PureComponent<{ context?: IGameStore }> {
 
     render() {
 
-        const { gameStore } = this.props.context!;
-
         return (
-            <Component data={gameStore.map.data} />
+            <Component data={this.props.context!.gameStore.map.data} />
         );
     }
 }

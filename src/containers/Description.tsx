@@ -1,7 +1,8 @@
 import React from 'react';
+import { inject, observer } from 'mobx-react';
 
 interface IComponentProps {
-
+    data: IRecipe[];
 }
 
 class Component extends React.PureComponent<IComponentProps> {
@@ -11,10 +12,10 @@ class Component extends React.PureComponent<IComponentProps> {
         return (
             <div className="description">
                 <div className="receipt disabled">
-                    {objects.map(o =>
+                    {this.props.data.map(recipe =>
                         <React.Fragment>
-                            {o.resources.map(res => <div className="resource">{res}</div>)}
-                            <div>{o.name}</div>
+                            {recipe.resources.map(resource => <div className="resource">{resource.name}</div>)}
+                            <div>{recipe.name}</div>
                         </React.Fragment>
                     )}
                 </div>
@@ -25,7 +26,7 @@ class Component extends React.PureComponent<IComponentProps> {
 
 @inject()
 @observer
-export class Description extends React.PureComponent<{ context?: IGameContext }> {
+export class Description extends React.PureComponent<{ context?: IGameStore }> {
 
     render() {
 

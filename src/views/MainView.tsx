@@ -1,8 +1,9 @@
 import React from 'react';
-import { Header } from './Header';
-import { Map } from './Map';
-import { Actual } from './Actual';
-import { Description } from './Description';
+import { Header } from '../containers/Header';
+import { Map } from '../containers/Map';
+import { Actual } from '../containers/Actual';
+import { Description } from '../containers/Description';
+import { SettingsModal } from 'containers/SettingsModal';
 
 export function MainView() {
 
@@ -18,6 +19,7 @@ export function MainView() {
             <div className="bottom">
                 <Description />
             </div>
+            <SettingsModal />
         </React.Fragment>
     );
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import { inject } from 'mobx-react';
 
 interface IComponentProps {
     onNewGame(): void;
@@ -23,7 +24,7 @@ function Component(props: IComponentProps) {
 }
 
 @inject()
-export class Header extends React.PureComponent<{ context?: IGameContext }> {
+export class Header extends React.PureComponent<{ context?: IGameStore }> {
 
     render() {
 

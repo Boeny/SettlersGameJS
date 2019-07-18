@@ -9,7 +9,7 @@ interface IComponentProps {
     mapHeight: number;
     className?: string;
     onChange: (data: Partial<IState>) => void;
-    onSubmit: (e: Event) => void;
+    onSubmit: () => void;
     onCancel?: () => void;
 }
 
@@ -23,7 +23,10 @@ function SettingsModalComponent(props: IComponentProps) {
 
             <div className="container">
                 <div className="title">{title}</div>
-                <form>
+                <form onSubmit={e => {
+                    e.preventDefault();
+                    onSubmit();
+                }}>
                     <div>
                         <input
                             value={playerCount}
@@ -49,7 +52,6 @@ function SettingsModalComponent(props: IComponentProps) {
                             type="submit"
                             text="OK"
                             className="button"
-                            onClick={onSubmit}
                         />
                         {
                             onCancel
@@ -106,8 +108,7 @@ export class SettingsModal extends React.PureComponent<IProps> {
                 mapHeight={mapHeight}
                 className={visible ? '' : 'hidden'}
                 onChange={this.onChange}
-                onSubmit={e => {
-                    e.preventDefault();
+                onSubmit={() => {
                     this.close();
                     onSubmit(playerCount, mapWidth, mapHeight);
                 }}

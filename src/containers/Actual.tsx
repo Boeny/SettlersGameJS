@@ -1,4 +1,5 @@
 import React from 'react';
+import { inject, observer } from 'mobx-react';
 
 interface IComponentProps {
 
@@ -16,7 +17,7 @@ class Component extends React.PureComponent<IComponentProps> {
 
 @inject()
 @observer
-export class Actual extends React.PureComponent<{ context?: IGameContext }> {
+export class Actual extends React.PureComponent<{ context?: IGameStore }> {
 
     render() {
 

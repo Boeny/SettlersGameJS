@@ -1,10 +1,9 @@
-import { Rules } from './game.rules';
+import { Rules, IDice } from './rules';
 import { Player } from './player';
 import { Map } from './map';
 
 export class Game {
 
-    currentPlayer = null;
     currentPlayerIndex = -1;
 
     currentObjectType = '';
@@ -44,27 +43,33 @@ export class Game {
         this.Render('new_game', { map: this.map.Generate()});
     }
 
+    dice: IDice;
+
     Step() {
-        let rule = this.rules.getCurrentRule();
+        this.rules.step += 1;
+        const rule = this.rules.getCurrentRule();
 
-        this.currentPlayerIndex = rule.order
+        this.currentPlayerIndex = rule.order < 0 ? this.players.length - 1 : 0;
+        const currentPlayer = this.getCurrentPlayer();
 
-        const count = this.players.length;
-
-        if (this.currentPlayerIndex < 0 || this.currentPlayerIndex === count) {
-            this.rules.setNextRound();
-            rule = this.rules.getCurrentRule();
-
-            // initial index depends on order
-            this.currentPlayerIndex = rule.order < 0 ? count - 1 : 0;
+        if (rule.type === 'prepare') {
+            return;
         }
 
-        this.currentPlayer = this.players[this.currentPlayerIndex];
+        this.dice = this.rules.getNextDigit();
 
-        const dice;
-        if (!this.rules.getPrepareStep()) {
-            dice = this.rules.getNextDice();
-            this.UpdateRes(dice);
+        const cells = this.map.getCellsByDice(digit);
+
+        for (const coo in cells) {
+            objects = this.getObjects(coo);
+            res = cells[coo].type;
+
+            for (const i in objects) {
+                bonus = this.rules.getBonuses(objects[i].type);
+
+                if (bonus)
+                    objects[i].owner.AddRes(res, bonus.resources);
+            }
         }
 
         this.CheckEnabledObjects(rule);
@@ -72,16 +77,20 @@ export class Game {
         this.SubStep({ rule, message: true, dice });
     }
 
+    getCurrentPlayer() {
+        return this.players[this.currentPlayerIndex];
+    }
+
     SubStep(o) {
         o = o || {};
-        const step_params = this.currentPlayer.Step(o.rule);
+        const step_params = .Step(o.rule);
 
-        if (o.is_human === undefined) o.is_human = !this.currentPlayer.ai;
+        if (o.is_human === undefined) o.is_human = !this.getCurrentPlayer().ai;
 
         if (o.message) {
             o.message = {
-                text: o.message.text === undefined ? this.currentPlayer.getRoundMessage() : o.message.text,
-                ms: o.message.ms === undefined ? this.currentPlayer.getMessageTimeout() : o.message.ms
+                text: o.message.text === undefined ? this.getCurrentPlayer().getRoundMessage() : o.message.text,
+                ms: o.message.ms === undefined ? this.getCurrentPlayer().getMessageTimeout() : o.message.ms
             };
         }
 
@@ -93,8 +102,8 @@ export class Game {
             map: { hover: false },
             description: step_params,
             actual: {
-                objects: this.currentPlayer.resources,
-                exchange: this.currentPlayer.getExchange()
+                objects: this.getCurrentPlayer().resources,
+                exchange: this.getCurrentPlayer().getExchange()
             }
         }));
     }
@@ -102,7 +111,7 @@ export class Game {
     // Interaction
 
     setObject(coo) {
-        const p = this.currentPlayer;
+        const p = this.getCurrentPlayer();
         const type = this.getCurrentObjectType();
 
         p.AddObject(type);
@@ -146,25 +155,8 @@ export class Game {
         return this.objects[coo];
     }
 
-    UpdateRes(digit) {
-        const cells = this.map.getCellsByDice(digit);
-        const objects, res, bonus;
-
-        for (const coo in cells) {
-            objects = this.getObjects(coo);
-            res = cells[coo].type;
-
-            for (const i in objects) {
-                bonus = this.rules.getBonuses(objects[i].type);
-
-                if (bonus)
-                    objects[i].owner.AddRes(res, bonus.resources);
-            }
-        }
-    }
-
     Exchange(type1, type2) {
-        this.currentPlayer.Exchange(type1, type2);
+        this.getCurrentPlayer().Exchange(type1, type2);
         this.CheckEnabledObjects();
         this.SubStep();
     }
@@ -178,7 +170,7 @@ export class Game {
     }
 
     CheckEnabledObjects(rule) {
-        const p = this.currentPlayer;
+        const p = this.getCurrentPlayer();
         p.setRule(rule);
         p.CheckObjects();
         p.setEnabled( this.Render('check_enabled_objects', {enabled: p.getEnabled(), filtered: p.getFiltered()}) );
