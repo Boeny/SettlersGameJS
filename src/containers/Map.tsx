@@ -25,14 +25,8 @@ class Component extends React.PureComponent<IComponentProps> {
                 <table>
                     {data.map(row =>
                         <tr>
-                            {row.map(cell =>
-                                <td className="cell">
-                                    {
-                                        cell.resource
-                                        ? <div className={`num ${this.getProbabiltyClass(cell.dice)}`}>{cell.dice.digit}</div>
-                                        : null
-                                    }
-                                </td>
+                            {row.map((cell, i) =>
+                                <Cell data={cell} key={i} />
                             )}
                         </tr>
                     )}
