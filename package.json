@@ -1,6 +1,6 @@
 {
   "name": "settlers",
-  "version": "0.8.6",
+  "version": "0.8.7",
   "private": true,
   "devDependencies": {
     "@types/jest": "24.0.13",

@@ -1,19 +1,26 @@
 import React from 'react';
 import { inject } from 'mobx-react';
 import { SettingsModal as Component } from 'components/SettingsModal';
+import { IGameStore } from 'stores/GameStore';
+
+interface IProps {
+    visible: boolean;
+    onCancel?: () => void;
+    gameStore?: IGameStore;
+}
 
 @inject()
-export class SettingsModal extends React.PureComponent<{ context?: IGameStore }> {
+export class SettingsModal extends React.PureComponent<IProps> {
 
     render() {
 
-        const { gameStore } = this.props.context!;
+        const { gameStore, visible, onCancel } = this.props;
 
         return (
             <Component
-                title="Введите кол-во игроков:"
-                autoFocus={true}
-                onSubmit={gameStore.create}
+                visible={visible}
+                onSubmit={gameStore!.newGame}
+                onCancel={onCancel}
             />
         );
     }

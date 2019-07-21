@@ -50,7 +50,7 @@ export class Game {
         const rule = this.rules.getCurrentRule();
 
         this.currentPlayerIndex = rule.order < 0 ? this.players.length - 1 : 0;
-        const currentPlayer = this.getCurrentPlayer();
+        const currentPlayer = this.players[this.currentPlayerIndex];
 
         if (rule.type === 'prepare') {
             return;

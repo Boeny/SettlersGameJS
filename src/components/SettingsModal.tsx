@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from './Button';
 
 // tslint:disable-next-line: no-use-before-declare
 interface IComponentProps {
@@ -23,10 +24,7 @@ function SettingsModalComponent(props: IComponentProps) {
 
             <div className="container">
                 <div className="title">{title}</div>
-                <form onSubmit={e => {
-                    e.preventDefault();
-                    onSubmit();
-                }}>
+                <form>
                     <div>
                         <input
                             value={playerCount}
@@ -52,6 +50,10 @@ function SettingsModalComponent(props: IComponentProps) {
                             type="submit"
                             text="OK"
                             className="button"
+                            onClick={e => {
+                                e.preventDefault();
+                                onSubmit();
+                            }}
                         />
                         {
                             onCancel
@@ -66,10 +68,8 @@ function SettingsModalComponent(props: IComponentProps) {
 }
 
 interface IProps {
-    title: string;
-    autoFocus: boolean;
+    visible: boolean;
     onSubmit: (playerCount: number, mapWidth: number, mapHeight: number) => void;
-    showCancelBtn?: boolean;
     onCancel?: () => void;
 }
 
@@ -77,12 +77,11 @@ interface IState {
     playerCount: number;
     mapWidth: number;
     mapHeight: number;
-    visible: boolean;
 }
 
 export class SettingsModal extends React.PureComponent<IProps> {
 
-    state: IState = { playerCount: 2, mapWidth: 5, mapHeight: 5, visible: true };
+    state: IState = { playerCount: 2, mapWidth: 5, mapHeight: 5 };
 
     onChange = (data: Partial<IState>) => {
         if (!data.playerCount || data.playerCount <= 1) {
@@ -91,28 +90,25 @@ export class SettingsModal extends React.PureComponent<IProps> {
         this.setState(data);
     }
 
-    close = () => {
-        this.onChange({ visible: false });
-    }
-
     render() {
 
-        const { onSubmit, showCancelBtn } = this.props;
-        const { playerCount, mapWidth, mapHeight, visible } = this.state;
+        const { visible, onSubmit, onCancel } = this.props;
+        const { playerCount, mapWidth, mapHeight } = this.state;
 
         return (
             <SettingsModalComponent
-                {...this.props}
+                title="Введите кол-во игроков:"
+                autoFocus={true}
                 playerCount={playerCount}
                 mapWidth={mapWidth}
                 mapHeight={mapHeight}
                 className={visible ? '' : 'hidden'}
                 onChange={this.onChange}
                 onSubmit={() => {
-                    this.close();
+                    onCancel && onCancel();
                     onSubmit(playerCount, mapWidth, mapHeight);
                 }}
-                onCancel={showCancelBtn ? this.close : undefined}
+                onCancel={onCancel}
             />
         );
     }

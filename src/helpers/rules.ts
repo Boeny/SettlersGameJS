@@ -1,6 +1,7 @@
-import { randomElem, random, range, lastElement } from "./base";
+import { randomElem, random, range, lastElement } from "../../old/base";
 
 type ResourceType = 'stone' | 'wood' | 'sheep' | 'wheat' | 'clay';
+type ObjectType = 'village' | 'town' | 'road';
 
 interface IResource {
     readonly type: ResourceType;
@@ -13,16 +14,8 @@ interface IResourceForRecipe {
 }
 
 interface IRecipe {
-    readonly type: 'village' | 'town' | 'road';
-    readonly resources: IResourceForRecipe[];
-}
-
-type ObjectType = 'village' | 'town' | 'road';
-
-interface IObject {
     readonly type: ObjectType;
-    readonly name: string;
-    readonly requires?: ObjectType;
+    readonly resources: IResourceForRecipe[];
 }
 
 /**
@@ -127,21 +120,13 @@ export class Rules {
 
     market = { resources: 1 };
     */
-    readonly DEFAULT_EXCHANGE = 4;
+    private static readonly DEFAULT_EXCHANGE = 4;
 
-    public width = 10;
-    public height = 10;
-    public step = 0;
+    public static step = 0;
 
-    public dices: IDice[] = [];
+    public static dices: IDice[] = [];
 
-    private objects: IObject[] = [
-        { type: 'village', name: 'поселение' },
-        { type: 'town', name: 'город' },
-        { type: 'road', name: 'дорога' }
-    ];
-
-    private resources: IResource[] = [
+    private static readonly resources: IResource[] = [
         { type: 'wheat', name: 'пшеница' },
         { type: 'wood', name: 'лес' },
         { type: 'sheep', name: 'овцы' },
@@ -149,7 +134,7 @@ export class Rules {
         { type: 'stone', name: 'камень' }
     ];
 
-    private readonly gameSteps: IStepRule[] = [
+    private static readonly gameSteps: IStepRule[] = [
         {
             type: 'prepare',
             order: 1,
@@ -177,7 +162,7 @@ export class Rules {
         }
     ];
 
-    recipes: IRecipe[] = [
+    public static readonly recipes: IRecipe[] = [
         {
             type: 'village',
             resources: [
@@ -203,122 +188,18 @@ export class Rules {
         }
     ];
 
-    actions: ActionType[] = [
+    public static actions: ActionType[] = [
         { type: 'village', gathering: 1 },
         { type: 'town', gathering: 2 },
         { type: 'market', exchange: 2 },
         { type: 'market', exchange: 3 }
     ];
 
-    constructor(width: number, height: number) {
-        this.setSize(width, height);
-    }
-
-    isRes(resources: { [key: string]: { type: string } }, i: number, j: number) {
-        return Object.keys(resources).includes(this.getData(resources, i, j).type);
-    }
-    // old map
-    isRes(i, j) {
-        i = this.getData(i, j);
-        if (!i) return false;
-        return Object.keys(this.rules.resources).includes(i.name);
-    }
-
-    getPlace(type) {
-        return this.objects[type].place.slice();
-    }
-
-    getBonuses(type) {
-        return this.actions[type];
-    }
-
-    getReceipt(type) {
-        return this.recipes[type];
-    }
-
-    getCurrentRule(): IStepRule {
+    public static getCurrentRule(): IStepRule {
         return this.gameSteps[this.step];
     }
-    // old
-    getCurrentRule() {
-        const rule = this.game.prepare[this.step];
-        if (!rule.objects) return rule;
 
-        for (const name in rule.objects) {
-            const obj = rule.objects[name];
-            const is_obj = true;
-
-            rule.objects[name] = {
-                count: is_obj ? obj.count : obj,
-                need: is_obj && obj.place ? this.objects[name].place : null,
-                type: this.objects[name].type
-            };
-        }
-
-        return rule;
-    }
-
-    getRecipes() {
-        const result = [];
-        const recipes_names = Object.keys(this.recipes);
-
-        for (const type in this.recipes) {
-            const receipt = {
-                type: type,
-                title: this.objects[type].title,
-                resources: []
-            };
-
-            const obj = this.recipes[type];
-
-            for (const res in obj) {
-                if (recipes_names.includes(res)) continue;
-
-                receipt.resources.push({
-                    type: res,
-                    count: obj[res]
-                });
-            }
-
-            result.push(receipt);
-        }
-
-        return result;
-    }
-    // old
-    getRecipes() {
-        const result = [];
-        const recipes_names = Object.keys(this.recipes);
-
-        for (const name in this.recipes) {
-            const obj = this.recipes[name];
-            const obj_info = this.objects[name];
-            const receipt = [];
-
-            for (const res in obj) {
-                if (recipes_names.includes(res)) continue;
-
-                receipt.push({
-                    name: res,
-                    object: name,
-                    count: obj[res],
-                    title: obj_info.title,
-                    type: obj_info.type
-                });
-            }
-
-            result.push(receipt);
-        }
-
-        return result;
-    }
-
-    setSize(width: number, height: number) {
-        this.width = width;
-        this.height = height;
-    }
-
-    Init() {
+    public static Init() {
 
         this.cellTypes = {
             resources: {},
@@ -352,7 +233,7 @@ export class Rules {
         this.dices = this.getDices();
     }
 
-    getRandomRes(i: number, j: number): string {
+    public static getRandomRes(i: number, j: number): string {
         const cellType = this.getCellType(i, j);
         const all_res = this.cellTypes[cellType] || this.cellTypes.cells;
         const names = cellType === 'resources' ? this.cellTypes.res_by_count : Object.keys(all_res);
@@ -371,7 +252,7 @@ export class Rules {
         return {type: res};
     }
     // old
-    getRandomRes(i, j) {
+    public static getRandomRes(i, j) {
         const type = this.getCellType(i, j);
         const all_res = this.tmp[type] || this.cells;
         const keys = Object.keys(all_res);
@@ -400,18 +281,18 @@ export class Rules {
         return $.extend({}, this[type][res], { name: res });
     }
 
-    getRandomDice() {
+    public static getRandomDice() {
         const i = random(this.cellTypes.dices.length-1);
         const result = this.cellTypes.dices[i];
         this.cellTypes.dices.splice(i,1);
         return result;
     }
 
-    getNextDigit(): number {
+    public static getNextDigit(): number {
         return randomElem(this.dices).digit;
     }
 
-    getDices(): IDice[] {
+    public static getDices(): IDice[] {
 
         const counterDictionary = range(0, 1000).reduce<{ [digit: string]: number }>(
             result => {

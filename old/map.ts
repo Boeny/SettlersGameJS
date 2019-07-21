@@ -1,25 +1,10 @@
 
 export class Map {
 
-    dices = {};
+    data: ICell[][] = [];
 
-    constructor(o) {
-        this.rules = o.rules;
-    }
-
-    //old
-    isRes(i, j) {
-        i = this.getData(i, j);
-        if (!i) return false;
-        return Object.keys(this.rules.resources).includes(i.name);
-    }
-
-    getData<T>(data: { [key: string]: T }, i: number, j: number): T {
-        return data[`${i}-${j}`];
-    }
-    // old
-    getData(i, j) {
-        return i === undefined ? this.data : this.data[i + '-' + j];
+    constructor(width: number, height: number) {
+        this.data = range(height).map(colIndex => range(width).map(rowIndex => new Cell(rowIndex, colIndex)));
     }
 
     Generate() {
